@@ -1,0 +1,14 @@
+{
+  "name": "getshitdone",
+  "private": true,
+  "scripts": {
+    "dev:www": "pnpm --filter www dev",
+    "dev:services": "pnpm --filter services dev",
+    "build": "pnpm -r build",
+    "deploy": "pnpm -r deploy"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "prettier": "^3.0.0"
+  }
+}
