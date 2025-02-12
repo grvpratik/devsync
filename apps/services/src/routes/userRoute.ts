@@ -154,33 +154,200 @@ import { Hono } from "hono";
 
 export const user = new Hono();
 
-user.use(
-	"/auth/callback",
-	googleAuth({
-		client_id:
-			"secret",
-		client_secret: "s",
-		scope: ["openid", "email", "profile"],
-	})
-);
+// user.use(
+// 	"/auth/callback",
+// 	googleAuth({
+// 		client_id:
+// 			"secret",
+// 		client_secret: "s",
+// 		scope: ["openid", "email", "profile"],
+// 	})
+// );
 
 
-user.get(
-	"/auth/callback",
-	(c) => {
-		const token = c.get("token");
-		const grantedScopes = c.get("granted-scopes");
-		const user = c.get("user-google");
-console.log({
-	token,
-	grantedScopes,
-	user,
-});
+// user.get(
+// 	"/auth/callback",
+// 	(c) => {
+// 		const token = c.get("token");
+// 		const grantedScopes = c.get("granted-scopes");
+// 		const user = c.get("user-google");
+// console.log({
+// 	token,
+// 	grantedScopes,
+// 	user,
+// });
+
+// 		return c.json({
+// 			token,
+// 			grantedScopes,
+// 			user,
+// 		});
+// 	}
+// );
+export interface AuthState {
+	isLoading: boolean;
+	error: string | null;
+	user: User | null;
+}
+
+export interface User {
+	id: string;
+	email: string;
+	name: string;
+	image_url?: string;
+}
+
+// backend/auth.ts
+import { Context } from "hono";
+import { Prisma, PrismaClient } from "@prisma/client";
+import { setCookie, getCookie } from "hono/cookie";
+
+// middleware check session ok or not no db
+//context check user profile query db
+//server compoenet next js prefetch user for fast context
+
+const prisma = new PrismaClient();
+
+// Session management
+export const checkSession = async (c: Context, next: () => Promise<void>) => {
+	const sessionId = getCookie(c, "session_id");
+
+	if (!sessionId) {
+		return c.json(
+			{
+				status: "unauthenticated",
+				user: null,
+			},
+			401
+		);
+	}
+
+	const session = await prisma.session.findUnique({
+		where: {
+			id: sessionId,
+			expiresAt: {
+				gt: new Date(),
+			},
+		},
+		include: {
+			user: true,
+		},
+	});
+
+	if (!session) {
+		setCookie(c, "session_id", "", { maxAge: 0 });
+		return c.json(
+			{
+				status: "unauthenticated",
+				user: null,
+			},
+			401
+		);
+	}
+
+	c.set("user", {
+		userId: session.user.id,
+		email: session.user.email,
+		name: session.user.name,
+		image_url: session.user.image_url,
+	});
+
+	await next();
+};
+
+// User routes
+export const userRoutes = {
+	// Check session status
+	getSession: async (c: Context) => {
+		const sessionId = getCookie(c, "session_id");
+
+		if (!sessionId) {
+			return c.json({ user: null }, 401);
+		}
+		// https://www.prisma.io/docs/orm/overview/databases/cloudflare-d1#migration-workflows
+		const session = await prisma.session.findUnique({
+			where: {
+				id: sessionId,
+				expiresAt: {
+					gt: new Date(),
+				},
+			},
+			include: {
+				user: true,
+			},
+		});
+
+		if (!session) {
+			setCookie(c, "session_id", "", { maxAge: 0 });
+			return c.json({ user: null }, 401);
+		}
 
 		return c.json({
-			token,
-			grantedScopes,
-			user,
+			user: {
+				id: session.user.id,
+				email: session.user.email,
+				name: session.user.name,
+				image_url: session.user.image_url,
+			},
 		});
-	}
-);
+	},
+
+	// Handle OAuth callback
+	handleCallback: async (c: Context) => {
+		const token = c.get("token");
+		const googleUser = c.get("user-google");
+
+		const user = await prisma.user.upsert({
+			where: {
+				email: googleUser.email,
+			},
+			update: {
+				name: googleUser.name,
+				image_url: googleUser.picture,
+			},
+			create: {
+				email: googleUser.email,
+				name: googleUser.name,
+				image_url: googleUser.picture,
+			},
+		});
+
+		const sessionId = randomBytes(32).toString("hex");
+		const expiresAt = new Date();
+		expiresAt.setDate(expiresAt.getDate() + 7);
+
+		await prisma.session.create({
+			data: {
+				id: sessionId,
+				userId: user.id,
+				expiresAt,
+			},
+		});
+
+		setCookie(c, "session_id", sessionId, {
+			httpOnly: true,
+			secure: true,
+			sameSite: "Lax",
+			maxAge: 7 * 24 * 60 * 60,
+		});
+
+		// Redirect to frontend with success
+		return c.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/auth/success`);
+	},
+
+	// Logout
+	logout: async (c: Context) => {
+		const sessionId = getCookie(c, "session_id");
+
+		if (sessionId) {
+			await prisma.session.delete({
+				where: {
+					id: sessionId,
+				},
+			});
+			setCookie(c, "session_id", "", { maxAge: 0 });
+		}
+
+		return c.json({ success: true });
+	},
+};

@@ -4,6 +4,7 @@ import "www/styles/globals.css";
 
 import { geistMono, geistSans } from "./font";
 import { Toaster } from "www/components/ui/toaster";
+import { AuthProvider } from "www/wrapper/auth-provider";
 
 export const metadata: Metadata = {
 	title: "Create Next App",
@@ -19,7 +20,8 @@ export default function RootLayout({
 		<html lang="en">
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased  `}>
-				{children}
+					<AuthProvider>
+				{children}</AuthProvider>
 				<Toaster />
 			</body>
 		</html>

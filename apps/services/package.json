@@ -8,6 +8,8 @@
 	"dependencies": {
 		"@google/generative-ai": "^0.21.0",
 		"@hono/oauth-providers": "^0.6.2",
+		"@prisma/adapter-d1": "^6.3.1",
+		"@prisma/client": "^6.3.1",
 		"axios": "^1.7.9",
 		"hono": "^4.6.16",
 		"zod": "^3.24.1"
@@ -15,6 +17,7 @@
 	"shared": "workspace:*",
 	"devDependencies": {
 		"@cloudflare/workers-types": "^4.20241230.0",
+		"prisma": "^6.3.1",
 		"wrangler": "^3.96.0"
 	}
 }

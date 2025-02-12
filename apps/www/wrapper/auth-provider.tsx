@@ -1,81 +1,99 @@
-"use client";
+'use client'
+import axios from "axios";
 import { createContext, useContext, useEffect, useState } from "react";
+import { getGoogleUrl } from "www/lib/auth";
+import { NEXT_PUBLIC_API } from "www/lib/constant";
+
+
+// types.ts
+interface AuthError {
+  message: string;
+  code: string;
+}
+
+interface AuthState {
+  isLoading: boolean;
+  error: AuthError | null;
+  user: any | null;
+}
 
 const AuthContext = createContext<{
-	user: any;
-	loading: boolean;
-}>({ user: null, loading: true });
+	authState: AuthState;
+	login: () => void;
+	logout: () => void;
+} | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-	const [user, setUser] = useState(null);
-	const [loading, setLoading] = useState(true);
+	const [authState, setAuthState] = useState<AuthState>({
+		isLoading: true,
+		error: null,
+		user: null,
+	});
 
+	// Check for existing session on mount
 	useEffect(() => {
-		async function loadUser() {
-			try {
-				const response = await fetch("/api/me", {
-					credentials: "include",
-				});
-				if (response.ok) {
-					const userData = await response.json();
-					setUser(userData);
-				}
-			} finally {
-				setLoading(false);
-			}
-		}
-		loadUser();
+		checkAuthStatus();
 	}, []);
 
+	const checkAuthStatus = async () => {
+		try {
+			const response = await axios.get(`${NEXT_PUBLIC_API}/user/session`, {
+			
+			});
+
+			if (response.status!==200) throw new Error("Session check failed");
+
+			const data = await response.data;
+			setAuthState({
+				isLoading: false,
+				error: null,
+				user: data.user,
+			});
+		} catch (error) {
+			setAuthState({
+				isLoading: false,
+				error: null,
+				user: null,
+			});
+		}
+	};
+
+	const login = () => {
+		// Store the current URL for redirect after login
+		sessionStorage.setItem("authRedirect", window.location.pathname);
+
+		// Start login flow
+		window.location.href = getGoogleUrl();
+	};
+
+	const logout = async () => {
+		try {
+			await fetch(`${NEXT_PUBLIC_API}/user/logout`, {
+				method: "POST",
+				credentials: "include",
+			});
+			setAuthState({
+				isLoading: false,
+				error: null,
+				user: null,
+			});
+		} catch (error) {
+			console.error("Logout failed:", error);
+		}
+	};
+
 	return (
-		<AuthContext.Provider value={{ user, loading }}>
+		<AuthContext.Provider value={{ authState, login, logout }}>
 			{children}
 		</AuthContext.Provider>
 	);
 }
-// frontend/hooks/useAuth.ts
-// import { useQuery } from '@tanstack/react-query';
 
-// export function useAuth() {
-//   return useQuery({
-//     queryKey: ['auth'],
-//     queryFn: async () => {
-//       const response = await fetch('/api/me', {
-//         credentials: 'include' // Send cookies
-//       });
-//       if (!response.ok) throw new Error('Not authenticated');
-//       return response.json();
-//     }
-//   });
-// }
-
-// // frontend/components/PrivateRoute.tsx
-// export function PrivateRoute({ children }: { children: React.ReactNode }) {
-//   const { isLoading, isError, data: user } = useAuth();
-
-//   if (isLoading) return <div>Loading...</div>;
-//   if (isError) return <Navigate to="/login" />;
-  
-//   return <>{children}</>;
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+export const useAuth = () => {
+	const context = useContext(AuthContext);
+	if (!context) throw new Error("useAuth must be used within AuthProvider");
+	return context;
+};
 
 // "use client";
 // import { useEffect } from "react";
