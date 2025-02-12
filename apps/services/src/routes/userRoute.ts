@@ -164,7 +164,7 @@ user.use(
 	})
 );
 
-// Define the route to handle the callback and retrieve user information
+
 user.get(
 	"/auth/callback",
 	(c) => {
@@ -176,6 +176,7 @@ console.log({
 	grantedScopes,
 	user,
 });
+
 		return c.json({
 			token,
 			grantedScopes,
