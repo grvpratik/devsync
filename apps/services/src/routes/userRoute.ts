@@ -3,7 +3,7 @@
 
 import { GenerativeModel } from "@google/generative-ai";
 import { googleAuth } from "@hono/oauth-providers/google";
-import { Hono } from "hono";
+import { Hono, Next } from "hono";
 
 // export const user = new Hono();
 
@@ -164,7 +164,6 @@ export const user = new Hono();
 // 	})
 // );
 
-
 // user.get(
 // 	"/auth/callback",
 // 	(c) => {
@@ -184,31 +183,20 @@ export const user = new Hono();
 // 		});
 // 	}
 // );
-export interface AuthState {
-	isLoading: boolean;
-	error: string | null;
-	user: User | null;
-}
+import { Context } from "hono";
+import { Prisma, PrismaClient } from "@prisma/client";
+import { setCookie, getCookie, deleteCookie } from "hono/cookie";
+import { PrismaD1 } from "@prisma/adapter-d1";
 
-export interface User {
-	id: string;
+// Types
+interface SessionUser {
+	userId: string;
 	email: string;
 	name: string;
 	image_url?: string;
 }
 
-// backend/auth.ts
-import { Context } from "hono";
-import { Prisma, PrismaClient } from "@prisma/client";
-import { setCookie, getCookie } from "hono/cookie";
-
-// middleware check session ok or not no db
-//context check user profile query db
-//server compoenet next js prefetch user for fast context
-
-const prisma = new PrismaClient();
-
-// Session management
+// Lightweight middleware to check session without DB query
 export const checkSession = async (c: Context, next: () => Promise<void>) => {
 	const sessionId = getCookie(c, "session_id");
 
@@ -222,81 +210,97 @@ export const checkSession = async (c: Context, next: () => Promise<void>) => {
 		);
 	}
 
-	const session = await prisma.session.findUnique({
+	// Only verify session exists, don't query DB
+	await next();
+};
+
+// Context middleware to get user profile from DB
+export const getUserProfile = async (c: Context, next: () => Promise<void>) => {
+	const sessionId = getCookie(c, "session_id");
+	const adapter = new PrismaD1(c.env.DB);
+	const prisma = new PrismaClient({ adapter });
+  console.log(sessionId,"sessionid")
+	if (!sessionId) {
+		return c.json({ status: "unauthenticated", user: null }, 401);
+	}
+
+	const user = await prisma.user.findUnique({
 		where: {
 			id: sessionId,
-			expiresAt: {
-				gt: new Date(),
-			},
-		},
-		include: {
-			user: true,
 		},
 	});
-
-	if (!session) {
-		setCookie(c, "session_id", "", { maxAge: 0 });
-		return c.json(
-			{
-				status: "unauthenticated",
-				user: null,
-			},
-			401
-		);
+console.log(user)
+	if (!user) {
+		deleteCookie(c, "session_id");
+		return c.json({ status: "unauthenticated", user: null }, 401);
 	}
 
 	c.set("user", {
-		userId: session.user.id,
-		email: session.user.email,
-		name: session.user.name,
-		image_url: session.user.image_url,
+		userId: user.id,
+		email: user.email,
+		name: user.name,
+		image_url: user.image_url,
 	});
 
 	await next();
 };
+// https://www.prisma.io/docs/orm/overview/databases/cloudflare-d1#migration-workflows
+// Route handlers
 
-// User routes
+const checkSessionToken = async (c, next) => {
+	const sessionToken = getCookie(c, "session_token");
+
+	if (sessionToken) {
+		try {
+			// Verify the JWT token
+
+			// Add user data to context
+			// c.set("user", payload);
+			// Skip OAuth flow if session is valid
+			return c.redirect("http://localhost:3000/auth/callback"); // Or wherever you want to redirect authenticated users
+		} catch (e) {
+			// Token is invalid or expired, clear the cookie
+			setCookie(c, "session_token", "", { maxAge: 0 });
+		}
+	}
+
+	// Continue to OAuth flow if no valid session exists
+	await next();
+};
 export const userRoutes = {
-	// Check session status
-	getSession: async (c: Context) => {
+	// Check if user is trying to login again
+	checkLoginStatus: async (c: Context, next: Next) => {
 		const sessionId = getCookie(c, "session_id");
 
-		if (!sessionId) {
-			return c.json({ user: null }, 401);
+		if (sessionId) {
+			return c.redirect("http://localhost:3000/auth/callback", 301);
 		}
-		// https://www.prisma.io/docs/orm/overview/databases/cloudflare-d1#migration-workflows
-		const session = await prisma.session.findUnique({
-			where: {
-				id: sessionId,
-				expiresAt: {
-					gt: new Date(),
-				},
-			},
-			include: {
-				user: true,
-			},
-		});
+		// const adapter = new PrismaD1(c.env.DB);
+		// const prisma = new PrismaClient({ adapter });
+		// Quick session check without full profile
+		// const session = await prisma.user.findUnique({
+		// 	where: {
+		// 		id: sessionId,
+		// 	},
+		// });
 
-		if (!session) {
-			setCookie(c, "session_id", "", { maxAge: 0 });
-			return c.json({ user: null }, 401);
-		}
-
-		return c.json({
-			user: {
-				id: session.user.id,
-				email: session.user.email,
-				name: session.user.name,
-				image_url: session.user.image_url,
-			},
-		});
+		// return c.json(
+		// 	{
+		// 		isLoggedIn: !!session,
+		// 		redirectUrl: session ? "/auth/callback" : null,
+		// 	},
+		// 	200
+		// );
+		await next();
 	},
 
-	// Handle OAuth callback
-	handleCallback: async (c: Context) => {
-		const token = c.get("token");
-		const googleUser = c.get("user-google");
-
+	// Handle initial OAuth callback and session creation
+	handleInitialCallback: async (c: Context) => {
+		const googleUser: any = c.get("user-google");
+		console.log(googleUser, "user");
+		const adapter = new PrismaD1(c.env.DB);
+		const prisma = new PrismaClient({ adapter });
+		// Create or update user
 		const user = await prisma.user.upsert({
 			where: {
 				email: googleUser.email,
@@ -312,17 +316,19 @@ export const userRoutes = {
 			},
 		});
 
-		const sessionId = randomBytes(32).toString("hex");
+		// Use user ID as session ID for better tracking
+		const sessionId = user.id;
 		const expiresAt = new Date();
 		expiresAt.setDate(expiresAt.getDate() + 7);
 
-		await prisma.session.create({
-			data: {
-				id: sessionId,
-				userId: user.id,
-				expiresAt,
-			},
-		});
+		// // Create new session
+		// await prisma.session.create({
+		// 	data: {
+		// 		id: sessionId,
+		// 		userId: user.id,
+		// 		expiresAt,
+		// 	},
+		// });
 
 		setCookie(c, "session_id", sessionId, {
 			httpOnly: true,
@@ -331,23 +337,89 @@ export const userRoutes = {
 			maxAge: 7 * 24 * 60 * 60,
 		});
 
-		// Redirect to frontend with success
-		return c.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/auth/success`);
+		return c.redirect("http://localhost:3000/auth/callback", 301);
 	},
 
-	// Logout
-	logout: async (c: Context) => {
+	// Verify session and return basic status
+	verifySession: async (c: Context) => {
 		const sessionId = getCookie(c, "session_id");
 
+		if (!sessionId) {
+			return c.json({ isValid: false }, 200);
+		}
+		const adapter = new PrismaD1(c.env.DB);
+		const prisma = new PrismaClient({ adapter });
+		const session = await prisma.user.findUnique({
+			where: {
+				id: sessionId,
+			},
+		});
+
+		return c.json({ isValid: !!session }, 200);
+	},
+
+	// Get user data for authenticated user
+	getUserData: async (c: Context) => {
+		const user = c.get("user") as SessionUser;
+console.log(user,"/data"
+)
+		if (!user) {
+			return c.json({ user: null }, 401);
+		}
+		const adapter = new PrismaD1(c.env.DB);
+		const prisma = new PrismaClient({ adapter });
+		// Get fresh user data from DB
+		const userData = await prisma.user.findUnique({
+			where: {
+				id: user.userId,
+			},
+			select: {
+				id: true,
+				email: true,
+				name: true,
+				image_url: true,
+			},
+		});
+
+		return c.json({user:userData}, 200);
+	},
+
+	// Logout handler
+	logout: async (c: Context) => {
+		const sessionId = getCookie(c, "session_id");
+		const adapter = new PrismaD1(c.env.DB);
+		const prisma = new PrismaClient({ adapter });
 		if (sessionId) {
-			await prisma.session.delete({
+			await prisma.user.delete({
 				where: {
 					id: sessionId,
 				},
 			});
-			setCookie(c, "session_id", "", { maxAge: 0 });
+			deleteCookie(c, "session_id");
 		}
 
 		return c.json({ success: true });
 	},
 };
+console.log(process.env.GOOGLE_CLIENT_ID!);
+console.log(process.env.GOOGLE_CLIENT_SECRET!);
+// OAuth flow
+user.use(
+	"/auth/callback",
+	checkSessionToken, // Check if already logged in
+	googleAuth({
+		client_id:
+			"",
+		client_secret: "",
+		scope: ["openid", "email", "profile"],
+	})
+);
+
+// Handle OAuth callback and session creation
+user.get("/auth/callback", (c) => userRoutes.handleInitialCallback(c));
+
+// Session verification endpoint
+user.get("/auth/session", (c) => userRoutes.verifySession(c));
+
+// Protected user data endpoint
+user.get("/auth/data", getUserProfile, (c) => userRoutes.getUserData(c));

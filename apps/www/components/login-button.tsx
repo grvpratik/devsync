@@ -1,11 +1,13 @@
 "use client";
 import { getGoogleUrl } from "www/lib/auth";
+import { useAuth } from "www/wrapper/auth-provider";
 
 export default function LoginButton() {
+	const {authState}=useAuth()
 	const handleLogin = () => {
 		window.location.href = getGoogleUrl();
 	};
-
+console.log(authState,"authsate")
 	return (
 		<button
 			onClick={handleLogin}

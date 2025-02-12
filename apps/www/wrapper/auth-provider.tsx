@@ -37,9 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 	const checkAuthStatus = async () => {
 		try {
-			const response = await axios.get(`${NEXT_PUBLIC_API}/user/session`, {
-			
-			});
+			const response = await axios.get(`${NEXT_PUBLIC_API}/user/auth/data`, { withCredentials: true });
 
 			if (response.status!==200) throw new Error("Session check failed");
 

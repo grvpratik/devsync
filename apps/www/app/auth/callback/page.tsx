@@ -1,44 +1,53 @@
-"use client";
-import { useEffect } from "react";
-import { useRouter } from "next/router";
-import { NEXT_PUBLIC_API } from "www/lib/constant";
+// "use client";
+// import { useEffect, useState } from "react";
+// import { useRouter } from "next/router";
+// import { NEXT_PUBLIC_API } from "www/lib/constant";
 
-export default function AuthCallback() {
-	const router = useRouter();
+// export default function AuthCallback() {
+// 	const [isMounted, setIsMounted] = useState(false);
+// 	const router = useRouter();
 
-	useEffect(() => {
-		const handleCallback = async () => {
-			try {
-				// Get error parameters if any
-				const error = router.query.error;
-				if (error) {
-					throw new Error(error as string);
-				}
+// 	useEffect(() => {
+// 		console.log("Component mounted");
+// 		setIsMounted(true);
+// 	}, []);
 
-				// Exchange the code for session
-				// const response = await fetch(`${NEXT_PUBLIC_API}/user/auth/callback${window.location.search}`, {
-				//   credentials: 'include',
-				// });
+// 	useEffect(() => {
+// 		if (isMounted && router.isReady) {
+// 			console.log("Router is ready:", router);
+// 			const handleCallback = async () => {
+// 				try {
+// 					// Get error parameters if any
+// 					const error = router.query.error;
+// 					if (error) {
+// 						throw new Error(error as string);
+// 					}
 
-				// if (!response.ok) {
-				//   throw new Error('Authentication failed');
-				// }
+// 					// Exchange the code for session
+// 					// const response = await fetch(`${NEXT_PUBLIC_API}/user/auth/callback${window.location.search}`, {
+// 					//   credentials: 'include',
+// 					// });
 
-				// Get redirect URL or default to home
-				const redirect = sessionStorage.getItem("authRedirect") || "/";
-				sessionStorage.removeItem("authRedirect");
+// 					// if (!response.ok) {
+// 					//   throw new Error('Authentication failed');
+// 					// }
 
-				router.replace(redirect);
-			} catch (error) {
-				console.error("Auth callback error:", error);
-				router.replace("/auth/error");
-			}
-		};
+// 					// Get redirect URL or default to home
+// 					const redirect = sessionStorage.getItem("authRedirect") || "/";
+// 					sessionStorage.removeItem("authRedirect");
 
-		if (router.isReady) {
-			handleCallback();
-		}
-	}, [router.isReady]);
+// 					router.replace(redirect);
+// 				} catch (error) {
+// 					console.error("Auth callback error:", error);
+// 					router.replace("/auth/error");
+// 				}
+// 			};
 
-	return <div>Processing authentication...</div>;
-}
+// 			handleCallback();
+// 		} else {
+// 			console.log("Router is not ready yet");
+// 		}
+// 	}, []);
+
+// 	return <div>Processing authentication...</div>;
+// }
