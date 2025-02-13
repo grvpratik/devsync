@@ -23,8 +23,6 @@ app.use(
 		// Allow credentials (cookies, authorization headers)
 		credentials: true,
 
-		// Allowed HTTP methods
-		methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 
 		// Allowed headers
 		allowHeaders: [
@@ -35,14 +33,14 @@ app.use(
 			"Origin",
 		],
 
-		// Headers exposed to the browser
+		
 		exposeHeaders: ["Content-Length", "X-Requested-With"],
 
 		// Max age for preflight requests cache (in seconds)
 		maxAge: 600,
 
 		// For additional security in production
-		...(process.env.NODE_ENV === "production" && {
+		...(NODE_ENV === "production" && {
 			// Prevent CSRF attacks
 			credentials: true,
 			// Only allow HTTPS in production
