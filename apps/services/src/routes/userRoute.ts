@@ -5,6 +5,7 @@ import { Hono, Next , Context} from "hono";
 import {  PrismaClient } from "@prisma/client";
 import { setCookie, getCookie, deleteCookie } from "hono/cookie";
 import { PrismaD1 } from "@prisma/adapter-d1";
+import { xAuth } from "@hono/oauth-providers/x";
 
 
 export const user = new Hono();
@@ -149,6 +150,7 @@ export const userRoutes = {
 		}
 
 		const userId = await c.env.SESSION_STORE.get(sessionId);
+		
 		return c.json({ isValid: !!userId }, 200);
 	},
 
@@ -193,20 +195,21 @@ export const userRoutes = {
 
 user.use(
 	"/auth/callback",
-	async (c:Context, next) => {
+	async (c: Context, next) => {
 		const sessionId = getCookie(c, "session_id");
 		if (sessionId) {
 			const userId = await c.env.SESSION_STORE.get(sessionId);
 			if (userId) {
-				return c.redirect("http://localhost:3000/auth/callback");
+				return c.redirect("http://localhost:3000/");
 			}
 			deleteCookie(c, "session_id");
 		}
 		await next();
 	},
 	googleAuth({
-		client_id: '',
-		client_secret:'' ,
+		client_id:
+			"",
+		client_secret: "",
 		scope: ["openid", "email", "profile"],
 	})
 );

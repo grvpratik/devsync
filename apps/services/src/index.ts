@@ -49,6 +49,7 @@ app.use(
 		}),
 	})
 );
+// Add to your Hono app
 
 app.route("/", base);
 console.log("server is running ✅");
