@@ -1,15 +1,15 @@
 import React from "react";
 import Analysis from "www/components/features/analysis/analysis-container";
 import axios from "axios";
-import {BusinessIdeaResult}from 'shared/types/api.types'
+import { BusinessIdeaResult } from "shared";
 interface ApiResponse {
 	status: number;
 	data: BusinessResponse;
 }
-export interface BusinessResponse{
-	success:boolean;
+export interface BusinessResponse {
+	success: boolean;
 	result: BusinessIdeaResult;
-};
+}
 // ✅ Improved API Call with Error Handling
 async function getData(id: string): Promise<ApiResponse | null> {
 	try {
@@ -23,12 +23,12 @@ async function getData(id: string): Promise<ApiResponse | null> {
 	} catch (error: any) {
 		console.error("Error fetching data:", error.message || error);
 
-		return null; 
+		return null;
 	}
 }
 
 const BuildPage = async ({ params }: { params: { id: string } }) => {
-	const { id } =await params; // ✅ No need to `await params`
+	const { id } = await params; // ✅ No need to `await params`
 
 	const result = await getData(id);
 

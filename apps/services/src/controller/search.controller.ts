@@ -10,7 +10,7 @@ import { InfoController } from "./info.controller";
 import { ContentfulStatusCode } from "hono/utils/http-status";
 import { ValidationError } from "../error";
 import { SearchRequestSchema } from "../types";
-import {IdeaValidationResponse}from 'shared/types/api.types'
+import { IdeaValidationResponse } from "shared";
 class BusinessError extends Error {
 	constructor(
 		message: string,
@@ -86,7 +86,7 @@ export async function searchController(c: Context): Promise<Response> {
 		// Construct response
 		const response: IdeaValidationResponse = {
 			id: generateUniqueId(),
-			prompt:value,
+			prompt: value,
 			timestamp: new Date(),
 			metadata: {
 				name: metadata.name,
@@ -100,7 +100,7 @@ export async function searchController(c: Context): Promise<Response> {
 
 		return c.json(
 			{
-				success:true,
+				success: true,
 				result: response,
 			},
 			200
@@ -132,7 +132,7 @@ export async function searchController(c: Context): Promise<Response> {
 		// Handle unexpected errors
 		return c.json(
 			{
-				success:false,
+				success: false,
 				message: "An unexpected error occurred",
 			},
 			500

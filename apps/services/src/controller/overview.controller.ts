@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { z } from "zod";
 import { generationConfig, MODEL_TYPE } from "../lib/constant";
-import { OverviewSchema } from "../types";
+import { OverviewSchema } from "shared";
 
 
 

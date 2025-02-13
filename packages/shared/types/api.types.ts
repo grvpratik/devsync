@@ -4,7 +4,7 @@ export interface MetaData {
 	image: string;
 	description: string;
 }
-
+//main
 export interface IdeaValidationResponse {
 	id: string;
 	prompt:string;
@@ -12,8 +12,41 @@ export interface IdeaValidationResponse {
 	metadata: MetaData;
 	overview?: any;
 	market?: Market;
-	feature?: any;
+	feature?: Feature;
 }
+
+// === Zod Schemas ===
+export const ConsiderationSectionSchema = z.object({
+	score: z.number().min(0).max(10),
+	overview: z.string(),
+	considerations: z.array(z.string()),
+});
+
+export const ProjectScoreSchema = z.object({
+	feasibility: ConsiderationSectionSchema,
+	marketfit: ConsiderationSectionSchema,
+	uniqueness: ConsiderationSectionSchema,
+	technical: ConsiderationSectionSchema,
+});
+
+export const ProjectTipsSchema = z.object({
+	name: z.string(),
+	description: z.string(),
+});
+
+export const ProjectIndicatorsSchema = z.object({
+	name: z.string(),
+	description: z.string(),
+	type: z.enum(["success", "failure"]),
+});
+
+export const OverviewSchema = z.object({
+	problem: z.string(),
+	score: ProjectScoreSchema,
+	suggestion: z.array(ProjectTipsSchema),
+	missing: z.array(ProjectTipsSchema),
+	indication: z.array(ProjectIndicatorsSchema),
+});
 
 export interface BusinessIdeaResult extends IdeaValidationResponse {}
 export const CompetitorSchema = z.object({
@@ -66,8 +99,8 @@ export const MarketSchema = z.object({
 	audience: AudienceSchema,
 	pain_points: z.array(z.string()),
 	gaps: z.array(z.string()),
-	trends: MarketTrendsSchema,
-	// social_listening: SocialListeningSchema,
+	trends: MarketTrendsSchema.optional(),
+
 });
 export const FeatureSchema = z.object({
 	id: z.string(),
@@ -81,7 +114,7 @@ export const FeaturesResponseSchema = z.object({
 	mvp: z.array(FeatureSchema),
 	features: z.array(FeatureSchema),
 });
-
+export type Feature =z.infer<typeof FeaturesResponseSchema>;
 export type Competitors = z.infer<typeof CompetitorSchema>;
 export type Audience = z.infer<typeof AudienceSchema>;
 export type Market = z.infer<typeof MarketSchema>;

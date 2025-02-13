@@ -14,7 +14,11 @@ base.all("/", (c) => {
 });
 base.post("/search", searchController);
 
-	
 base.route("/business", business);
 base.route("/personal", personal);
-base.route('/user',user)
+base.route("/user", user);
+
+
+base.get("/trends", async (c) => {
+	return c.json({ ok: true }, 200);
+});

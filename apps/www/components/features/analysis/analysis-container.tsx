@@ -19,7 +19,7 @@ import {
 	TabsTrigger,
 } from "www/components/ui/tabs";
 import { BusinessResponse } from "www/app/(projects)/build/[id]/page";
-import { BusinessIdeaResult } from "shared/types/api.types";
+import { BusinessIdeaResult } from "shared";
 import { Button } from "www/components/ui/button";
 import {
 	Dialog,

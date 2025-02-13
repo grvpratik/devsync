@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { z } from "zod";
 import { generationConfig, MODEL_TYPE } from "../lib/constant";
-import { FeaturesResponseSchema } from "shared/types/api.types";
+import { FeaturesResponseSchema } from "shared";
 
 
 // === System Instruction ===

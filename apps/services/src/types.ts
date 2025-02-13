@@ -17,39 +17,6 @@ import { z } from "zod";
 
 
 
-// === Zod Schemas ===
-export const ConsiderationSectionSchema = z.object({
-    score: z.number().min(0).max(10),
-    overview: z.string(),
-    considerations: z.array(z.string()),
-});
-
-export const ProjectScoreSchema = z.object({
-    feasibility: ConsiderationSectionSchema,
-    marketfit: ConsiderationSectionSchema,
-    uniqueness: ConsiderationSectionSchema,
-    technical: ConsiderationSectionSchema,
-});
-
-export const ProjectTipsSchema = z.object({
-    name: z.string(),
-    description: z.string(),
-});
-
-export const ProjectIndicatorsSchema = z.object({
-    name: z.string(),
-    description: z.string(),
-    type: z.enum(["success", "failure"]),
-});
-
-export const OverviewSchema = z.object({
-    problem: z.string(),
-    score: ProjectScoreSchema,
-    suggestion: z.array(ProjectTipsSchema),
-    missing: z.array(ProjectTipsSchema),
-    indication: z.array(ProjectIndicatorsSchema),
-});
-
 
 export const SearchRequestSchema = z.object({
     value: z

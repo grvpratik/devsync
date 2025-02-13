@@ -19,12 +19,7 @@ import {
 	Globe,
 	DollarSign,
 } from "lucide-react";
-import {
-	Market,
-	Competitors,
-	MarketTrends,
-	Audience,
-} from "shared/types/api.types";
+import { Market, Competitors, MarketTrends, Audience } from "shared";
 interface MarketAnalysisProps {
 	marketData?: Market;
 }
@@ -179,7 +174,7 @@ const MarketAnalysis = ({ marketData }: MarketAnalysisProps) => {
 
 			<div className="grid md:grid-cols-2 gap-6">
 				<AudienceInsights audience={marketData.audience} />
-				<MarketTrendsCard trends={marketData.trends} />
+				{/* <MarketTrendsCard trends={marketData.trends} /> */}
 			</div>
 
 			<Card>

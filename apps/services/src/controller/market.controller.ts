@@ -2,8 +2,8 @@ import { z } from "zod";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { generationConfig, MODEL_TYPE } from "../lib/constant";
 
-import { MarketSchema } from "shared/types/api.types";
-import {CompetitorSchema} from 'shared/types/api.types'
+import { MarketSchema } from "shared";
+import { CompetitorSchema } from "shared";
 // === System Instruction ===
 const SYSTEM_PROMPT = `
 Act as a market analysis expert. Analyze the market for the given idea and generate structured data following these rules:
