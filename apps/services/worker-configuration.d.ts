@@ -2,6 +2,7 @@
 
 interface CloudflareBindings {
 	SESSION_STORE: KVNamespace;
+
 	SECRET: "secret";
 	DB: D1Database;
 }

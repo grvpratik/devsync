@@ -7,10 +7,10 @@ export interface MetaData {
 //main
 export interface IdeaValidationResponse {
 	id: string;
-	prompt:string;
+	prompt: string;
 	timestamp: Date;
 	metadata: MetaData;
-	overview?: any;
+	overview?: Overview;
 	market?: Market;
 	feature?: Feature;
 }
@@ -119,3 +119,4 @@ export type Competitors = z.infer<typeof CompetitorSchema>;
 export type Audience = z.infer<typeof AudienceSchema>;
 export type Market = z.infer<typeof MarketSchema>;
 export type MarketTrends=z.infer<typeof MarketTrendsSchema>
+export type Overview=z.infer<typeof OverviewSchema>

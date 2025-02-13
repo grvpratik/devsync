@@ -5,10 +5,9 @@ import { MarketController } from "./market.controller";
 import { OverviewController } from "./overview.controller";
 import { ValidateIdeaController } from "./validate.controller";
 
-import { z } from "zod";
+
 import { InfoController } from "./info.controller";
 import { ContentfulStatusCode } from "hono/utils/http-status";
-import { ValidationError } from "../error";
 import { SearchRequestSchema } from "../types";
 import { IdeaValidationResponse } from "shared";
 class BusinessError extends Error {
@@ -22,6 +21,8 @@ class BusinessError extends Error {
 }
 
 export async function searchController(c: Context): Promise<Response> {
+	console.log("jjj")
+	console.log(await c.env.GEMINI_API,"gemini")
 	try {
 		const body = await c.req.json();
 		const parsed = SearchRequestSchema.safeParse(body);
@@ -93,7 +94,7 @@ export async function searchController(c: Context): Promise<Response> {
 				image: metadata.image,
 				description: metadata.description,
 			},
-			overview: overviewResult,
+			overview: overviewResult!,
 			...(marketResult && { market: marketResult }),
 			...(featureResult && { feature: featureResult }),
 		};
