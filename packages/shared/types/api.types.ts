@@ -1,25 +1,23 @@
-import z, { string } from "zod";
-
-export const MetadataSchema=z.object({
-	name:z.string(),
-	iamge:z.string(),
-	description:string(),
-	category: z.string(),
-   tags: z.array(z.string())
-
-})
-export type MetaData =z.infer<typeof MetadataSchema>
+import z from "zod";
 export interface IdeaValidationResponse {
-	id: string;
+	
 	prompt: string;
 	timestamp: Date;
 	metadata: MetaData;
 	overview?: Overview;
 	market?: Market;
 	feature?: Feature;
-	resource?:any
+	resource?: any;
 }
 
+export const MetadataSchema = z.object({
+	name: z.string(),
+	iamge: z.string().optional(),
+	description: z.string(),
+	category: z.string(),
+	tags: z.array(z.string()),
+});
+export type MetaData = z.infer<typeof MetadataSchema>;
 
 export const ConsiderationSectionSchema = z.object({
 	score: z.number().min(0).max(10),
@@ -51,33 +49,12 @@ export const OverviewSchema = z.object({
 	suggestion: z.array(ProjectTipsSchema),
 	missing: z.array(ProjectTipsSchema),
 	indication: z.array(ProjectIndicatorsSchema),
-	 risks: z.array(z.string())
-,   validation_status: z.enum(["strong", "promising", "weak"])
+	risks: z.array(z.string()),
+	validation_status: z.enum(["strong", "promising", "weak"]),
 });
 
 export interface BusinessIdeaResult extends IdeaValidationResponse {}
-export const CompetitorSchema = z.object({
-	name: z.string(),
-	description: z.string(),
-	url: z.string().url(),
-	image: z.string().url().optional(),
-	key_features: z.array(z.string()),
-	strengths: z.array(z.string()),
-	weaknesses: z.array(z.string()),
-	differentiator: z.string(), // What makes your idea different
-	threat_level: z.enum(["low", "medium", "high"])
-});
 
-// export const AudienceDemographicsSchema = z.object({
-// 	age_range: z.tuple([z.number(), z.number()]),
-// 	gender_ratio: z.object({
-// 		male: z.number(),
-// 		female: z.number(),
-// 		other: z.number(),
-// 	}),
-// 	locations: z.array(z.string()),
-// 	income_levels: z.array(z.string()),
-// });
 
 export const AudienceBehaviorSchema = z.object({
 	needs: z.array(z.string()),
@@ -93,39 +70,74 @@ export const MarketTrendsSchema = z.object({
 	regulatory_factors: z.array(z.string()),
 });
 
+
+
+
+
+
+
+
+
+
+
+
+//market
+
 export const AudienceSchema = z.object({
-	// demographics: AudienceDemographicsSchema,
 	psychographics: z.object({
 		values: z.array(z.string()),
 		interests: z.array(z.string()),
 	}),
 	behavior: AudienceBehaviorSchema,
 });
+
+
+export const CompetitorSchema = z.object({
+	name: z.string(),
+	description: z.string(),
+	url: z.string().url(),
+	// image: z.string().url().optional(),
+	key_features: z.array(z.string()),
+	strengths: z.array(z.string()),
+	weaknesses: z.array(z.string()),
+	differentiator: z.string(), // What makes your idea different
+	threat_level: z.enum(["low", "medium", "high"]),
+});
+
 export const MarketSchema = z.object({
 	competitors: z.array(CompetitorSchema),
 	audience: AudienceSchema,
 	pain_points: z.array(z.string()),
 	gaps: z.array(z.string()),
-	trends: MarketTrendsSchema.optional(),
+	
 	opportunity_areas: z.array(z.string()),
 	marketing_channels: z.array(z.string()),
 });
+
+
+
+
+
+
+
+
+
+
 export const FeatureSchema = z.object({
 	id: z.string(),
 	name: z.string(),
 	description: z.string(),
-	priority: z.string(),
+	priority: z.enum(["high", "low", "medium"]),
 	complexity: z.number().min(1).max(10),
 	type: z.enum(["must-have", "should-have", "nice-to-have"]),
-	
 });
 export const FeaturesResponseSchema = z.object({
 	mvp: z.array(FeatureSchema),
 	features: z.array(FeatureSchema),
 });
-export type Feature =z.infer<typeof FeaturesResponseSchema>;
+export type Feature = z.infer<typeof FeaturesResponseSchema>;
 export type Competitors = z.infer<typeof CompetitorSchema>;
 export type Audience = z.infer<typeof AudienceSchema>;
 export type Market = z.infer<typeof MarketSchema>;
-export type MarketTrends=z.infer<typeof MarketTrendsSchema>
-export type Overview=z.infer<typeof OverviewSchema>
+export type MarketTrends = z.infer<typeof MarketTrendsSchema>;
+export type Overview = z.infer<typeof OverviewSchema>;

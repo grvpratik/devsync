@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["driverAdapters"]
 }
 
@@ -10,199 +10,36 @@ datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
+
 model User {
-  id        String    @id @default(cuid())
-  email     String    @unique
+  id        String          @id @default(cuid())
+  email     String          @unique
   name      String
   image_url String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  projects  ProjectReport[]
 }
 
-
-
-// model IdeaValidation {
-//   id           String         @id @default(uuid())
-//   prompt       String
-//   timestamp    DateTime       @default(now())
-//   metadata     Metadata       @relation(fields: [metadataId], references: [id])
-//   metadataId   String
-//   overview     Overview?      @relation(fields: [overviewId], references: [id])
-//   overviewId   String?        @unique
-//   market       Market?        @relation(fields: [marketId], references: [id])
-//   marketId     String?        @unique
-//   feature      FeatureList?   @relation(fields: [featureId], references: [id])
-//   featureId    String?        @unique
-//   timeline     Json?          // { mvp: "2-4 weeks", full: "3-6 months" }
-//   resources    Json?          // { design: true, apis: ["stripe", "twilio"] }
-//   createdAt    DateTime       @default(now())
-//   updatedAt    DateTime       @updatedAt
-// }
+model ProjectReport {
+  id        String   @id @default(uuid())
+  prompt    String
+  timestamp DateTime @default(now())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  metadata  Json?
+  overview  Json?
+  feature   Json?
+  market    Json?
+}
 
 // model Metadata {
-//   id          String         @id @default(uuid())
+//   id          String        @id @default(uuid())
 //   name        String
-//   image       String
+//   image       String?
 //   description String
-//   category    ProjectCategory
-//   tags        String[]
-//   validations IdeaValidation[]
-// }
-
-// model Overview {
-//   id             String       @id @default(uuid())
-//   problem        String
-//   score          ProjectScore @relation(fields: [scoreId], references: [id])
-//   scoreId        String       @unique
-//   suggestions    ProjectTips[]
-//   missing        ProjectTips[]
-//   indications    ProjectIndicators[]
-//   risks          String[]
-//   validationStatus ValidationStatus
-// }
-
-// model ProjectScore {
-//   id               String     @id @default(uuid())
-//   soloFriendliness ConsiderationSection @relation(fields: [soloFriendlinessId], references: [id])
-//   soloFriendlinessId String   @unique
-//   businessPotential ConsiderationSection @relation(fields: [businessPotentialId], references: [id])
-//   businessPotentialId String  @unique
-//   overallScore     Float
-// }
-
-// model ConsiderationSection {
-//   id            String     @id @default(uuid())
-//   score         Float
-//   overview      String
-//   considerations String[]
-// }
-
-// model ProjectTips {
-//   id          String      @id @default(uuid())
-//   name        String
-//   description String
-//   overview    Overview?   @relation(fields: [overviewId], references: [id])
-//   overviewId  String?
-// }
-
-// model ProjectIndicators {
-//   id          String      @id @default(uuid())
-//   name        String
-//   description String
-//   type        IndicatorType
-//   overview    Overview?   @relation(fields: [overviewId], references: [id])
-//   overviewId  String?
-// }
-
-// model Market {
-//   id              String       @id @default(uuid())
-//   competitors     Competitor[]
-//   audience        Audience     @relation(fields: [audienceId], references: [id])
-//   audienceId      String       @unique
-//   painPoints      String[]
-//   gaps            String[]
-//   trends          MarketTrends?
-//   opportunityAreas String[]
-//   marketing       MarketStrategy[]
-// }
-
-// model Competitor {
-//   id            String      @id @default(uuid())
-//   name          String
-//   keyFeatures   String[]
-//   weaknesses    String[]
-//   differentiator String
-//   threatLevel   ThreatLevel
-//   market        Market?     @relation(fields: [marketId], references: [id])
-//   marketId      String?
-//   @@index([threatLevel])
-// }
-
-// model MarketTrends {
-//   id                   String   @id @default(uuid())
-//   marketSize           String
-//   growthRate           String
-//   emergingTechnologies String[]
-//   market               Market?  @relation(fields: [marketId], references: [id])
-//   marketId             String?  @unique
-// }
-
-// model Audience {
-//   id            String       @id @default(uuid())
-//   demographics  AudienceDemographics @relation(fields: [demographicsId], references: [id])
-//   demographicsId String      @unique
-//   psychographics AudiencePsychographics @relation(fields: [psychographicsId], references: [id])
-//   psychographicsId String    @unique
-//   behavior      AudienceBehavior @relation(fields: [behaviorId], references: [id])
-//   behaviorId    String       @unique
-// }
-
-// model AudienceDemographics {
-//   id         String    @id @default(uuid())
-//   ageRange   Int[]
-//   locations  String[]
-// }
-
-// model AudiencePsychographics {
-//   id        String    @id @default(uuid())
-//   values    String[]
-//   interests String[]
-// }
-
-// model AudienceBehavior {
-//   id                String    @id @default(uuid())
-//   needs             String[]
-//   frustrations      String[]
-//   onlineHabits      String[]
-//   preferredChannels String[]
-// }
-
-// model FeatureList {
-//   id       String    @id @default(uuid())
-//   mvp      Feature[]
-//   features Feature[]
-// }
-
-// model Feature {
-//   id             String        @id @default(uuid())
-//   name           String
-//   description    String
-//   priority       String
-//   estimatedHours Int?
-//   requiredSkills RequiredSkill[]
-//   featureList    FeatureList?  @relation(fields: [featureListId], references: [id])
-//   featureListId  String?
-// }
-
-// enum ProjectCategory {
-//   SAAS
-//   MOBILE
-//   BROWSER_EXTENSION
-//   AI_TOOL
-//   WEB_APP
-// }
-
-// enum ThreatLevel {
-//   LOW
-//   MEDIUM
-//   HIGH
-// }
-
-// enum RequiredSkill {
-//   FRONTEND
-//   BACKEND
-//   DESIGN
-//   MARKETING
-//   DEVOPS
-// }
-
-// enum ValidationStatus {
-//   STRONG
-//   PROMISING
-//   WEAK
-// }
-
-// enum IndicatorType {
-//   SUCCESS
-//   FAILURE
+//   category    String
+//   tags        Json
+//   projectId   String        @unique
+//   project     ProjectReport @relation(fields: [projectId], references: [id], onDelete: Cascade)
 // }

@@ -1,6 +1,6 @@
 import { Context, Hono, Next } from "hono";
 import { HTTPException } from "hono/http-exception";
-import { z } from "zod";
+import { z, ZodError } from "zod";
 import { NODE_ENV } from "./lib/constant";
 
 // 1. Custom Error Classes
@@ -41,75 +41,69 @@ interface ErrorResponse {
 	};
 }
 
-export const errorHandler = async (c: Context, next:Next) => {
-	try {
-        console.log("middleware")
-		await next();
-	} catch (error) {
-		console.error("Error caught in global handler:", error);
+export const errorHandler = async (error:any, c:Context) => {
+	console.error("Error caught in global handler:", error);
 
-		// Assert error as Error type
-		const err = error as Error;
+	
+	const err = error as Error;
 
-		// Handle different types of errors
-		if (error instanceof AppError) {
-			// Handle custom application errors
-			return c.json(
-				{
-					success: false,
-					error: {
-						message: error.message,
-						code: error.errorCode,
-						details: error.details,
-					},
-				},
-				error.statusCode 
-			);
-		}
-
-		if (error instanceof z.ZodError) {
-			// Handle Zod validation errors
-			return c.json(
-				{
-					success: false,
-					error: {
-						message: "Validation failed",
-						code: "VALIDATION_ERROR",
-						details: error.errors.map((e) => ({
-							path: e.path.join("."),
-							message: e.message,
-						})),
-					},
-				},
-				400
-			);
-		}
-
-		if (error instanceof HTTPException) {
-			// Handle Hono HTTP exceptions
-			return c.json(
-				{
-					success: false,
-					error: {
-						message: error.message,
-						code: `HTTP_${error.status}`,
-					},
-				},
-				error.status
-			);
-		}
-
-		// Handle unknown errors
-		const isDev = NODE_ENV === "development";
+	if (error instanceof AppError) {
+	
 		return c.json(
 			{
 				success: false,
 				error: {
-					message: isDev ? error.message : "Internal server error",
-					...(isDev && { stack: error.stack }),
+					message: error.message,
+					code: error.errorCode,
+					details: error.details,
 				},
 			},
-			500
+			error.statusCode as any
 		);
 	}
+
+	if (error instanceof ZodError) {
+		// Handle Zod validation errors
+		return c.json(
+			{
+				success: false,
+				error: {
+					message: "Validation failed",
+					code: "VALIDATION_ERROR",
+					details: error.errors.map((e) => ({
+						path: e.path.join("."),
+						message: e.message,
+					})),
+				},
+			},
+			400
+		);
+	}
+
+	if (error instanceof HTTPException) {
+		// Handle Hono HTTP exceptions
+		return c.json(
+			{
+				success: false,
+				error: {
+					message: error.message,
+					code: `HTTP_${error.status}`,
+				},
+			},
+			error.status
+		);
+	}
+
+	// Handle unknown errors
+	const isDev = NODE_ENV === "development";
+	return c.json(
+		{
+			success: false,
+			error: {
+				message: isDev ? error.message : "Internal server error",
+				...(isDev && { stack: error.stack }),
+			},
+		},
+		500
+	);
 };

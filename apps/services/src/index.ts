@@ -5,6 +5,7 @@ import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
 
 import { base } from "./routes/base.route";
+import { errorHandler } from "./error";
 const app = new Hono<{ Bindings: CloudflareBindings }>();
 
 
@@ -44,18 +45,7 @@ app.route("/", base);
 
 console.log("server is running ✅");
 
-app.onError((err, c) => {
-	console.error(`${err}`);
-	return c.json(
-		{
-			success: false,
-			error: {
-				message: err.message || "Internal Server Error",
-			},
-		},
-		500
-	);
-});
+app.onError(errorHandler);
 
 app.notFound((c) => {
 	return c.json(

@@ -1,13 +1,12 @@
 import { Hono } from "hono";
 import { checkSession } from "../middleware/auth";
+import { BuildController } from "../controller/build.contoller";
 
 export const buildRoute = new Hono();
 
-buildRoute.use("*", checkSession);
+// buildRoute.use("*", checkSession);
 
-buildRoute.post("/search", async (c) => {
-	return c.text("ok");
-});
+buildRoute.post("/search", BuildController.getSearch);
 
 
 buildRoute.post("/:id", async (c) => {
