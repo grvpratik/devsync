@@ -3,11 +3,12 @@ import { SearchRequestSchema } from "../types";
 
 import { GenerativeAI } from "../prompt";
 
-import { IdeaValidationResponse } from "shared";
+import { IdeaValidationResponse, RefreshField } from "shared";
 import { AppError, AuthError } from "../error";
 import { PrismaD1 } from "@prisma/adapter-d1";
 import { Prisma, PrismaClient } from "@prisma/client";
 import { safeExecutePrismaOperation } from "../middleware/prisma";
+import { FEATURE_EXAMPLE } from "../prompt/feature";
 
 export const BuildController = {
 	getSearch: async (c: Context) => {
@@ -145,7 +146,6 @@ export const BuildController = {
 		);
 	},
 	getReportById: async (c: Context) => {
-		console.log("first");
 		const userId = c.get("userId") || "cm73x26p80000yf0cekb44sro";
 		if (!userId) {
 			throw new AuthError("authentication required");
@@ -155,21 +155,107 @@ export const BuildController = {
 			console.log("🔍 Project:", projectId);
 			const adapter = new PrismaD1(c.env.DB);
 			const prisma = new PrismaClient({ adapter });
-			const result =await safeExecutePrismaOperation(
+			const result = await safeExecutePrismaOperation(
 				async () =>
 					await prisma.projectReport.findUnique({
-						where:{
-							id:projectId
-						}
+						where: {
+							id: projectId,
+						},
 					})
 			);
-			console.log(result)
-			return c.json({
-				success: true,
-				result,
-			},200);
+			console.log(result);
+			return c.json(
+				{
+					success: true,
+					result,
+				},
+				200
+			);
 		} catch (error) {
 			throw new AppError("Server error");
 		}
+	},
+	refreshField: async (c: Context) => {
+		const { GEMINI_API } = c.env;
+		const userId = c.get("userId") || "cm73x26p80000yf0cekb44sro";
+		if (!userId) {
+			throw new AuthError("Forbidden");
+		}
+		const { id, field } = await c.req.param();
+		console.log(Object.values(RefreshField));
+		if (!id || !field) {
+			throw new AppError(
+				"Missing id or field parameter",
+				400,
+				"VALIDATION_ERROR"
+			);
+		}
+
+		const validFields = Object.values(RefreshField);
+		if (!validFields.includes(field as RefreshField)) {
+			throw new AppError(
+				`Invalid field. Must be one of: ${validFields.join(", ")}`,
+				400,
+				"VALIDATION_ERROR"
+			);
+		}
+		const adapter = new PrismaD1(c.env.DB);
+		const prisma = new PrismaClient({ adapter });
+		const project = await safeExecutePrismaOperation(
+			async () =>
+				await prisma.projectReport.findUnique({
+					where: {
+						id,
+						userId,
+					},
+				})
+		);
+
+		if (!project) {
+			throw new AppError("Project not found", 404, "NOT_FOUND");
+		}
+
+		let generatedResult;
+		const prompt = project.prompt;
+
+		switch (field) {
+			case RefreshField.Feature:
+				generatedResult = await GenerativeAI.feature(prompt, GEMINI_API);
+				break;
+			case RefreshField.Market:
+				generatedResult = await GenerativeAI.market(prompt, GEMINI_API);
+				break;
+			// case RefreshField.Overview:
+			// 	generatedResult = await GenerativeAI.overview(prompt, GEMINI_API);
+			// 	break;
+			default:
+				throw new AppError("Invalid field type", 400, "VALIDATION_ERROR");
+		}
+
+		if (!generatedResult) {
+			throw new AppError("Failed to generate content", 500, "GENERATION_ERROR");
+		}
+
+		const updateReport = await safeExecutePrismaOperation(
+			async () =>
+				await prisma.projectReport.update({
+					where: {
+						id,
+						userId,
+					},
+					data: {
+						[field.toLowerCase()]: generatedResult as Prisma.InputJsonValue,
+					},
+				})
+		);
+
+		const fieldKey = field.toLowerCase() as keyof typeof updateReport;
+		return c.json(
+			{
+				success: true,
+				result: updateReport[fieldKey],
+			},
+			200
+		);
 	},
 };

@@ -44,9 +44,9 @@ export class NotFoundError extends AppError {
 }
 
 export class AuthError extends AppError {
-	constructor(message:string="Forbidden"){
-		super(message,401,"UNAUTHORISED");
-		this.name="UserNotFound"
+	constructor(message: string = "Forbidden") {
+		super(message, 401, "UNAUTHORISED");
+		this.name = "UserNotFound";
 	}
 }
 interface ErrorResponse {
@@ -60,25 +60,25 @@ interface ErrorResponse {
 }
 
 export const errorHandler = async (
-	error: any,
+	error: Error,
 	c: Context
-): Promise<(ErrorResponse) | any> => {
-	console.error("Error caught in global handler:", error);
+): Promise<ErrorResponse |any> => {
+	 console.error("Error caught in global handler:", error);
 
 	const err = error as Error;
-if (error instanceof PrismaError) {
-	return c.json(
-		{
-			success: false,
-			error: {
-				code: error.code,
-				message: error.message,
-				meta: error.meta,
+	if (error instanceof PrismaError) {
+		return c.json(
+			{
+				success: false,
+				error: {
+					code: error.code,
+					message: error.message,
+					meta: error.meta,
+				},
 			},
-		},
-		error.status as ContentfulStatusCode
-	);
-}
+			error.status as ContentfulStatusCode
+		);
+	}
 	if (error instanceof AppError) {
 		return c.json(
 			{

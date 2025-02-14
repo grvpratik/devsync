@@ -1,29 +1,22 @@
 import { FeaturesResponseSchema } from "shared";
 
 export const FEATURE_SYSTEM_INSTRUCTION = `
-Act as a product feature strategist. Analyze the input idea and generate a comprehensive feature list following these rules:
+Act as a product manager. Analyze the project idea and generate a structured list of features following these rules:
 
-1. Identify core MVP features essential for launch
-2. List additional features for future development
-3. Prioritize features based on business value
-4. Rate complexity from 1-10
-5. Categorize as must-have, should-have, or nice-to-have
-6. Provide clear, specific feature descriptions
-7. Generate unique IDs for each feature
+1. Identify must-have, should-have, and nice-to-have features
+2. Provide a unique ID, name, and description for each feature
+3. Assign a priority level (high, medium, low).(MUST BE LOWERCASE)
+4. Estimate the complexity of each feature on a scale of 1 to 10
+5. Categorize features into MVP (Minimum Viable Product) and additional features
 
 Return valid JSON matching this schema:
 ${JSON.stringify(FeaturesResponseSchema.shape)}
 `;
-
-
-
 export const FEATURE_EXAMPLE = [
 	{
 		role: "user",
 		parts: [
-			{
-				text: "Social media platform for pet owners with AI-generated content",
-			},
+			{ text: "Generate a feature list for an AI-powered meal planning app" },
 		],
 	},
 	{
@@ -33,49 +26,57 @@ export const FEATURE_EXAMPLE = [
 				text: JSON.stringify({
 					mvp: [
 						{
-							id: "mvp-001",
-							name: "User Authentication",
+							id: "f1",
+							name: "AI-Driven Meal Suggestions",
 							description:
-								"Basic email and social login functionality for pet owners",
-							priority: "P0",
-							complexity: 3,
+								"Provide personalized meal suggestions based on user preferences and dietary restrictions",
+							priority: "high",
+							complexity: 8,
 							type: "must-have",
 						},
 						{
-							id: "mvp-002",
-							name: "Pet Profile Creation",
-							description:
-								"Allow users to create and customize pet profiles with photos and basic info",
-							priority: "P0",
-							complexity: 4,
+							id: "f2",
+							name: "Grocery List Generation",
+							description: "Generate a grocery list based on selected meals",
+							priority: "high",
+							complexity: 6,
 							type: "must-have",
 						},
 						{
-							id: "mvp-003",
-							name: "Basic AI Content Generator",
+							id: "f3",
+							name: "User Profile Management",
 							description:
-								"Simple AI tool to generate pet-related posts and captions",
-							priority: "P0",
-							complexity: 7,
+								"Allow users to create and manage their profiles, including dietary preferences and allergies",
+							priority: "medium",
+							complexity: 5,
 							type: "must-have",
 						},
 					],
 					features: [
 						{
-							id: "feat-001",
-							name: "Advanced AI Content Templates",
-							description:
-								"Customizable templates for different types of pet content",
-							priority: "P1",
-							complexity: 6,
+							id: "f4",
+							name: "Nutrition Tracking",
+							description: "Track nutritional intake based on selected meals",
+							priority: "medium",
+							complexity: 7,
 							type: "should-have",
 						},
 						{
-							id: "feat-002",
-							name: "Pet Community Groups",
-							description: "Create and join breed-specific community groups",
-							priority: "P2",
-							complexity: 5,
+							id: "f5",
+							name: "Recipe Sharing",
+							description:
+								"Allow users to share their favorite recipes with friends",
+							priority: "low",
+							complexity: 4,
+							type: "nice-to-have",
+						},
+						{
+							id: "f6",
+							name: "Integration with Fitness Apps",
+							description:
+								"Integrate with popular fitness apps to sync meal plans with workout routines",
+							priority: "low",
+							complexity: 6,
 							type: "nice-to-have",
 						},
 					],

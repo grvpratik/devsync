@@ -1,7 +1,13 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { generationConfig, MODEL_TYPE } from "../lib/constant";
 
-import { FeaturesResponseSchema, MarketSchema, MetaData, MetadataSchema, OverviewSchema } from "shared";
+import {
+	FeaturesResponseSchema,
+	MarketSchema,
+	MetaData,
+	MetadataSchema,
+	OverviewSchema,
+} from "shared";
 import { PROJECT_IDEA_SYSTEM_INSTRUCTION, PROJECT_IDEA_EXAMPLE } from "./info";
 import {
 	IdeaValidationSchema,
@@ -11,9 +17,11 @@ import {
 import { OVERVIEW_SYSTEM_INSTRUCTION, OVERVIEW_EXAMPLE } from "./overview";
 import { MARKET_EXAMPLE, MARKET_SYSTEM_PROMPT } from "./market";
 import { FEATURE_EXAMPLE, FEATURE_SYSTEM_INSTRUCTION } from "./feature";
+import { AppError, ValidationError } from "../error";
+import { ZodError } from "zod";
 
 export const GenerativeAI = {
-	metadata: async (idea: string, key: string):Promise<MetaData> => {
+	metadata: async (idea: string, key: string): Promise<MetaData> => {
 		const genAI = new GoogleGenerativeAI(key);
 
 		const model = genAI.getGenerativeModel({
@@ -95,53 +103,53 @@ export const GenerativeAI = {
 			throw new Error("Failed to generate valid overview analysis");
 		}
 	},
-    feature: async (idea: string, key: string) => {
-        const genAI = new GoogleGenerativeAI(key);
-        
-            const model = genAI.getGenerativeModel({
-                model: MODEL_TYPE,
-                systemInstruction: FEATURE_SYSTEM_INSTRUCTION,
-                generationConfig,
-            });
-        
-            // Example conversation history
-            
-            try {
-                const chat = model.startChat({ history:FEATURE_EXAMPLE });
-                const result = await chat.sendMessage(idea);
-                const response = result.response.text();
-        
-                // Validate and parse response
-                const rawData = JSON.parse(response);
-                const validated = FeaturesResponseSchema.parse(rawData);
-        
-                return validated;
-            } catch (error) {
-                console.error("Feature Generation Error:", error);
-                throw new Error("Failed to generate valid feature list");
-            }
+	feature: async (idea: string, key: string) => {
+		const genAI = new GoogleGenerativeAI(key);
 
-    },market: async (idea: string, key: string) => {
-        const genAI = new GoogleGenerativeAI(key);
-            const model = genAI.getGenerativeModel({
-                model: MODEL_TYPE,
-                systemInstruction: MARKET_SYSTEM_PROMPT,
-                generationConfig,
-            });
-        
-           
-        
-            try {
-                const chat = model.startChat({ history :MARKET_EXAMPLE});
-                const result = await chat.sendMessage(idea);
-                const response = result.response.text();
-        
-                // Validate and parse response
-                const rawData = JSON.parse(response);
-                return MarketSchema.parse(rawData);
-            } catch (error) {
-                console.error("Market Analysis Error:", error);
-                throw new Error("Failed to generate valid market analysis");
-            }
-    }
+		const model = genAI.getGenerativeModel({
+			model: MODEL_TYPE,
+			systemInstruction: FEATURE_SYSTEM_INSTRUCTION,
+			generationConfig,
+		});
+
+		try {
+			const chat = model.startChat({ history: FEATURE_EXAMPLE });
+			const result = await chat.sendMessage(idea);
+			const response = result.response.text();
+
+			// Validate and parse response
+			const rawData = JSON.parse(response);
+			const validated = FeaturesResponseSchema.parse(rawData);
+
+			return validated;
+		} catch (error) {
+			console.error("Feature Generation Error:", error);
+			throw new Error("Failed to generate valid feature list");
+		}
+	},
+	market: async (idea: string, key: string) => {
+		const genAI = new GoogleGenerativeAI(key);
+		const model = genAI.getGenerativeModel({
+			model: MODEL_TYPE,
+			systemInstruction: MARKET_SYSTEM_PROMPT,
+			generationConfig,
+		});
+
+		try {
+			const chat = model.startChat({ history: MARKET_EXAMPLE });
+			const result = await chat.sendMessage(idea);
+			const response = result.response.text();
+
+			// Validate and parse response
+			const rawData = JSON.parse(response);
+			console.log(rawData)
+			return MarketSchema.parse(rawData);
+		} catch (error) {
+			console.error("Market Analysis Error:", error);
+			if(error instanceof ZodError){
+				throw new ValidationError("Failed to generate valid market analysis",error.errors);
+			}
+			
+		}
+	},
 };

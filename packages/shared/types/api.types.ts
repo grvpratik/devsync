@@ -1,4 +1,10 @@
 import z from "zod";
+
+	export enum RefreshField {
+		Market = "market",
+		Feature = "feature",
+	}
+
 export interface IdeaValidationResponse {
 	
 	prompt: string;

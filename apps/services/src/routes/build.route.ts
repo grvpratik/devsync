@@ -12,15 +12,13 @@ buildRoute.post("/search", BuildController.getSearch);
 buildRoute.post("/:id",BuildController.getReportById);
 
 
-buildRoute.post("/:id/edit/market", BuildController.getReportById);
+// buildRoute.post("/:id/edit/market", );
 
-buildRoute.post("/:id/edit/feature", async (c) => {
-	return c.text("ok");
-});
+// buildRoute.post("/:id/edit/feature", async (c) => {
+// 	return c.text("ok");
+// });
 
-buildRoute.post("/:id/refresh", async (c) => {
-	return c.text("ok");
-});
+buildRoute.post("/:id/refresh/:field",BuildController.refreshField);
 
 buildRoute.post("/:id/phase", async (c) => {
 	return c.text("ok");
