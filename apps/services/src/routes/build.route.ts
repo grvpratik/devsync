@@ -14,9 +14,7 @@ buildRoute.post("/:id", async (c) => {
 });
 
 
-buildRoute.post("/:id/edit/market", async (c) => {
-	return c.text("ok");
-});
+buildRoute.post("/:id/edit/market", BuildController.getReportById);
 
 buildRoute.post("/:id/edit/feature", async (c) => {
 	return c.text("ok");

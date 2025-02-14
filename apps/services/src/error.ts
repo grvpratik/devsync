@@ -15,6 +15,17 @@ export class AppError extends Error {
 		this.name = "AppError";
 	}
 }
+// export class PrismaError extends AppError {
+// 	constructor(
+// 		public errorCode: string,
+// 		public message: string,
+// 		public statusCode: number,
+// 		public details?: Record<string, any>
+// 	) {
+// 		super(message,errorCode,statusCode,details);
+// 		this.name = "PrismaError";
+// 	}
+// }
 
 export class ValidationError extends AppError {
 	constructor(message: string, details?: Record<string, any>) {
@@ -30,7 +41,12 @@ export class NotFoundError extends AppError {
 	}
 }
 
-// 2. Error Response Interface
+export class AuthError extends AppError {
+	constructor(message:string="Forbidden"){
+		super(message,401,"UNAUTHORISED");
+		this.name="UserNotFound"
+	}
+}
 interface ErrorResponse {
 	success: false;
 	error: {
@@ -41,14 +57,15 @@ interface ErrorResponse {
 	};
 }
 
-export const errorHandler = async (error:any, c:Context) => {
+export const errorHandler = async (
+	error: any,
+	c: Context
+): Promise<(ErrorResponse) | any> => {
 	console.error("Error caught in global handler:", error);
 
-	
 	const err = error as Error;
 
 	if (error instanceof AppError) {
-	
 		return c.json(
 			{
 				success: false,
