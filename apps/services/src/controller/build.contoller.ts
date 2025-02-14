@@ -4,11 +4,12 @@ import { SearchRequestSchema } from "../types";
 import { GenerativeAI } from "../prompt";
 
 import { IdeaValidationResponse, RefreshField } from "shared";
-import { AppError, AuthError } from "../error";
+import { AppError, AuthError, ValidationError } from "../error";
 import { PrismaD1 } from "@prisma/adapter-d1";
 import { Prisma, PrismaClient } from "@prisma/client";
 import { safeExecutePrismaOperation } from "../middleware/prisma";
 import { FEATURE_EXAMPLE } from "../prompt/feature";
+import { z } from "zod";
 
 export const BuildController = {
 	getSearch: async (c: Context) => {
@@ -257,5 +258,73 @@ export const BuildController = {
 			},
 			200
 		);
+	},
+	getPhases: async (c: Context) => {
+		const PhaseTamplete = z.object({
+			name: z.string(),
+			description: z.string(),
+			start_date: z.string().refine((val) => !isNaN(Date.parse(val)), {
+				message: "Invalid date format for start_date",
+			}),
+			end_date: z.string().refine((val) => !isNaN(Date.parse(val)), {
+				message: "Invalid date format for end_date",
+			}),
+			content: z.array(z.any()),
+		});
+
+		const PhaseTampleteArray = z.array(PhaseTamplete);
+
+		const { GEMINI_API } = c.env;
+		const userId = c.get("userId") || "cm73x26p80000yf0cekb44sro";
+		if (!userId) {
+			throw new AuthError("Forbidden");
+		}
+		const { id } = await c.req.param();
+		if (!id) {
+			throw new AppError(
+				"Missing id or field parameter",
+				400,
+				"VALIDATION_ERROR"
+			);
+		}
+		const body = await c.req.json();
+		const parsed = PhaseTampleteArray.safeParse(body);
+
+		console.log(body);
+		if (!parsed.success) {
+			throw new ValidationError("invalid phase details", parsed.error);
+		}
+		// const {  } = parsed.data;
+		// console.log(parsed.data,"parsed");
+		const phasesInfo =
+		parsed.data &&
+		parsed.data.map((phase) => {
+			return {
+				name: phase.name,
+				desc: phase.description,
+			};
+		});
+		console.log("parsed info",phasesInfo)
+
+		const adapter = new PrismaD1(c.env.DB);
+		const prisma = new PrismaClient({ adapter });
+		const project = await safeExecutePrismaOperation(
+			async () =>
+				await prisma.projectReport.findUnique({
+					where: {
+						id,
+						userId,
+					},
+				})
+		);
+
+		if (!project) {
+			throw new AppError("Project not found", 404, "NOT_FOUND");
+		}
+		const prompt = project.prompt;
+		const features: any = project.feature;
+		const mvp = features.mvp;
+
+		const phaseResult=GenerativeAI.phases(prompt,GEMINI_API)
 	},
 };

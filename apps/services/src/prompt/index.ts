@@ -19,6 +19,7 @@ import { MARKET_EXAMPLE, MARKET_SYSTEM_PROMPT } from "./market";
 import { FEATURE_EXAMPLE, FEATURE_SYSTEM_INSTRUCTION } from "./feature";
 import { AppError, ValidationError } from "../error";
 import { ZodError } from "zod";
+import { PHASES_SYSTEM_INSTRUCTION } from "./phase";
 
 export const GenerativeAI = {
 	metadata: async (idea: string, key: string): Promise<MetaData> => {
@@ -142,14 +143,42 @@ export const GenerativeAI = {
 
 			// Validate and parse response
 			const rawData = JSON.parse(response);
-			console.log(rawData)
+			console.log(rawData);
 			return MarketSchema.parse(rawData);
 		} catch (error) {
 			console.error("Market Analysis Error:", error);
-			if(error instanceof ZodError){
-				throw new ValidationError("Failed to generate valid market analysis",error.errors);
+			if (error instanceof ZodError) {
+				throw new ValidationError(
+					"Failed to generate valid market analysis",
+					error.errors
+				);
 			}
-			
+		}
+	},
+	phases: async (idea: string, key: string) => {
+		const genAI = new GoogleGenerativeAI(key);
+		const model = genAI.getGenerativeModel({
+			model: MODEL_TYPE,
+			systemInstruction: PHASES_SYSTEM_INSTRUCTION,
+			generationConfig,
+		});
+		try {
+			const chat = model.startChat({ history:  });
+			const result = await chat.sendMessage(idea);
+			const response = result.response.text();
+
+			// Validate and parse response
+			const rawData = JSON.parse(response);
+			console.log(rawData);
+			return MarketSchema.parse(rawData);
+		} catch (error) {
+			console.error("Market Analysis Error:", error);
+			if (error instanceof ZodError) {
+				throw new ValidationError(
+					"Failed to generate vaild phases",
+					error.errors
+				);
+			}
 		}
 	},
 };

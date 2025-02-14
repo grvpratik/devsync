@@ -3,7 +3,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { z } from "zod";
 import { generationConfig, MODEL_TYPE } from "../lib/constant";
-import { PHASES_SYSTEM_INSTRUCTION_PHASES } from "../prompt/phase";
+import { PHASES_SYSTEM_INSTRUCTION } from "../prompt/phase";
 
 
 const TaskSchema = z.object({
@@ -31,7 +31,7 @@ export async function PhaseController(
 
 	const model = genAI.getGenerativeModel({
 		model: MODEL_TYPE,
-		systemInstruction: PHASES_SYSTEM_INSTRUCTION_PHASES,
+		systemInstruction: PHASES_SYSTEM_INSTRUCTION,
 		generationConfig,
 	});
 	const listPhases = phases.map((item) => `${item.name}: ${item.desc}`);

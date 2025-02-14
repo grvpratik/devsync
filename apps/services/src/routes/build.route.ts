@@ -20,10 +20,8 @@ buildRoute.post("/:id",BuildController.getReportById);
 
 buildRoute.post("/:id/refresh/:field",BuildController.refreshField);
 
-buildRoute.post("/:id/phase", async (c) => {
-	return c.text("ok");
-});
+buildRoute.post("/:id/phase",BuildController.getPhases);
 
-buildRoute.post("/:id/phase/edit", async (c) => {
-	return c.text("ok");
-});
+// buildRoute.post("/:id/phase/edit", async (c) => {
+// 	return c.text("ok");
+// });

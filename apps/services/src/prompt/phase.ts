@@ -136,7 +136,7 @@ const phases = [
 	},
 ];
 
-export const PHASES_SYSTEM_INSTRUCTION_PHASES = `
+export const PHASES_SYSTEM_INSTRUCTION = `
 Act as a project planning expert. Given a business idea and a list of project phases and project mvp, generate a detailed project plan for each phase provided by user(no additional). Each phase should have a "name" and a list of "tasks". Each task must include a "title", "desc" (description), and a "priority" (which can be "high", "medium", or "low") also NO extra other than provided names. Return the result as a valid JSON array matching the following format:
 
 ${JSON.stringify(phases)}
