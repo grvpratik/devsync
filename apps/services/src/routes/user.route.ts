@@ -1,12 +1,10 @@
-
 import { googleAuth } from "@hono/oauth-providers/google";
-import { Hono, Next , Context} from "hono";
+import { Hono, Next, Context } from "hono";
 
-import {  PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { setCookie, getCookie, deleteCookie } from "hono/cookie";
 import { PrismaD1 } from "@prisma/adapter-d1";
 import { xAuth } from "@hono/oauth-providers/x";
-
 
 export const user = new Hono();
 
@@ -16,7 +14,6 @@ interface SessionUser {
 	name: string;
 	image_url?: string;
 }
-
 
 export const checkSession = async (c: Context, next: () => Promise<void>) => {
 	const sessionId = getCookie(c, "session_id");
@@ -30,7 +27,6 @@ export const checkSession = async (c: Context, next: () => Promise<void>) => {
 			401
 		);
 	}
-
 
 	const userId = await c.env.SESSION_STORE.get(sessionId);
 	if (!userId) {
@@ -46,7 +42,6 @@ export const checkSession = async (c: Context, next: () => Promise<void>) => {
 
 	await next();
 };
-
 
 export const getUserProfile = async (c: Context, next: () => Promise<void>) => {
 	const sessionId = getCookie(c, "session_id");
@@ -72,7 +67,6 @@ export const getUserProfile = async (c: Context, next: () => Promise<void>) => {
 	});
 
 	if (!user) {
-		
 		await c.env.SESSION_STORE.delete(sessionId);
 		deleteCookie(c, "session_id");
 		return c.json({ status: "unauthenticated", user: null }, 401);
@@ -97,7 +91,7 @@ export const userRoutes = {
 			if (userId) {
 				return c.redirect("http://localhost:3000/auth/callback", 301);
 			}
-			
+
 			deleteCookie(c, "session_id");
 		}
 
@@ -124,12 +118,10 @@ export const userRoutes = {
 			},
 		});
 
-	
 		const sessionId = crypto.randomUUID();
 
-	
 		await c.env.SESSION_STORE.put(sessionId, user.id, {
-			expirationTtl: 7 * 24 * 60 * 60, // 7 days 
+			expirationTtl: 7 * 24 * 60 * 60, // 7 days
 		});
 
 		setCookie(c, "session_id", sessionId, {
@@ -150,7 +142,7 @@ export const userRoutes = {
 		}
 
 		const userId = await c.env.SESSION_STORE.get(sessionId);
-		
+
 		return c.json({ isValid: !!userId }, 200);
 	},
 
@@ -183,7 +175,6 @@ export const userRoutes = {
 		const sessionId = getCookie(c, "session_id");
 
 		if (sessionId) {
-			
 			await c.env.SESSION_STORE.delete(sessionId);
 			deleteCookie(c, "session_id");
 		}
@@ -191,7 +182,6 @@ export const userRoutes = {
 		return c.json({ success: true });
 	},
 };
-
 
 user.use(
 	"/auth/callback",
@@ -206,12 +196,13 @@ user.use(
 		}
 		await next();
 	},
-	googleAuth({
-		client_id:
-			"",
-		client_secret: "",
-		scope: ["openid", "email", "profile"],
-	})
+	async (c, next) => {
+		await googleAuth({
+			client_id: "",
+			client_secret: "",
+			scope: ["openid", "email", "profile"],
+		})(c,next);
+	}
 );
 
 user.get("/auth/callback", (c) => userRoutes.handleInitialCallback(c));

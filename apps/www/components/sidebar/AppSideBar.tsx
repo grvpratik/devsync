@@ -22,7 +22,7 @@ export function AppSidebar({ user, history }: AppSidebarProps) {
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredItems = useMemo(
-    () => history.filter((item) => 
+    () =>history && history.filter((item) => 
       item.title.toLowerCase().includes(searchQuery.toLowerCase())
     ),
     [history, searchQuery]

@@ -1,7 +1,6 @@
 import { SidebarProvider, SidebarTrigger } from "www/components/ui/sidebar";
 
 import Nav from "www/components/features/landing/Nav";
-import MainResponse from "shared/db/temp";
 import { AppSidebar } from "www/components/sidebar/AppSideBar";
 export interface SearchHistory {
 	id: any;
@@ -15,6 +14,7 @@ const data = {
 		avatar: "/profile/pratikgrv.jpg",
 	},
 };
+const MainResponse: any[]=[{id:34,title:"rtr",url:"rer"}]
 const history: SearchHistory[] = MainResponse.map((data) => {
 	return {
 		id: data.id,

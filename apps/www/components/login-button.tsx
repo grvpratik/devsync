@@ -3,11 +3,13 @@ import { getGoogleUrl } from "www/lib/auth";
 import { useAuth } from "www/wrapper/auth-provider";
 
 export default function LoginButton() {
-	const {authState}=useAuth()
+	const {authState,}=useAuth()
 	const handleLogin = () => {
 		window.location.href = getGoogleUrl();
 	};
-console.log(authState,"authsate")
+console.log(authState,"authstate")
+if(authState.isLoading) return <div>loading</div>
+if(authState.user) return <div> <pre> {JSON.stringify(authState.user,null,2)}</pre></div>
 	return (
 		<button
 			onClick={handleLogin}

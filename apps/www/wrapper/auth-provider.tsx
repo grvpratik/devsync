@@ -42,12 +42,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 			if (response.status!==200) throw new Error("Session check failed");
 
 			const data = await response.data;
+			console.log("context",data)
 			setAuthState({
 				isLoading: false,
 				error: null,
 				user: data.user,
 			});
 		} catch (error) {
+			console.log("error context",error)
 			setAuthState({
 				isLoading: false,
 				error: null,

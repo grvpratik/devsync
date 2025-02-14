@@ -4,54 +4,44 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
 
-import { base } from "./routes/route";
-import "dotenv/config";
-
+import { base } from "./routes/base.route";
 const app = new Hono<{ Bindings: CloudflareBindings }>();
-const NODE_ENV: string = "development";
+
+
 app.use("*", logger());
 app.use("*", prettyJSON());
 app.use(
 	"*",
-	cors({
-		// Allow specific origins in production, or all in development
-		origin:
-			NODE_ENV === "production" ?
-				["https://your-production-domain.com", "https://your-app.vercel.app"]
-			:	"http://localhost:3000",
-
-		// Allow credentials (cookies, authorization headers)
-		credentials: true,
-
-
-		// Allowed headers
-		allowHeaders: [
-			"Content-Type",
-			"Authorization",
-			"X-Requested-With",
-			"Accept",
-			"Origin",
-		],
-
-		
-		exposeHeaders: ["Content-Length", "X-Requested-With"],
-
-		// Max age for preflight requests cache (in seconds)
-		maxAge: 600,
-
-		// For additional security in production
-		...(NODE_ENV === "production" && {
-			// Prevent CSRF attacks
+	async (c, next) => {
+		const CF_ENV = c.env.CF_ENV || "development";
+		console.log("CF_ENV",CF_ENV)
+		await cors({
+			origin:
+				CF_ENV === "production" ?
+					["", ""]
+				:	"http://localhost:3000",
 			credentials: true,
-			// Only allow HTTPS in production
-			preflightContinue: false,
-			optionsSuccessStatus: 204,
-		}),
-	})
+			allowHeaders: [
+				"Content-Type",
+				"Authorization",
+				"X-Requested-With",
+				"Accept",
+				"Origin",
+			],
+			exposeHeaders: ["Content-Length", "X-Requested-With"],
+			maxAge: 600,
+			...(CF_ENV === "production" && {
+				credentials: true,
+				preflightContinue: false,
+				optionsSuccessStatus: 204,
+			}),
+		})(c, next);
+	}
 );
-// Add to your Hono app
+
 
 app.route("/", base);
+
 console.log("server is running ✅");
 
 app.onError((err, c) => {
@@ -67,7 +57,6 @@ app.onError((err, c) => {
 	);
 });
 
-// Not found handler
 app.notFound((c) => {
 	return c.json(
 		{
