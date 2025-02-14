@@ -1,15 +1,26 @@
 "use client";
 import { getGoogleUrl } from "www/lib/auth";
 import { useAuth } from "www/wrapper/auth-provider";
+import { Button } from "./ui/button";
 
 export default function LoginButton() {
-	const {authState,}=useAuth()
+	const { authState, logout,login } = useAuth();
 	const handleLogin = () => {
-		window.location.href = getGoogleUrl();
+		login()
 	};
-console.log(authState,"authstate")
-if(authState.isLoading) return <div>loading</div>
-if(authState.user) return <div> <pre> {JSON.stringify(authState.user,null,2)}</pre></div>
+	console.log(authState, "authstate");
+	if (authState.isLoading) return <div>loading</div>;
+	if(authState.error) return <div> {authState.error.message}</div>
+	if (authState.user)
+		return (
+			<div>
+				{" "}
+				<pre> {JSON.stringify(authState.user, null, 2)}</pre>
+				<Button variant={"destructive"} onClick={() => logout()}>
+					logout
+				</Button>
+			</div>
+		);
 	return (
 		<button
 			onClick={handleLogin}

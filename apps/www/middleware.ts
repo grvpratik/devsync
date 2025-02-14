@@ -1,44 +1,94 @@
 import { NextRequest, NextResponse } from "next/server";
-
 import { cookies } from "next/headers";
 import { AuthApiService } from "./external/api";
 
-// 1. Specify protected and public routes
-const protectedRoutes = ["/dashboard"];
-const publicRoutes = ["/login", "/signup", "/"];
+// Define route patterns with more specific types
+type RoutePattern = {
+	path: string;
+	exact?: boolean;
+};
 
-export default async function middleware(req: NextRequest) {
-	// 2. Check if the current route is protected or public
-	const path = req.nextUrl.pathname;
-	console.log("middleware path",path)
-	const isProtectedRoute = protectedRoutes.includes(path);
-	const isPublicRoute = publicRoutes.includes(path);
+// Protected routes configuration
+const protectedRoutes: RoutePattern[] = [
+	{ path: "/build", exact: true },
+	{ path: "/setting", exact: true },
+	{ path: "/build/", exact: false },
+];
 
-	const cookie = (await cookies()).get("session_id")?.value;
-	console.log(cookie,"middleware")
-	const session = await AuthApiService.validateSession(cookie);
-	console.log(session,"middleware session")
+// Public routes configuration
+const publicRoutes: RoutePattern[] = [
+	{ path: "/login", exact: true },
+	{ path: "/", exact: true },
+];
 
-	// 4. Redirect to /login if the user is not authenticated
-	if (isProtectedRoute && !session?.valid) {
-		return NextResponse.redirect(new URL("/login", req.nextUrl));
+// Helper function to check if a path matches a route pattern
+function matchRoute(path: string, route: RoutePattern): boolean {
+	if (route.exact) {
+		return path === route.path;
 	}
-
-	// 5. Redirect to /dashboard if the user is authenticated
-	console.log(isPublicRoute,session.valid)
-	if (
-		isPublicRoute &&
-		session?.valid
-		&&
-		!req.nextUrl.pathname.startsWith("/dashboard")
-	) {
-		return NextResponse.redirect(new URL("/dashboard", req.nextUrl));
-	}
-
-	return NextResponse.next();
+	return path.startsWith(route.path);
 }
 
-// Routes Middleware should not run on
+export default async function middleware(req: NextRequest) {
+	try {
+		const path = req.nextUrl.pathname;
+
+		// Clean the path to handle trailing slashes consistently
+		const normalizedPath =
+			path.endsWith("/") && path !== "/" ? path.slice(0, -1) : path;
+
+		// Check if route is protected or public
+		const isProtectedRoute = protectedRoutes.some((route) =>
+			matchRoute(normalizedPath, route)
+		);
+		const isPublicRoute = publicRoutes.some((route) =>
+			matchRoute(normalizedPath, route)
+		);
+
+		// Get session cookie
+		const sessionCookie = await (await cookies()).get("session_id");
+		const sessionId = sessionCookie?.value ?? "";
+
+		// Validate session
+		const session = await AuthApiService.validateSession(sessionId);
+		const isAuthenticated = session?.valid ?? false;
+
+		// Create redirect URL helper
+		const createRedirectUrl = (path: string) => new URL(path, req.nextUrl);
+
+		// Handle authentication redirects
+		if (isProtectedRoute && !isAuthenticated) {
+			// Store the original URL to redirect back after login
+			const returnUrl = encodeURIComponent(req.nextUrl.pathname);
+			return NextResponse.redirect(
+				createRedirectUrl(`/login?returnUrl=${returnUrl}`)
+			);
+		}
+
+		if (isPublicRoute && isAuthenticated && normalizedPath !== "/") {
+			return NextResponse.redirect(createRedirectUrl("/"));
+		}
+
+		// Continue to the requested page
+		return NextResponse.next();
+	} catch (error) {
+		console.error("Middleware error:", error);
+		// Fail secure: redirect to login on error
+		return NextResponse.redirect(new URL("/login", req.nextUrl));
+	}
+}
+
+// Fixed matcher configuration using Next.js supported syntax
 export const config = {
-	matcher: ["/((?!api|_next/static|_next/image|.*\\.png$).*)"],
+	matcher: [
+		/*
+		 * Match all request paths except for the ones starting with:
+		 * - api (API routes)
+		 * - _next/static (static files)
+		 * - _next/image (image optimization files)
+		 * - favicon.ico (favicon file)
+		 * - public files with extensions (.png, .jpg, .jpeg, .gif, .ico)
+		 */
+		"/((?!api|_next/static|_next/image|favicon.ico).*)",
+	],
 };

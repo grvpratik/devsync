@@ -77,7 +77,7 @@ const handleApiError = (error: unknown) => {
 // 	}
 // );
 
-export const AuthApiService = {
+export const AuthApiService :any= {
 	// Authentication Status
 	// checkLoginStatus: async () => {
 	// 	try {
@@ -146,9 +146,10 @@ export const AuthApiService = {
 				return response.data;
 			} else {
 				// Logout current session
-				const response = await instance.get("/user/auth/logout");
+				const response = await instance.post("/user/auth/logout/session");
 				return response.data;
 			}
+			
 		} catch (error) {
 			console.error("Logout failed:", error);
 			return { success: false };

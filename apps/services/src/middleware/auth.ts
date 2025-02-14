@@ -29,6 +29,11 @@ interface SessionData {
 		ip?: string;
 	};
 }
+function uuidValidate(uuid: string): boolean {
+	const uuidRegex =
+		/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+	return uuidRegex.test(uuid);
+}
 
 const SessionManager = {
 	create: async (c: Context, userId: string) => {
@@ -233,6 +238,7 @@ export const checkSession = async (c: Context, next: Next) => {
 	}
 
 	const sessionData = await SessionManager.get(c, sessionId);
+
 	if (!sessionData) {
 		deleteCookie(c, "session_id");
 		return c.json(
@@ -243,7 +249,7 @@ export const checkSession = async (c: Context, next: Next) => {
 			401
 		);
 	}
-
+	 c.set("userId", sessionData.userId);
 	await next();
 };
 
@@ -259,7 +265,7 @@ export const getUserProfile = async (c: Context, next: Next) => {
 	const sessionData = await SessionManager.get(c, sessionId);
 	console.log("getUserProfile()", sessionData);
 	if (!sessionData) {
-		//deleteCookie(c, "session_id");
+		deleteCookie(c, "session_id");
 		return c.json({ status: "unauthenticated d", user: null }, 401);
 	}
 	const userId = sessionData.userId;
@@ -326,13 +332,33 @@ export const userRoutes = {
 
 	// Logout from specific device
 	logoutSession: async (c: Context) => {
-		const sessionId = c.req.query("sessionId") || getCookie(c, "session_id");
+		
+		const currentUser = c.get("userId");
+		if (!currentUser) return c.json({ error: "Unauthorized" }, 401);
 
-		if (sessionId) {
-			await SessionManager.delete(c, sessionId);
-			if (sessionId === getCookie(c, "session_id")) {
-				deleteCookie(c, "session_id");
-			}
+		const sessionIdToDelete = c.req.query("sessionId");
+		const currentSessionId = getCookie(c, "session_id");
+
+		// Validate sessionId format if provided
+		if (sessionIdToDelete && !uuidValidate(sessionIdToDelete)) {
+			return c.json({ error: "Invalid session ID" }, 400);
+		}
+
+		// Default to current session if none provided
+		const targetSessionId = sessionIdToDelete || currentSessionId;
+		if (!targetSessionId) return c.json({ error: "Session ID required" }, 400);
+
+		// Verify session belongs to current user
+		const sessionData = await SessionManager.get(c, targetSessionId);
+		if (!sessionData || sessionData.userId !== currentUser) {
+			return c.json({ error: "Forbidden" }, 403);
+		}
+
+		await SessionManager.delete(c, targetSessionId);
+
+		// Clear cookie if deleting current session
+		if (targetSessionId === currentSessionId) {
+			deleteCookie(c, "session_id");
 		}
 
 		return c.json({ success: true });
@@ -420,6 +446,7 @@ export const userRoutes = {
 		);
 	},
 };
+//for google signin
 user.use(
 	"/auth/callback",
 	async (c: Context, next) => {
@@ -445,18 +472,13 @@ user.use(
 		})(c, next);
 	}
 );
-const  sessionId =async (c: Context, next:Next)=> {
-	const cookie =await getCookie(c, "session_id");
-	console.log("COOKIE",cookie)
-	 await next();
-}
-user.get("/auth/validate", sessionId, userRoutes.validateSession);
-
-user.get("/auth/callback",  userRoutes.handleInitialCallback);
-
-user.get("/auth/data", getUserProfile,  userRoutes.getUserData);
-user.get("/auth/sessions", getUserProfile,  userRoutes.getSessions);
-user.post("/auth/logout/session", getUserProfile, 
-	userRoutes.logoutSession
-);
-user.post("/auth/logout/all", getUserProfile,  userRoutes.logoutAll);
+//for next js middleware to check user validitation
+user.get("/auth/validate", userRoutes.validateSession);
+//after success google auth it create db and session to set cookies
+user.get("/auth/callback", userRoutes.handleInitialCallback);
+//for context for frontent to get profile to show ui and hook
+user.get("/auth/data", getUserProfile, userRoutes.getUserData);
+//
+user.get("/auth/sessions", checkSession, userRoutes.getSessions);
+user.post("/auth/logout/session", checkSession, userRoutes.logoutSession);
+user.post("/auth/logout/all", checkSession, userRoutes.logoutAll);

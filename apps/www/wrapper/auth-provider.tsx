@@ -1,20 +1,20 @@
-'use client'
+"use client";
 import axios from "axios";
 import { createContext, useContext, useEffect, useState } from "react";
+import { AuthApiService } from "www/external/api";
 import { getGoogleUrl } from "www/lib/auth";
 import { NEXT_PUBLIC_API } from "www/lib/constant";
 
-
 // types.ts
 interface AuthError {
-  message: string;
-  code: string;
+	message: string;
+	code: string;
 }
 
 interface AuthState {
-  isLoading: boolean;
-  error: AuthError | null;
-  user: any | null;
+	isLoading: boolean;
+	error: AuthError | null;
+	user: any | null;
 }
 
 const AuthContext = createContext<{
@@ -37,19 +37,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 	const checkAuthStatus = async () => {
 		try {
-			const response = await axios.get(`${NEXT_PUBLIC_API}/user/auth/data`, { withCredentials: true });
+			const response = await axios.get(`${NEXT_PUBLIC_API}/user/auth/data`, {
+				withCredentials: true,
+			});
 
-			if (response.status!==200) throw new Error("Session check failed");
+			if (response.status !== 200) throw new Error("Session check failed");
 
 			const data = await response.data;
-			console.log("context",data)
+			console.log("context", data);
 			setAuthState({
 				isLoading: false,
 				error: null,
 				user: data.user,
 			});
 		} catch (error) {
-			console.log("error context",error)
+			console.log("error context", error);
 			setAuthState({
 				isLoading: false,
 				error: null,
@@ -68,16 +70,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 	const logout = async () => {
 		try {
-			await fetch(`${NEXT_PUBLIC_API}/user/logout`, {
-				method: "POST",
-				credentials: "include",
-			});
-			setAuthState({
+			setAuthState((prev) => ({
+				...prev,
+				isLoading: true,
+			}));
+			const res = await AuthApiService.logout();
+			if (res.success) {
+			return setAuthState({
 				isLoading: false,
 				error: null,
 				user: null,
 			});
+			}
+			return setAuthState((prev) => ({
+				...prev,
+				isLoading: false,
+				error: {
+					message: "failed logout",
+					code: "400",
+				},
+			}));
 		} catch (error) {
+			setAuthState((prev) => ({
+				...prev,
+				isLoading: false,
+				error: {
+					message: "failed logout",
+					code: "400",
+				},
+			}));
 			console.error("Logout failed:", error);
 		}
 	};
