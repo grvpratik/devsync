@@ -108,127 +108,20 @@ export const safeExecutePrismaOperation = async <T>(
 		throw handlePrismaError(error);
 	}
 };
-import {
-	handlePrismaError,
-	safeExecutePrismaOperation,
-} from "./prisma-error-handler";
 
-// Example usage in your controller
-export const BuildController = {
-	getSearch: async (c: Context) => {
-		try {
-			// Using the safe execute wrapper
-			const report = await safeExecutePrismaOperation(async () => {
-				return await prisma.projectReport.create({
-					data: {
-						prompt: result.prompt,
-						timestamp: result.timestamp,
-						metadata: result.metadata as Prisma.JsonValue,
-						overview:
-							result.overview ?
-								(result.overview as Prisma.JsonValue)
-							:	Prisma.JsonNull,
-						market:
-							result.market ?
-								(result.market as Prisma.JsonValue)
-							:	Prisma.JsonNull,
-						feature:
-							result.feature ?
-								(result.feature as Prisma.JsonValue)
-							:	Prisma.JsonNull,
-						user: {
-							connect: {
-								id: userId,
-							},
-						},
-					},
-				});
-			});
 
-			return c.json(
-				{
-					success: true,
-					result: report,
-				},
-				200
-			);
-		} catch (error) {
-			if (error instanceof PrismaError) {
-				return c.json(
-					{
-						success: false,
-						error: {
-							code: error.code,
-							message: error.message,
-							meta: error.meta,
-						},
-					},
-					error.status
-				);
-			}
-
-			// Handle other types of errors
-			return c.json(
-				{
-					success: false,
-					error: {
-						code: "UNKNOWN_ERROR",
-						message: "An unexpected error occurred",
-					},
-				},
-				500
-			);
-		}
-	},
-
-	// Example of handling multiple operations
-	updateReport: async (c: Context) => {
-		try {
-			const { id, data } = await c.req.json();
-
-			// Multiple database operations with safe execution
-			const [report, stats] = await Promise.all([
-				safeExecutePrismaOperation(() =>
-					prisma.projectReport.update({
-						where: { id },
-						data,
-					})
-				),
-				safeExecutePrismaOperation(() =>
-					prisma.reportStats.upsert({
-						where: { reportId: id },
-						create: { reportId: id, updates: 1 },
-						update: { updates: { increment: 1 } },
-					})
-				),
-			]);
-
-			return c.json({ success: true, report, stats }, 200);
-		} catch (error) {
-			if (error instanceof PrismaError) {
-				return c.json(
-					{
-						success: false,
-						error: {
-							code: error.code,
-							message: error.message,
-							meta: error.meta,
-						},
-					},
-					error.status
-				);
-			}
-
-			return c.json(
-				{
-					success: false,
-					error: {
-						code: "UNKNOWN_ERROR",
-						message: "An unexpected error occurred",
-					},
-				},
-				500
-			);
-		}
-	},
-};
+// const [report, stats] = await Promise.all([
+// 	safeExecutePrismaOperation(() =>
+// 		prisma.projectReport.update({
+// 			where: { id },
+// 			data,
+// 		})
+// 	),
+// 	safeExecutePrismaOperation(() =>
+// 		prisma.reportStats.upsert({
+// 			where: { reportId: id },
+// 			create: { reportId: id, updates: 1 },
+// 			update: { updates: { increment: 1 } },
+// 		})
+// 	),
+// ]);

@@ -7,6 +7,7 @@ import { IdeaValidationResponse } from "shared";
 import { AppError, AuthError } from "../error";
 import { PrismaD1 } from "@prisma/adapter-d1";
 import { Prisma, PrismaClient } from "@prisma/client";
+import { safeExecutePrismaOperation } from "../middleware/prisma";
 
 export const BuildController = {
 	getSearch: async (c: Context) => {
@@ -144,44 +145,31 @@ export const BuildController = {
 		);
 	},
 	getReportById: async (c: Context) => {
+		console.log("first");
 		const userId = c.get("userId") || "cm73x26p80000yf0cekb44sro";
 		if (!userId) {
 			throw new AuthError("authentication required");
 		}
-		const id = c.req.param("id") || "";
-		console.log("🔍 Project:",id)
-		const adapter = new PrismaD1(c.env.DB);
-		const prisma = new PrismaClient({ adapter });
-
-		const createProjectReportById = async (
-			userId: string,
-			projectId: string
-		) => {
-			try {
-				const report = await prisma.projectReport.findUnique({
-					where:{
-						userId
-					}
-				});
-
-				return report;
-			} catch (error) {
-				if (error instanceof Prisma.PrismaClientKnownRequestError) {
-					if (error.code === "P2002") {
-						throw new AppError(
-							"A report for this user already exists",
-							400,
-							"DUPLICATE_REPORT"
-						);
-					}
-				}
-				throw new AppError(
-					"Failed to create project report",
-					500,
-					"DATABASE_ERROR"
-				);
-			}
-		};
-		const result;
+		try {
+			const projectId = (await c.req.param("id")) || "";
+			console.log("🔍 Project:", projectId);
+			const adapter = new PrismaD1(c.env.DB);
+			const prisma = new PrismaClient({ adapter });
+			const result =await safeExecutePrismaOperation(
+				async () =>
+					await prisma.projectReport.findUnique({
+						where:{
+							id:projectId
+						}
+					})
+			);
+			console.log(result)
+			return c.json({
+				success: true,
+				result,
+			},200);
+		} catch (error) {
+			throw new AppError("Server error");
+		}
 	},
 };

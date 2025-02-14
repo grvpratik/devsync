@@ -2,6 +2,8 @@ import { Context, Hono, Next } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { z, ZodError } from "zod";
 import { NODE_ENV } from "./lib/constant";
+import { PrismaError } from "./middleware/prisma";
+import { ContentfulStatusCode } from "hono/utils/http-status";
 
 // 1. Custom Error Classes
 export class AppError extends Error {
@@ -64,7 +66,19 @@ export const errorHandler = async (
 	console.error("Error caught in global handler:", error);
 
 	const err = error as Error;
-
+if (error instanceof PrismaError) {
+	return c.json(
+		{
+			success: false,
+			error: {
+				code: error.code,
+				message: error.message,
+				meta: error.meta,
+			},
+		},
+		error.status as ContentfulStatusCode
+	);
+}
 	if (error instanceof AppError) {
 		return c.json(
 			{
@@ -75,7 +89,7 @@ export const errorHandler = async (
 					details: error.details,
 				},
 			},
-			error.statusCode as any
+			error.statusCode as ContentfulStatusCode
 		);
 	}
 
@@ -107,7 +121,7 @@ export const errorHandler = async (
 					code: `HTTP_${error.status}`,
 				},
 			},
-			error.status
+			error.status as ContentfulStatusCode
 		);
 	}
 

@@ -9,9 +9,7 @@ export const buildRoute = new Hono();
 buildRoute.post("/search", BuildController.getSearch);
 
 
-buildRoute.post("/:id", async (c) => {
-	return c.text("ok");
-});
+buildRoute.post("/:id",BuildController.getReportById);
 
 
 buildRoute.post("/:id/edit/market", BuildController.getReportById);
