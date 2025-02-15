@@ -11,7 +11,6 @@ import { safeExecutePrismaOperation } from "../middleware/prisma";
 
 import { z } from "zod";
 
-
 export const BuildController = {
 	getSearch: async (c: Context) => {
 		const userId = c.get("userId") || "cm73x26p80000yf0cekb44sro";
@@ -215,7 +214,9 @@ export const BuildController = {
 		if (!project) {
 			throw new AppError("Project not found", 404, "NOT_FOUND");
 		}
-
+		if (project && project[field as RefreshField]) {
+			throw new AppError("result already present", 404, "NOT_FOUND");
+		}
 		let generatedResult;
 		const prompt = project.prompt;
 
