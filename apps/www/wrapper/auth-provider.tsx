@@ -1,69 +1,118 @@
 "use client";
-import axios from "axios";
+
 import { createContext, useContext, useEffect, useState } from "react";
 import { AuthApiService } from "www/external/api";
 import { getGoogleUrl } from "www/lib/auth";
-import { NEXT_PUBLIC_API } from "www/lib/constant";
 
-// types.ts
+
+interface User {
+
+	email: string;
+	name: string;
+	image?: string;
+
+}
+
 interface AuthError {
 	message: string;
 	code: string;
+	details?: unknown;
 }
 
 interface AuthState {
 	isLoading: boolean;
+	isInitialized: boolean;
 	error: AuthError | null;
-	user: any | null;
+	user: User | null;
 }
 
-const AuthContext = createContext<{
+interface AuthContextType {
 	authState: AuthState;
-	login: () => void;
-	logout: () => void;
-} | null>(null);
+	login: () => Promise<void>;
+	logout: () => Promise<void>;
+	refreshUser: () => Promise<void>;
+}
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+// Create context with a more specific type
+const AuthContext = createContext<AuthContextType | null>(null);
+
+interface AuthProviderProps {
+	children: React.ReactNode;
+	initialUser?: User | null;
+}
+
+export function AuthProvider({ children, initialUser }: AuthProviderProps) {
 	const [authState, setAuthState] = useState<AuthState>({
-		isLoading: true,
+		isLoading: !initialUser,
+		isInitialized: false,
 		error: null,
-		user: null,
+		user: initialUser ?? null,
 	});
 
-	// Check for existing session on mount
-	useEffect(() => {
-		checkAuthStatus();
-	}, []);
+	// Helper to handle errors consistently
+	const handleError = (error: unknown, customMessage: string): AuthError => {
+		if (error instanceof Error) {
+			return {
+				message: error.message,
+				code: "UNKNOWN",
+				details: error,
+			};
+		}
+		return {
+			message: customMessage,
+			code: "UNKNOWN",
+			details: error,
+		};
+	};
 
-	const checkAuthStatus = async () => {
+	const refreshUser = async () => {
 		try {
-			const response = AuthApiService.getUserData();
+			setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
+			const response = await AuthApiService.getUserData();
 
-			// if (response.status !== 200) throw new Error("Session check failed");
-
-			const data = await response;
-			console.log("context", data);
 			setAuthState({
 				isLoading: false,
+				isInitialized: true,
 				error: null,
-				user: data.user,
+				user: response.user,
 			});
 		} catch (error) {
-			console.log("error context", error);
-			setAuthState({
+			setAuthState((prev) => ({
+				...prev,
 				isLoading: false,
-				error: null,
+				isInitialized: true,
+				error: handleError(error, "Failed to fetch user data"),
 				user: null,
-			});
+			}));
 		}
 	};
 
-	const login = () => {
-		// Store the current URL for redirect after login
-		sessionStorage.setItem("authRedirect", window.location.pathname);
+	// Check auth status on mount only if we don't have initialUser
+	useEffect(() => {
+		if (!initialUser) {
+			refreshUser();
+		} else {
+			setAuthState((prev) => ({
+				...prev,
+				isInitialized: true,
+			}));
+		}
+	}, [initialUser]);
 
-		// Start login flow
-		window.location.href = getGoogleUrl();
+	const login = async () => {
+		try {
+			// Store current path for redirect after login
+			// const currentPath = window.location.pathname;
+			// sessionStorage.setItem("authRedirect", currentPath);
+
+			// Redirect to Google login
+			window.location.href = getGoogleUrl();
+		} catch (error) {
+			setAuthState((prev) => ({
+				...prev,
+				error: handleError(error, "Login failed"),
+			}));
+		}
 	};
 
 	const logout = async () => {
@@ -71,38 +120,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 			setAuthState((prev) => ({
 				...prev,
 				isLoading: true,
+				error: null,
 			}));
-			const res = await AuthApiService.logout();
-			if (res.success) {
-			return setAuthState({
+
+			const response = await AuthApiService.logout();
+
+			if (!response.success) {
+				throw new Error("Logout failed");
+			}
+
+			setAuthState({
 				isLoading: false,
+				isInitialized: true,
 				error: null,
 				user: null,
 			});
-			}
-			return setAuthState((prev) => ({
-				...prev,
-				isLoading: false,
-				error: {
-					message: "failed logout",
-					code: "400",
-				},
-			}));
+
+			
+			window.location.href = "/";
 		} catch (error) {
 			setAuthState((prev) => ({
 				...prev,
 				isLoading: false,
-				error: {
-					message: "failed logout",
-					code: "400",
-				},
+				error: handleError(error, "Logout failed"),
 			}));
-			console.error("Logout failed:", error);
 		}
 	};
 
 	return (
-		<AuthContext.Provider value={{ authState, login, logout }}>
+		<AuthContext.Provider value={{ authState, login, logout, refreshUser }}>
 			{children}
 		</AuthContext.Provider>
 	);
@@ -110,53 +156,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export const useAuth = () => {
 	const context = useContext(AuthContext);
-	if (!context) throw new Error("useAuth must be used within AuthProvider");
+	if (!context) {
+		throw new Error("useAuth must be used within AuthProvider");
+	}
 	return context;
 };
 
-// "use client";
-// import { useEffect } from "react";
-// import { useRouter, useSearchParams } from "next/navigation";
-
-// export default function AuthCallback() {
-// 	const router = useRouter();
-// 	const searchParams = useSearchParams();
-
-// 	useEffect(() => {
-// 		const handleCallback = async () => {
-// 			const code = searchParams.get("code");
-// console.log(code)
-// 			if (!code) {
-// 				router.push("/login?error=no_code");
-// 				return;
-// 			}
-
-// 			try {
-// 				const response = await fetch(
-// 					`${process.env.NEXT_PUBLIC_API_URL}/user/auth/google`,
-// 					{
-// 						method: "POST",
-// 						credentials: "include",
-// 						headers: {
-// 							"Content-Type": "application/json",
-// 						},
-// 						body: JSON.stringify({ code }),
-// 					}
-// 				);
-
-// 				if (!response.ok) {
-// 					throw new Error("Auth failed");
-// 				}
-
-// 				router.push("/dashboard");
-// 			} catch (error) {
-// 				console.error("Auth error:", error);
-// 				router.push("/login?error=auth_failed");
-// 			}
-// 		};
-
-// 		handleCallback();
-// 	}, [router, searchParams]);
-
-// 	return <div>Processing login...</div>;
-// }
+// Utility type guard
+export const isAuthenticated = (
+	authState: AuthState
+): authState is AuthState & { user: User } => {
+	return authState.user !== null;
+};

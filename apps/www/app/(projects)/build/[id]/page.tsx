@@ -9,7 +9,7 @@ const BuildPage = async ({ params }: { params: { id: string } }) => {
 	const { id } = await params;
 
 	const result = await ApiService.getProjectById(id);
-console.log("result",result.result);
+// console.log("result",result.result);
 	if (result && !result.success) {
 		return (
 			<main className="flex flex-col justify-center items-center h-screen font-sans">

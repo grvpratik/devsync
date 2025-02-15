@@ -1,10 +1,10 @@
 import axios, { AxiosError, AxiosInstance } from "axios";
+
 import { ApiResponse, ApiResult } from "shared";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
 
 interface User {
-	id: string;
 	email: string;
 	name: string;
 	image_url?: string;
@@ -77,7 +77,7 @@ const instance: AxiosInstance = axios.create({
 // 	}
 // );
 
-export const AuthApiService: any = {
+export const AuthApiService = {
 	// Authentication Status
 	// checkLoginStatus: async () => {
 	// 	try {
@@ -119,7 +119,7 @@ export const AuthApiService: any = {
 	// Get all active sessions
 	getSessions: async (): Promise<{ sessions: SessionInfo[] }> => {
 		try {
-			const response = await instance.get("/user/auth/sessions");
+			const response = await instance.post("/user/auth/sessions");
 			return response.data;
 		} catch (error) {
 			console.error("Failed to get sessions:", error);
@@ -137,7 +137,8 @@ export const AuthApiService: any = {
 	// User Data
 	getUserData: async (): Promise<{ user: User | null }> => {
 		try {
-			const response = await instance.get("/user/auth/data");
+			const response = await instance.post("/user/auth/data");
+			console.log(response);
 			return response.data;
 		} catch (error) {
 			console.error("Failed to get user data:", error);

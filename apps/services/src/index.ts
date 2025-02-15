@@ -19,6 +19,7 @@ app.use("*", async (c, next) => {
 				["https://.com"]
 			:	"http://localhost:3000",
 		credentials: true,
+	
 		allowHeaders: [
 			"Content-Type",
 			"Authorization",

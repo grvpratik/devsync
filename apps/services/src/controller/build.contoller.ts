@@ -152,7 +152,7 @@ export const BuildController = {
 		}
 		try {
 			const projectId = (await c.req.param("id")) || "";
-			console.log("🔍 Project:", projectId);
+			//console.log("🔍 Project:", projectId);
 			const adapter = new PrismaD1(c.env.DB);
 			const prisma = new PrismaClient({ adapter });
 			const result = await safeExecutePrismaOperation(

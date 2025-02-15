@@ -477,7 +477,7 @@ user.get("/auth/validate", userRoutes.validateSession);
 //after success google auth it create db and session to set cookies
 user.get("/auth/callback", userRoutes.handleInitialCallback);
 //for context for frontent to get profile to show ui and hook
-user.get("/auth/data", getUserProfile, userRoutes.getUserData);
+user.post("/auth/data", getUserProfile, userRoutes.getUserData);
 //
 user.get("/auth/sessions", checkSession, userRoutes.getSessions);
 user.post("/auth/logout/session", checkSession, userRoutes.logoutSession);
