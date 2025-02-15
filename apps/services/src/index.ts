@@ -8,16 +8,16 @@ import { base } from "./routes/base.route";
 import { errorHandler } from "./error";
 const app = new Hono<{ Bindings: CloudflareBindings }>();
 
-
 app.use("*", logger());
 app.use("*", prettyJSON());
-app.options("*",cors())
+app.options("*", cors());
+// app.use("*",cors())
 app.use("*", async (c, next) => {
 	await cors({
-		origin:"*",
-			// c.env.CF_ENV === "production" ?
-			// 	["https://.com"]
-			// :	"http://localhost:3000/",
+		origin:
+			c.env.CF_ENV === "production" ?
+				["https://.com"]
+			:	"http://localhost:3000",
 		credentials: true,
 		allowHeaders: [
 			"Content-Type",
@@ -27,14 +27,9 @@ app.use("*", async (c, next) => {
 			"Origin",
 		],
 		exposeHeaders: ["Content-Length", "X-Requested-With"],
-		maxAge: 600,
-		...(c.env.CF_ENV === "production" && {
-			credentials: true,
-			preflightContinue: true, 
-		}),
+		maxAge: 600
 	})(c, next);
 });
-
 
 app.route("/", base);
 

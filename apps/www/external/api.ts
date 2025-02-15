@@ -1,4 +1,5 @@
 import axios, { AxiosError, AxiosInstance } from "axios";
+import { ApiResponse, ApiResult } from "shared";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
 
@@ -30,37 +31,36 @@ interface SessionValidation {
 // Create axios instance with default config
 const instance: AxiosInstance = axios.create({
 	baseURL: BASE_URL,
-	withCredentials: true, 
+	withCredentials: true,
 	headers: {
 		"Content-Type": "application/json",
 	},
 });
 
-// Error handler utility
-const handleApiError = (error: unknown) => {
-	if (axios.isAxiosError(error)) {
-		const axiosError = error as AxiosError<any>;
-		if (axiosError.response) {
-			// Server responded with error
-			return {
-				error: axiosError.response.data?.message || "Server error",
-				status: axiosError.response.status,
-			};
-		}
-		if (axiosError.request) {
-			// No response received
-			return {
-				error: "Network error - no response received",
-				status: 0,
-			};
-		}
-	}
-	// Something else went wrong
-	return {
-		error: "An unexpected error occurred",
-		status: 500,
-	};
-};
+// const handleApiError = (error: unknown) => {
+// 	if (axios.isAxiosError(error)) {
+// 		const axiosError = error as AxiosError<any>;
+// 		if (axiosError.response) {
+// 			// Server responded with error
+// 			return {
+// 				error: axiosError.response.data?.message || "Server error",
+// 				status: axiosError.response.status,
+// 			};
+// 		}
+// 		if (axiosError.request) {
+// 			// No response received
+// 			return {
+// 				error: "Network error - no response received",
+// 				status: 0,
+// 			};
+// 		}
+// 	}
+// 	// Something else went wrong
+// 	return {
+// 		error: "An unexpected error occurred",
+// 		status: 500,
+// 	};
+// };
 
 // Response interceptor for handling auth errors
 // instance.interceptors.response.use(
@@ -77,7 +77,7 @@ const handleApiError = (error: unknown) => {
 // 	}
 // );
 
-export const AuthApiService :any= {
+export const AuthApiService: any = {
 	// Authentication Status
 	// checkLoginStatus: async () => {
 	// 	try {
@@ -89,7 +89,17 @@ export const AuthApiService :any= {
 	// },
 
 	// Session Management
-	validateSession: async (cookie:string): Promise<SessionValidation> => {
+	serverCheck: async (): Promise<boolean> => {
+		try {
+			const response = await instance.get("");
+			return response.status === 200;
+		} catch (error) {
+			console.error("Server check failed:", error);
+			return false;
+		}
+	},
+
+	validateSession: async (cookie?: string): Promise<SessionValidation> => {
 		try {
 			const response = await instance.get("/user/auth/validate", {
 				headers:
@@ -101,7 +111,7 @@ export const AuthApiService :any= {
 			});
 			return response.data;
 		} catch (error) {
-			console.log(error)
+			console.log(error);
 			return { valid: false, reason: "error" };
 		}
 	},
@@ -149,7 +159,6 @@ export const AuthApiService :any= {
 				const response = await instance.post("/user/auth/logout/session");
 				return response.data;
 			}
-			
 		} catch (error) {
 			console.error("Logout failed:", error);
 			return { success: false };
@@ -163,6 +172,26 @@ export const AuthApiService :any= {
 		} catch (error) {
 			console.error("Logout all sessions failed:", error);
 			return { success: false };
+		}
+	},
+};
+
+export const ApiService = {
+	getProjectById: async (id: string): Promise<ApiResult<any>> => {
+		try {
+			const response = await instance.post(`/build/project/${id}`);
+			return response.data;
+		} catch (error) {
+			console.error("error fetching project report");
+			return {
+				success: false,
+				error: {
+					message:
+						error instanceof Error ?
+							error.message
+						:	"Unable to fetch project report",
+				},
+			};
 		}
 	},
 };

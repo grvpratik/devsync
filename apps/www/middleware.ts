@@ -61,7 +61,7 @@ export default async function middleware(req: NextRequest) {
 			// Store the original URL to redirect back after login
 			const returnUrl = encodeURIComponent(req.nextUrl.pathname);
 			return NextResponse.redirect(
-				createRedirectUrl(`/login?returnUrl=${returnUrl}`)
+				createRedirectUrl(`/?returnUrl=${returnUrl}`)
 			);
 		}
 

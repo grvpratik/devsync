@@ -1,7 +1,7 @@
 // Generic API Response type
 export type ApiResponse<T> = {
   success: true;
-  data: T;
+  result: T;
   message?: string;
 };
 

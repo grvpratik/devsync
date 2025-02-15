@@ -18,7 +18,7 @@ import {
 	TabsList,
 	TabsTrigger,
 } from "www/components/ui/tabs";
-import { BusinessResponse } from "www/app/(projects)/build/[id]/page";
+
 import { BusinessIdeaResult } from "shared";
 import { Button } from "www/components/ui/button";
 import {
@@ -33,7 +33,7 @@ import { MultiDateRangeSelector } from "../../form/phase-selector";
 
 // Types and Interfaces
 interface AnalysisProps {
-	res: BusinessResponse;
+	res: any;
 }
 
 interface TabConfig {
