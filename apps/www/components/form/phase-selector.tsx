@@ -90,19 +90,27 @@ const pathname=usePathname()
 		try {
 			setLoading(true);
 			setError(null);
+
 			// Using the payload with key "phases"
-			const response = await axios.post(
-				`${NEXT_PUBLIC_API}/business/1739080602/schedule`,dateRanges);
-				if(response.status!==200){
-					return
-				}
-				console.log(pathname)
-				router.push(`${pathname}/schedule`)
-			//	setSubmitResponse(response.data);
-      console.log(await response.data)
+			const response = await axios.post(`${NEXT_PUBLIC_API}/build/phase/test`, {
+				dateRanges,
+			});
+
+			if (response.status !== 200) {
+				throw new Error("Failed to submit data");
+			}
+
+			console.log(pathname);
+			router.push(`${pathname}/schedule`);
+
+			// Log the response data
+			console.log(response.data);
+
+			// Optionally, set the response data to a state variable
+			// setSubmitResponse(response.data);
 		} catch (err: any) {
 			// Ensure we set error to a string or an object that we handle properly
-			//	setError(err.response?.data || err.message || "An error occurred");
+			setError(err.response?.data || err.message || "An error occurred");
 		} finally {
 			setLoading(false);
 		}

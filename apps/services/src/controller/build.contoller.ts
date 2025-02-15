@@ -17,11 +17,8 @@ export const BuildController = {
 		if (!userId) {
 			throw new AuthError("authentication required");
 		}
-
-		const { GEMINI_API } = c.env;
-		const adapter = new PrismaD1(c.env.DB);
-		const prisma = new PrismaClient({ adapter });
-
+		
+		
 		const body = await c.req.json();
 		const parsed = SearchRequestSchema.safeParse(body);
 		console.log(body);
@@ -34,6 +31,9 @@ export const BuildController = {
 			);
 		}
 		const { value, project, model } = parsed.data;
+		const { GEMINI_API } = c.env;
+		const adapter = new PrismaD1(c.env.DB);
+		const prisma = new PrismaClient({ adapter });
 
 		console.log("Processing search request:", {
 			project,
@@ -325,6 +325,12 @@ export const BuildController = {
 		const features: any = project.feature;
 		const mvp = features.mvp;
 
-		const phaseResult=GenerativeAI.phases(prompt,GEMINI_API)
+		const phaseResult = GenerativeAI.phases(
+			prompt,
+			GEMINI_API,
+			mvp,
+			phasesInfo
+		);
+
 	},
 };

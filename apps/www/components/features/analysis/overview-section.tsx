@@ -9,7 +9,7 @@ import {
 import { Badge } from "www/components/ui/badge";
 import { ArrowUp, ArrowDown, Clock, Target, Zap, Code } from "lucide-react";
 import ScoreIndicator from "www/components/ScoreIndicator";
-
+import { Overview } from "shared";
 const ScoreCard = ({ title, score, overview, considerations }) => (
 	<Card className="h-full">
 		<CardHeader className="pb-2">
@@ -85,14 +85,6 @@ interface Score {
 	considerations: string[];
 }
 
-interface Overview {
-	score: Record<string, Score>;
-	problem: string;
-	suggestion: { name: string; description: string }[];
-	missing: { name: string; description: string }[];
-	indication: { type: string; name: string; description: string }[];
-}
-
 const OverviewAnalysis = ({
 	metadata,
 	overview,
@@ -101,17 +93,17 @@ const OverviewAnalysis = ({
 	overview: Overview;
 }) => {
 	const scoreCategories = [
-		{ icon: Target, key: "feasibility", title: "Feasibility" },
-		{ icon: Zap, key: "marketfit", title: "Market Fit" },
-		{ icon: Code, key: "technical", title: "Technical" },
-		{ icon: Clock, key: "uniqueness", title: "Uniqueness" },
+		{ icon: Target, key: "feasibility" as const, title: "Feasibility" },
+		{ icon: Zap, key: "marketfit" as const, title: "Market Fit" },
+		{ icon: Code, key: "technical" as const, title: "Technical" },
+		{ icon: Clock, key: "uniqueness" as const, title: "Uniqueness" },
 	];
 
 	const averageScore = Math.round(
 		Object.values(overview.score).reduce((acc, curr) => acc + curr.score, 0) /
 			Object.keys(overview.score).length
 	);
-if(!metadata ||!overview)return <div>failed to generate</div>
+	if (!metadata || !overview) return <div>failed to generate</div>;
 	return (
 		<div className="w-full space-y-6 p-6">
 			{/* Header Section */}

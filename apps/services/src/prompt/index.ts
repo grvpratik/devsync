@@ -155,7 +155,7 @@ export const GenerativeAI = {
 			}
 		}
 	},
-	phases: async (idea: string, key: string) => {
+	phases: async (idea: string, key: string,mvp:any,blueprint:any) => {
 		const genAI = new GoogleGenerativeAI(key);
 		const model = genAI.getGenerativeModel({
 			model: MODEL_TYPE,
@@ -163,7 +163,7 @@ export const GenerativeAI = {
 			generationConfig,
 		});
 		try {
-			const chat = model.startChat({ history:  });
+			const chat = model.startChat({  });
 			const result = await chat.sendMessage(idea);
 			const response = result.response.text();
 

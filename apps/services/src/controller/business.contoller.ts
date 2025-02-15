@@ -514,7 +514,7 @@ const BusinessPhasesSchema=z.array(BusinessPhaseSchema)
 
 
 export async function businessSchedule(c:any) {
-		//phases params
+	
 		const body = await c.req.json();
 				const parsed = BusinessPhasesSchema.safeParse(body);
 				console.log(body);

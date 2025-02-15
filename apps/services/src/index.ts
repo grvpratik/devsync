@@ -11,34 +11,29 @@ const app = new Hono<{ Bindings: CloudflareBindings }>();
 
 app.use("*", logger());
 app.use("*", prettyJSON());
-app.use(
-	"*",
-	async (c, next) => {
-		const CF_ENV = c.env.CF_ENV || "development";
-		console.log("CF_ENV",CF_ENV)
-		await cors({
-			origin:
-				CF_ENV === "production" ?
-					["", ""]
-				:	"http://localhost:3000",
+app.options("*",cors())
+app.use("*", async (c, next) => {
+	await cors({
+		origin:"*",
+			// c.env.CF_ENV === "production" ?
+			// 	["https://.com"]
+			// :	"http://localhost:3000/",
+		credentials: true,
+		allowHeaders: [
+			"Content-Type",
+			"Authorization",
+			"X-Requested-With",
+			"Accept",
+			"Origin",
+		],
+		exposeHeaders: ["Content-Length", "X-Requested-With"],
+		maxAge: 600,
+		...(c.env.CF_ENV === "production" && {
 			credentials: true,
-			allowHeaders: [
-				"Content-Type",
-				"Authorization",
-				"X-Requested-With",
-				"Accept",
-				"Origin",
-			],
-			exposeHeaders: ["Content-Length", "X-Requested-With"],
-			maxAge: 600,
-			...(CF_ENV === "production" && {
-				credentials: true,
-				preflightContinue: false,
-				optionsSuccessStatus: 204,
-			}),
-		})(c, next);
-	}
-);
+			preflightContinue: true, 
+		}),
+	})(c, next);
+});
 
 
 app.route("/", base);

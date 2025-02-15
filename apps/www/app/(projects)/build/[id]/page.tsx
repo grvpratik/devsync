@@ -13,11 +13,11 @@ export interface BusinessResponse {
 // ✅ Improved API Call with Error Handling
 async function getData(id: string): Promise<ApiResponse | null> {
 	try {
-		const URL = `${process.env.NEXT_PUBLIC_API!}/business/${id}`;
+		const URL = `${process.env.NEXT_PUBLIC_API!}/build/project/${id}`;
 		//	console.log(`Fetching: ${URL}`);
 
 		const res = await axios.post(URL);
-		//	console.log("API Response:", res.data);
+			console.log("API Response:", res.data);
 
 		return res;
 	} catch (error: any) {
@@ -28,7 +28,7 @@ async function getData(id: string): Promise<ApiResponse | null> {
 }
 
 const BuildPage = async ({ params }: { params: { id: string } }) => {
-	const { id } = await params; // ✅ No need to `await params`
+	const { id } = await params; 
 
 	const result = await getData(id);
 

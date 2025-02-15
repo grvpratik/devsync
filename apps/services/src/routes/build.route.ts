@@ -8,9 +8,7 @@ export const buildRoute = new Hono();
 
 buildRoute.post("/search", BuildController.getSearch);
 
-
-buildRoute.post("/:id",BuildController.getReportById);
-
+buildRoute.post("/project/:id", BuildController.getReportById);
 
 // buildRoute.post("/:id/edit/market", );
 
@@ -18,10 +16,15 @@ buildRoute.post("/:id",BuildController.getReportById);
 // 	return c.text("ok");
 // });
 
-buildRoute.post("/:id/refresh/:field",BuildController.refreshField);
+buildRoute.post("/project/:id/refresh/:field", BuildController.refreshField);
 
-buildRoute.post("/:id/phase",BuildController.getPhases);
+buildRoute.post("/project/:id/phase", BuildController.getPhases);
 
+buildRoute.post("/phase/test", async (c) => {
+	const body = await c.req.json();
+	console.log(body);
+	return c.text("ok");
+});
 // buildRoute.post("/:id/phase/edit", async (c) => {
 // 	return c.text("ok");
 // });

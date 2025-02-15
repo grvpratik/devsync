@@ -86,19 +86,7 @@ const AudienceInsights = ({ audience }: { audience: Audience }) => (
 		</CardHeader>
 		<CardContent className="space-y-4">
 			<div className="grid md:grid-cols-2 gap-4">
-				<div>
-					<h3 className="font-medium mb-2">Demographics</h3>
-					<div className="space-y-2 text-sm">
-						<div className="flex items-center gap-2">
-							<Globe size={16} />
-							<span>{audience.demographics.locations}</span>
-						</div>
-						<div className="flex items-center gap-2">
-							<DollarSign size={16} />
-							<span>{audience.demographics.income_levels}</span>
-						</div>
-					</div>
-				</div>
+
 				<div>
 					<h3 className="font-medium mb-2">Interests</h3>
 					<div className="flex flex-wrap gap-2">

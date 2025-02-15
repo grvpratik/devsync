@@ -4,7 +4,7 @@ import ScheduleCalendar from "www/components/features/schedule/ScheduleCalendar"
 
 async function getData(id: string): Promise<AxiosResponse | null> {
 	try {
-		const URL = `${process.env.NEXT_PUBLIC_API!}/business/${id}/schedule`;
+		const URL = `${process.env.NEXT_PUBLIC_API!}/build/project/${id}/schedule`;
 		console.log(`Fetching: ${URL}`);
 
 		const res = await axios.get(URL);
