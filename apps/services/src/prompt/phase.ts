@@ -1,3 +1,5 @@
+import { PhasesOutputSchema } from "shared";
+
 const phases = [
 	{
 		name: "core",
@@ -137,10 +139,159 @@ const phases = [
 ];
 
 export const PHASES_SYSTEM_INSTRUCTION = `
-Act as a project planning expert. Given a business idea and a list of project phases and project mvp, generate a detailed project plan for each phase provided by user(no additional). Each phase should have a "name" and a list of "tasks". Each task must include a "title", "desc" (description), and a "priority" (which can be "high", "medium", or "low") also NO extra other than provided names. Return the result as a valid JSON array matching the following format:
+Act as a project phase planning assistant. Analyze the input business idea, MVP features, and project phases to generate detailed task breakdowns for each phase. Follow these criteria:
 
-${JSON.stringify(phases)}
-Do not include any additional text or explanation.
+1. Each phase should have relevant tasks that align with the phase's purpose
+2. Tasks should be concrete and actionable
+3. Task priorities should reflect their importance to project success
+4. Task descriptions should be clear and specific
+5. Consider dependencies between phases when suggesting tasks
+6. Ensure tasks align with MVP features and overall project goals
+
+Return valid JSON matching this schema:
+${JSON.stringify(PhasesOutputSchema)}
 `;
 
-// export
+
+
+export const PHASES_EXAMPLES = [
+	{
+		role: "user",
+		parts: [
+			{
+				text: `Business Idea: A platform for freelancers to find jobs
+Project MVP: ${JSON.stringify([
+					{
+						id: "auth",
+						name: "User Authentication",
+						description: "Basic email/password authentication",
+						priority: "high",
+						complexity: 7,
+						type: "must-have",
+					},
+					{
+						id: "profile",
+						name: "User Profiles",
+						description: "Create and edit professional profiles",
+						priority: "high",
+						complexity: 6,
+						type: "must-have",
+					},
+				])}
+Project Development Phases: ${JSON.stringify([
+					{ name: "core", desc: "Setup core infrastructure" },
+					{ name: "auth", desc: "Implement authentication" },
+				])}`,
+			},
+		],
+	},
+	{
+		role: "model",
+		parts: [
+			{
+				text: JSON.stringify([
+					{
+						name: "core",
+						tasks: [
+							{
+								title: "Project Setup",
+								desc: "Initialize project structure and development environment",
+								priority: "high",
+							},
+							{
+								title: "Database Design",
+								desc: "Design database schema for users and jobs",
+								priority: "high",
+							},
+						],
+					},
+					{
+						name: "auth",
+						tasks: [
+							{
+								title: "Authentication Flow",
+								desc: "Implement email/password authentication system",
+								priority: "high",
+							},
+							{
+								title: "User Session Management",
+								desc: "Implement secure session handling and token management",
+								priority: "medium",
+							},
+						],
+					},
+				]),
+			},
+		],
+	},
+	{
+		role: "user",
+		parts: [
+			{
+				text: `Business Idea: Fitness tracking mobile app
+Project MVP: ${JSON.stringify([
+					{
+						id: "tracking",
+						name: "Activity Tracking",
+						description: "Track steps, distance, and calories",
+						priority: "high",
+						complexity: 8,
+						type: "must-have",
+					},
+					{
+						id: "goals",
+						name: "Fitness Goals",
+						description: "Set and monitor fitness goals",
+						priority: "medium",
+						complexity: 5,
+						type: "should-have",
+					},
+				])}
+Project Development Phases: ${JSON.stringify([
+					{ name: "core", desc: "Basic app setup" },
+					{ name: "tracking", desc: "Implement activity tracking" },
+				])}`,
+			},
+		],
+	},
+	{
+		role: "model",
+		parts: [
+			{
+				text: JSON.stringify([
+					{
+						name: "core",
+						tasks: [
+							{
+								title: "Mobile App Setup",
+								desc: "Initialize mobile app project with required dependencies",
+								priority: "high",
+							},
+							{
+								title: "UI Framework",
+								desc: "Set up UI framework and basic navigation",
+								priority: "medium",
+							},
+						],
+					},
+					{
+						name: "tracking",
+						tasks: [
+							{
+								title: "Sensor Integration",
+								desc: "Implement integration with device sensors for activity tracking",
+								priority: "high",
+							},
+							{
+								title: "Data Storage",
+								desc: "Implement local storage for tracking data",
+								priority: "medium",
+							},
+						],
+					},
+				]),
+			},
+		],
+	},
+];
+

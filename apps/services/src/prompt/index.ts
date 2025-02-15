@@ -7,6 +7,7 @@ import {
 	MetaData,
 	MetadataSchema,
 	OverviewSchema,
+	PhasesOutputSchema,
 } from "shared";
 import { PROJECT_IDEA_SYSTEM_INSTRUCTION, PROJECT_IDEA_EXAMPLE } from "./info";
 import {
@@ -19,9 +20,10 @@ import { MARKET_EXAMPLE, MARKET_SYSTEM_PROMPT } from "./market";
 import { FEATURE_EXAMPLE, FEATURE_SYSTEM_INSTRUCTION } from "./feature";
 import { AppError, ValidationError } from "../error";
 import { ZodError } from "zod";
-import { PHASES_SYSTEM_INSTRUCTION } from "./phase";
+import { PHASES_EXAMPLES, PHASES_SYSTEM_INSTRUCTION } from "./phase";
 
-export const GenerativeAI = {
+export const 
+GenerativeAI = {
 	metadata: async (idea: string, key: string): Promise<MetaData> => {
 		const genAI = new GoogleGenerativeAI(key);
 
@@ -163,14 +165,16 @@ export const GenerativeAI = {
 			generationConfig,
 		});
 		try {
-			const chat = model.startChat({  });
-			const result = await chat.sendMessage(idea);
+			const promptMessage = `Business Idea: ${idea}\n Project MVP: ${JSON.stringify(mvp)}\n Project Development Phases: ${JSON.stringify(blueprint)}`;
+
+			const chat = model.startChat({history:PHASES_EXAMPLES});
+			const result = await chat.sendMessage(promptMessage);
 			const response = result.response.text();
 
 			// Validate and parse response
 			const rawData = JSON.parse(response);
 			console.log(rawData);
-			return MarketSchema.parse(rawData);
+			return PhasesOutputSchema.parse(rawData);
 		} catch (error) {
 			console.error("Market Analysis Error:", error);
 			if (error instanceof ZodError) {

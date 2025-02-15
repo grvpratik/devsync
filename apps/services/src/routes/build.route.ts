@@ -18,7 +18,7 @@ buildRoute.post("/project/:id", BuildController.getReportById);
 
 buildRoute.post("/project/:id/refresh/:field", BuildController.refreshField);
 
-buildRoute.post("/project/:id/phase", BuildController.getPhases);
+buildRoute.post("/project/:id/phases", BuildController.getPhases);
 
 buildRoute.post("/phase/test", async (c) => {
 	const body = await c.req.json();

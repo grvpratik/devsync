@@ -15,6 +15,17 @@ export interface IdeaValidationResponse {
 	feature?: Feature;
 	resource?: any;
 }
+export const TaskSchema = z.object({
+	title: z.string(),
+	desc: z.string(),
+	priority: z.enum(["high", "medium", "low"]),
+});
+export const PhaseSchema = z.object({
+	name: z.string(),
+	tasks: z.array(TaskSchema),
+});
+
+export const PhasesOutputSchema = z.array(PhaseSchema);
 
 export const MetadataSchema = z.object({
 	name: z.string(),
@@ -147,3 +158,4 @@ export type Audience = z.infer<typeof AudienceSchema>;
 export type Market = z.infer<typeof MarketSchema>;
 export type MarketTrends = z.infer<typeof MarketTrendsSchema>;
 export type Overview = z.infer<typeof OverviewSchema>;
+export type FeatureItem=z.infer<typeof FeatureSchema>

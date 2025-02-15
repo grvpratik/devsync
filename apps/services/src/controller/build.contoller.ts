@@ -1,15 +1,16 @@
 import { Context } from "hono";
-import { SearchRequestSchema } from "../types";
-
-import { GenerativeAI } from "../prompt";
-
-import { IdeaValidationResponse, RefreshField } from "shared";
-import { AppError, AuthError, ValidationError } from "../error";
 import { PrismaD1 } from "@prisma/adapter-d1";
 import { Prisma, PrismaClient } from "@prisma/client";
+
+import { IdeaValidationResponse, RefreshField } from "shared";
+
+import { SearchRequestSchema } from "../types";
+import { GenerativeAI } from "../prompt";
+import { AppError, AuthError, ValidationError } from "../error";
 import { safeExecutePrismaOperation } from "../middleware/prisma";
-import { FEATURE_EXAMPLE } from "../prompt/feature";
+
 import { z } from "zod";
+
 
 export const BuildController = {
 	getSearch: async (c: Context) => {
@@ -17,8 +18,7 @@ export const BuildController = {
 		if (!userId) {
 			throw new AuthError("authentication required");
 		}
-		
-		
+
 		const body = await c.req.json();
 		const parsed = SearchRequestSchema.safeParse(body);
 		console.log(body);
@@ -297,14 +297,14 @@ export const BuildController = {
 		// const {  } = parsed.data;
 		// console.log(parsed.data,"parsed");
 		const phasesInfo =
-		parsed.data &&
-		parsed.data.map((phase) => {
-			return {
-				name: phase.name,
-				desc: phase.description,
-			};
-		});
-		console.log("parsed info",phasesInfo)
+			parsed.data &&
+			parsed.data.map((phase) => {
+				return {
+					name: phase.name,
+					desc: phase.description,
+				};
+			});
+		console.log("parsed info", phasesInfo);
 
 		const adapter = new PrismaD1(c.env.DB);
 		const prisma = new PrismaClient({ adapter });
@@ -325,12 +325,25 @@ export const BuildController = {
 		const features: any = project.feature;
 		const mvp = features.mvp;
 
-		const phaseResult = GenerativeAI.phases(
+		const phasesResult = await GenerativeAI.phases(
 			prompt,
 			GEMINI_API,
 			mvp,
 			phasesInfo
 		);
+		const updatedSchedule = await safeExecutePrismaOperation(
+			async () =>
+				await prisma.projectReport.update({
+					where: {
+						id,
+						userId,
+					},
+					data: {
+						phases: phasesResult as Prisma.InputJsonValue,
+					},
+				})
+		);
 
+		return c.json({ success: true, result: updatedSchedule.phases }, 200);
 	},
 };
