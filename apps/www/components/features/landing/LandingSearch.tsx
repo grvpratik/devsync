@@ -23,6 +23,7 @@ import {
 	AI_MODELS_LIST,
 } from "www/lib/constant";
 
+
 const AI_MODELS = AI_MODELS_LIST.map((model) => ({
 	...model,
 	icon: <Brain className="w-4 h-4" />,
@@ -43,15 +44,17 @@ interface SearchInput {
 
 const searchService = {
 	async submit(input: SearchInput) {
-		return axios.post(`${process.env.NEXT_PUBLIC_API!}/search`, input, {
+		return axios.post(`${process.env.NEXT_PUBLIC_API!}/build/search`, input, {
+			withCredentials: true,
 			headers: {
-				"Content-Type": "application/json",
+			"Content-Type": "application/json",
 			},
 		});
 	},
 };
 
 export default function AiSearch() {
+	
 	const { toast } = useToast();
 	const [loading, setLoading] = useState<boolean>(false);
 	const [state, setState] = useState<StateProps>({
@@ -79,12 +82,12 @@ export default function AiSearch() {
 				model: state.selectedModel,
 			});
 			if (response.status !== 200) {
-				handleError(response && response.data.message);
+				handleError(response && response.data.error.message);
 				return;
 			}
 			const result = response.data;
 
-			router.push(`/build/${result.id}`);
+			router.push(`/build/${result.url}`);
 		} catch (error) {
 			handleError(error);
 		} finally {
@@ -151,6 +154,7 @@ export default function AiSearch() {
 							className="w-full  rounded-xl rounded-b-none px-4 py-3 bg-black/5 dark:bg-white/5 border-none dark:text-white placeholder:text-black/70 dark:placeholder:text-white/70 resize-none focus-visible:ring-0 leading-[1.2]"
 							ref={textareaRef}
 							onKeyDown={handleKeyDown}
+							disabled={loading}
 							onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
 								setState((prev) => ({ ...prev, value: e.target.value }));
 								adjustHeight();

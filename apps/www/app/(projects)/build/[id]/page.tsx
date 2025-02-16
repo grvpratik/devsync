@@ -3,15 +3,18 @@ import Analysis from "www/components/features/analysis/analysis-container";
 import axios from "axios";
 import { ApiResponse, BusinessIdeaResult } from "shared";
 import { ApiService, AuthApiService } from "www/external/api";
-
+import { cookies } from "next/headers";
+import { getSessionCookie } from "www/hooks/use-server-session";
 
 const BuildPage = async ({ params }: { params: { id: string } }) => {
 	const { id } = await params;
-
-	const result = await ApiService.getProjectById(id);
-	const user= await AuthApiService.getUserData()
-	console.log(user)
-// console.log("result",result.result);
+	const session = await getSessionCookie();
+	console.log("session",session)
+	const result = await ApiService.getProjectById(id,session??'');
+	// console.log("project by id",result)
+	// const user= await AuthApiService.getUserData()
+	// console.log(user)
+	// console.log("result",result.result);
 	if (result && !result.success) {
 		return (
 			<main className="flex flex-col justify-center items-center h-screen font-sans">

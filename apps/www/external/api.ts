@@ -1,6 +1,7 @@
-import axios, {  AxiosInstance } from "axios";
+import axios, { AxiosInstance } from "axios";
+import { headers } from "next/headers";
 
-import {  ApiResult } from "shared";
+import { ApiResult } from "shared";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
 
@@ -138,7 +139,7 @@ export const AuthApiService = {
 	getUserData: async (): Promise<{ user: User | null }> => {
 		try {
 			const response = await instance.post("/user/auth/data");
-			console.log(response);
+			console.log(response.data);
 			return response.data;
 		} catch (error) {
 			console.error("Failed to get user data:", error);
@@ -178,9 +179,38 @@ export const AuthApiService = {
 };
 
 export const ApiService = {
-	getProjectById: async (id: string): Promise<ApiResult<any>> => {
+	getProjectById: async (
+		id: string,
+		session: string
+	): Promise<ApiResult<any>> => {
 		try {
-			const response = await instance.post(`/build/project/${id}`);
+			const response = await instance.post(
+				`/build/project/${id}`,
+				{}, // Request body (empty in this case)
+				{
+					headers: {
+						Cookie: `session_id=${session || ""}`,
+					},
+				}
+			);
+			console.log(response.data);
+			return response.data;
+		} catch (error) {
+			console.error("error fetching project report", error);
+			return {
+				success: false,
+				error: {
+					message:
+						error instanceof Error ?
+							error.message
+						:	"Unable to fetch project report",
+				},
+			};
+		}
+	},
+	getSearch: async () => {
+		try {
+			const response = await instance.post(`/build/search`);
 			return response.data;
 		} catch (error) {
 			console.error("error fetching project report");

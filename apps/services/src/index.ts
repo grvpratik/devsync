@@ -10,16 +10,26 @@ const app = new Hono<{ Bindings: CloudflareBindings }>();
 
 app.use("*", logger());
 app.use("*", prettyJSON());
-app.options("*", cors());
+app.options(
+	"*",
+	cors({
+		origin: "http://localhost:3000",
+		credentials:true
+	})
+);
 // app.use("*",cors())
 app.use("*", async (c, next) => {
 	await cors({
+		// Specify exact origin instead of wildcard
 		origin:
 			c.env.CF_ENV === "production" ?
-				["https://.com"]
+				"https://your-production-domain.com" // Replace with your production domain
 			:	"http://localhost:3000",
+
+		// Enable credentials
 		credentials: true,
-	
+
+		// Allow necessary headers
 		allowHeaders: [
 			"Content-Type",
 			"Authorization",
@@ -27,11 +37,17 @@ app.use("*", async (c, next) => {
 			"Accept",
 			"Origin",
 		],
+
+		// Expose headers if needed
 		exposeHeaders: ["Content-Length", "X-Requested-With"],
-		maxAge: 600
+
+		// Cache preflight requests
+		maxAge: 600,
+
+		// Allow specific methods
+		allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 	})(c, next);
 });
-
 app.route("/", base);
 
 console.log("server is running ✅");

@@ -87,6 +87,7 @@ export const BuildController = {
 			...(marketResult && { market: marketResult }),
 			...(featureResult && { feature: featureResult }),
 		};
+		console.log(await prisma.projectReport.findMany());
 		const createProjectReport = async (
 			userId: string,
 			result: IdeaValidationResponse
@@ -119,15 +120,15 @@ export const BuildController = {
 
 				return report;
 			} catch (error) {
-				if (error instanceof Prisma.PrismaClientKnownRequestError) {
-					if (error.code === "P2002") {
-						throw new AppError(
-							"A report for this user already exists",
-							400,
-							"DUPLICATE_REPORT"
-						);
-					}
-				}
+				// if (error instanceof Prisma.PrismaClientKnownRequestError) {
+				// 	if (error.code === "P2002") {
+				// 		throw new AppError(
+				// 			"A report for this user already exists",
+				// 			400,
+				// 			"DUPLICATE_REPORT",error
+				// 		);
+				// 	}
+				// }
 				throw new AppError(
 					"Failed to create project report",
 					500,
@@ -136,7 +137,7 @@ export const BuildController = {
 			}
 		};
 		const report = await createProjectReport(userId, result);
-
+		console.log("PROJECT REPORT", report);
 		return c.json(
 			{
 				success: true,

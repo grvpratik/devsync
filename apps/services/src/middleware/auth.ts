@@ -48,7 +48,7 @@ const SessionManager = {
 				c.req.header("cf-connecting-ip") ||
 				"unknown",
 		};
-		console.log("create ", deviceInfo);
+		// console.log("create ", deviceInfo);
 		const sessionData: SessionData = {
 			userId,
 			createdAt: now,
@@ -78,7 +78,7 @@ const SessionManager = {
 	get: async (c: Context, sessionId: string): Promise<SessionData | null> => {
 		const data = await c.env.SESSION_STORE.get(`session:${sessionId}`);
 		if (!data) return null;
-		console.log(data);
+		// console.log(data);
 		const sessionData: SessionData = JSON.parse(data);
 		const now = Date.now();
 
@@ -226,6 +226,7 @@ const SessionManager = {
 // Modified middleware to handle session validation
 export const checkSession = async (c: Context, next: Next) => {
 	const sessionId = getCookie(c, "session_id");
+	console.log(sessionId,"build route")
 
 	if (!sessionId) {
 		return c.json(
@@ -263,7 +264,7 @@ export const getUserProfile = async (c: Context, next: Next) => {
 
 	// Get userId from KV store
 	const sessionData = await SessionManager.get(c, sessionId);
-	console.log("getUserProfile()", sessionData);
+	// console.log("getUserProfile()", sessionData);
 	if (!sessionData) {
 		deleteCookie(c, "session_id");
 		return c.json({ status: "unauthenticated d", user: null }, 401);
@@ -407,13 +408,13 @@ export const userRoutes = {
 
 	validateSession: async (c: Context) => {
 		const sessionId = getCookie(c, "session_id");
-		console.log("middleware validate session id", sessionId);
+		// console.log("middleware validate session id", sessionId);
 		if (!sessionId) {
 			return c.json({ valid: false, reason: "no-session" });
 		}
 
 		const sessionData = await SessionManager.get(c, sessionId);
-		console.log(sessionData, "data validatefn");
+		// console.log(sessionData, "data validatefn");
 		if (!sessionData) {
 			deleteCookie(c, "session_id");
 			return c.json({ valid: false, reason: "expired" });
