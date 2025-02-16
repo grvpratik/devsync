@@ -7,6 +7,7 @@ import { Toaster } from "www/components/ui/toaster";
 import { AuthProvider } from "www/wrapper/auth-provider";
 import { AuthApiService } from "www/external/api";
 import { cookies, headers } from "next/headers";
+import { ThemeProvider } from "www/wrapper/theme-provider";
 
 export const metadata: Metadata = {
 	title: "Create Next App",
@@ -30,18 +31,22 @@ export default async function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	
-	
-	
 	return (
 		<html lang="en">
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased  `}
 			>
-				<AuthProvider initialUser={null}>
-					{children}
-					<Toaster />
-				</AuthProvider>
+				<ThemeProvider
+					attribute="class"
+					defaultTheme="system"
+					enableSystem
+					disableTransitionOnChange
+				>
+					<AuthProvider initialUser={null}>
+						{children}
+						<Toaster />
+					</AuthProvider>
+				</ThemeProvider>
 			</body>
 		</html>
 	);

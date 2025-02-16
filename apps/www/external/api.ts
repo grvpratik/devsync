@@ -1,6 +1,6 @@
-import axios, { AxiosError, AxiosInstance } from "axios";
+import axios, {  AxiosInstance } from "axios";
 
-import { ApiResponse, ApiResult } from "shared";
+import {  ApiResult } from "shared";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
 

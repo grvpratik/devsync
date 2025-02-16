@@ -108,6 +108,7 @@ const Analysis: React.FC<AnalysisProps> = ({ res }) => {
 							</DialogDescription>
 						</DialogHeader>
 						<DialogContent className="">
+							<DialogTitle>title</DialogTitle>
 							<div className=" w-full h-[400px]  overflow-y-scroll">
 								<MultiDateRangeSelector />
 							</div>

@@ -4,7 +4,7 @@ import { BuildController } from "../controller/build.contoller";
 
 export const buildRoute = new Hono();
 
-// buildRoute.use("*", checkSession);
+buildRoute.use("*", checkSession);
 
 buildRoute.post("/search", BuildController.getSearch);
 
