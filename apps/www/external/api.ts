@@ -8,7 +8,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
 interface User {
 	email: string;
 	name: string;
-	image_url?: string;
+	picture?: string;
 }
 
 interface SessionInfo {

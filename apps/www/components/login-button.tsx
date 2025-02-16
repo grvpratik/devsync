@@ -15,8 +15,9 @@ import {
 } from "./ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "www/components/ui/avatar";
 import { LoaderCircle } from "lucide-react";
+import Image from "next/image";
 
-const LoginButton=()=> {
+const LoginButton = () => {
 	const { authState, logout, login } = useAuth();
 	const { toast } = useToast();
 	const [isChecking, setIsChecking] = useState(false);
@@ -49,7 +50,7 @@ const LoginButton=()=> {
 
 	if (authState.isLoading) {
 		return (
-			<Button variant={'outline'} disabled>
+			<Button variant={"outline"} disabled>
 				{" "}
 				<LoaderCircle
 					className=" animate-spin"
@@ -64,7 +65,7 @@ const LoginButton=()=> {
 	if (authState.error) {
 		return <Button variant="destructive">{authState.error.message}</Button>;
 	}
-
+	console.log("picture url", authState.user?.picture);
 	if (authState.user) {
 		return (
 			<div className="space-y-4">
@@ -74,9 +75,12 @@ const LoginButton=()=> {
 				<Button variant="destructive" onClick={logout}>
 					Logout
 				</Button> */}
+				{/* <Image src={authState.user.picture!} height={100} width={100}/> */}
 				<Avatar>
-					<AvatarImage src={authState.user.image??""} />
-					<AvatarFallback>{(authState.user.name).slice(0,1)??"U"}</AvatarFallback>
+					<AvatarImage src={authState.user.picture ?? ""} />
+					<AvatarFallback>
+						{(authState.user?.name ?? "User").slice(0, 1)}
+					</AvatarFallback>
 				</Avatar>
 			</div>
 		);
@@ -132,5 +136,5 @@ const LoginButton=()=> {
 			</DialogContent>
 		</Dialog>
 	);
-}
-export default LoginButton
+};
+export default LoginButton;

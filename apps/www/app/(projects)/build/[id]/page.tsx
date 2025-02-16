@@ -38,7 +38,7 @@ const BuildPage = async ({ params }: { params: { id: string } }) => {
 	//console.log(result.data, "Data");
 	return (
 		<div className="flex-1 mx-4 flex flex-col">
-			<Analysis res={result} />{" "}
+			<Analysis res={result} id={id}/>{" "}
 		</div>
 	);
 };

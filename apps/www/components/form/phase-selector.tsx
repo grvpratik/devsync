@@ -35,7 +35,7 @@ import { NEXT_PUBLIC_API } from "www/lib/constant";
 import { useRouter } from "next/navigation";
 //import { format } from "date-fns";
 import { usePathname } from "next/navigation";
-export function MultiDateRangeSelector() {
+export function MultiDateRangeSelector({id}) {
 	const [dateRanges, setDateRanges] = useState<DateRangeItem[]>([]);
 	const [currentName, setCurrentName] = useState("");
 	const [currentDesc, setCurrentDesc] = useState("");
@@ -92,7 +92,7 @@ const pathname=usePathname()
 			setError(null);
 
 			// Using the payload with key "phases"
-			const response = await axios.post(`${NEXT_PUBLIC_API}/build/phase/test`, {
+			const response = await axios.post(`${NEXT_PUBLIC_API}/build/${id}/phases`, {
 				dateRanges,
 			});
 
@@ -191,8 +191,9 @@ const pathname=usePathname()
 							:	<span>Pick a date range</span>}
 						</Button>
 					</PopoverTrigger>
-					<PopoverContent className="w-auto p-0" align="start">
+					<PopoverContent className=" min-w-fit p-0" align="end">
 						<Calendar
+						className="w-full font-sans rounded-md"
 							initialFocus
 							mode="range"
 							defaultMonth={currentDateRange?.from}
@@ -204,7 +205,7 @@ const pathname=usePathname()
 									:	undefined
 								)
 							}
-							numberOfMonths={2}
+							numberOfMonths={1}
 							disabled={dateRanges.map((date) => ({
 								from: date.start_date,
 								to: date.end_date,

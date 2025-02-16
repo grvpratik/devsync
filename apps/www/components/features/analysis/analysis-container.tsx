@@ -34,6 +34,7 @@ import { MultiDateRangeSelector } from "../../form/phase-selector";
 // Types and Interfaces
 interface AnalysisProps {
 	res: any;
+	id:string
 }
 
 interface TabConfig {
@@ -70,7 +71,7 @@ const ANALYSIS_TABS: TabConfig[] = [
 	},
 ];
 
-const Analysis: React.FC<AnalysisProps> = ({ res }) => {
+const Analysis: React.FC<AnalysisProps> = ({ res,id }) => {
 	const [activeTab, setActiveTab] = React.useState<AnalysisTabs>(
 		AnalysisTabs.Overview
 	);
@@ -110,7 +111,7 @@ const Analysis: React.FC<AnalysisProps> = ({ res }) => {
 						<DialogContent className="">
 							<DialogTitle>title</DialogTitle>
 							<div className=" w-full h-[400px]  overflow-y-scroll">
-								<MultiDateRangeSelector />
+								<MultiDateRangeSelector id={id}/>
 							</div>
 						</DialogContent>
 					</Dialog>
@@ -130,10 +131,10 @@ function getTabContent(
 	switch (tabValue) {
 		case AnalysisTabs.Overview:
 			return (
-				<OverviewAnalysis metadata={data.metadata} overview={data.overview} />
+				<OverviewAnalysis metadata={data.metadata} overview={data.overview!} />
 			);
 		case AnalysisTabs.Features:
-			return <FeaturesAnalysis featureslist={data.feature} />;
+			return <FeaturesAnalysis featureslist={data.feature!} />;
 		case AnalysisTabs.Market:
 			return <MarketAnalysis marketData={data.market} />;
 		default:
