@@ -14,6 +14,5 @@ export interface User {
 }
 
 export interface AppSidebarProps {
-	user: User;
 	history: SearchHistory[];
 }

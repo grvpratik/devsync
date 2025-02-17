@@ -38,6 +38,7 @@ export const PhaseSchema = z.object({
 });
 
 export const PhasesOutputSchema = z.array(PhaseSchema);
+export type Phases = z.infer<typeof PhasesOutputSchema>;
 
 // ============================================================================
 // Metadata Schema

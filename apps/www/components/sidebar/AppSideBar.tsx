@@ -19,7 +19,7 @@ import { AppSidebarProps } from "www/types/sidebar.types";
 import { MAIN_MENU_ITEMS, FOOTER_MENU_ITEMS } from "www/lib/constant";
 import { useAuth } from "www/wrapper/auth-provider";
 
-export function AppSidebar({ user, history }: AppSidebarProps) {
+export function AppSidebar({  history }: AppSidebarProps) {
 	const [searchQuery, setSearchQuery] = useState("");
 	const { authState } = useAuth();
 	const filteredItems = useMemo(

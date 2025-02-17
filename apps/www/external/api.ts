@@ -1,7 +1,8 @@
-import axios, { AxiosInstance } from "axios";
+import axios, { AxiosError, AxiosInstance } from "axios";
 import { headers } from "next/headers";
 
 import { ApiResult } from "shared";
+
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
 
@@ -29,6 +30,40 @@ interface SessionValidation {
 	lastActivity?: number;
 }
 
+type SuccessResponse<T> = {
+	success: true;
+	result: T;
+};
+
+type ErrorResponse = {
+	success: false;
+	error: {
+		message: string;
+
+		code?: string;
+	};
+};
+
+type ApiResponse<T> = SuccessResponse<T> | ErrorResponse;
+export function isSuccess<T>(
+	response: ApiResponse<T>
+): response is SuccessResponse<T> {
+	return response.success === true;
+}
+
+export interface Phase {
+	name: string;
+	description: string;
+	start_date: Date;
+	end_date: Date;
+	content?: any[];
+}
+class ApiError extends Error {
+	constructor(message: string) {
+		super(message);
+		this.name = "ApiError";
+	}
+}
 // Create axios instance with default config
 const instance: AxiosInstance = axios.create({
 	baseURL: BASE_URL,
@@ -179,6 +214,32 @@ export const AuthApiService = {
 };
 
 export const ApiService = {
+	getAllProjectsByUser: async (session: string): Promise<ApiResponse<any>> => {
+		try {
+			const response = await instance.post(
+				`/build/project`,
+				{},
+				{
+					headers: {
+						Cookie: `session_id=${session || ""}`,
+					},
+				}
+			);
+			console.log(response.data);
+			return response.data;
+		} catch (error) {
+			if (axios.isAxiosError(error)) {
+				const axiosError = error as AxiosError<ErrorResponse>;
+				return (
+					axiosError.response?.data || {
+						success: false,
+						error: { message: "Unknown error occurred" },
+					}
+				);
+			}
+			return { success: false, error: { message: "Network error" } };
+		}
+	},
 	getProjectById: async (
 		id: string,
 		session: string
@@ -197,6 +258,26 @@ export const ApiService = {
 			return response.data;
 		} catch (error) {
 			console.error("error fetching project report", error);
+			return {
+				success: false,
+				error: {
+					message:
+						error instanceof Error ?
+							error.message
+						:	"Unable to fetch project report",
+				},
+			};
+		}
+	},
+	getPhases: async (id, range) => {
+		try {
+			const response = await instance.post(
+				`/build/project/${id}/phases`,
+				range
+			);
+			return response.data;
+		} catch (error) {
+			console.error("error fetching project report");
 			return {
 				success: false,
 				error: {
@@ -306,4 +387,52 @@ export const ApiService = {
 // 		logoutAll,
 // 		isAuthenticated: !!user,
 // 	};
+// };
+// static async getPhases(id: string, phases: Phase[]): Promise<Phase[]> {
+//     try {
+//       const response = await instance.post<ApiResponse<Phase[]>>(
+//         `/build/project/${id}/phases`,
+//         phases
+//       );
+
+//       if (!response.data.success) {
+//         throw new ApiError(response.data.error?.message || 'Failed to save phases');
+//       }
+
+//       return response.data.data || [];
+//     } catch (error) {
+//       if (error instanceof ApiError) {
+//         throw error;
+//       }
+
+//       if (error instanceof Error) {
+//         throw new ApiError(error.message);
+//       }
+
+//       throw new ApiError('Unable to save project phases');
+//     }
+//   }
+// }
+
+// // MultiDateRangeSelector.tsx
+// // Updated submit handler in the component
+// const handleSubmit = async () => {
+//   try {
+//     setLoading(true);
+//     setError(null);
+
+//     const savedPhases = await ApiService.getPhases(id, dateRanges);
+
+//     // Update local state with saved phases if needed
+//     setDateRanges(savedPhases);
+
+//     onSubmitSuccess?.();
+//     router.push(`${pathname}/schedule`);
+//   } catch (error) {
+//     const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+//     setError(errorMessage);
+//     onSubmitError?.(errorMessage);
+//   } finally {
+//     setLoading(false);
+//   }
 // };

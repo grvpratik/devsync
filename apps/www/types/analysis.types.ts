@@ -25,12 +25,3 @@ export interface Feature {
 	estimatedDevelopmentTime: string;
 }
 
-
-export interface ApiResponse<T> {
-	success: boolean;
-	data: T;
-}
-export interface ErrorResponse<T> extends ApiResponse<T> {
-	success: boolean;
-	error?: any;
-}

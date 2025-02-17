@@ -59,7 +59,7 @@ export default async function RootLayout({
 					enableSystem
 					disableTransitionOnChange
 				>
-					<AuthProvider initialUser={data.user}>
+					<AuthProvider initialUser={(data && data.user) ?? null}>
 						{children}
 						<Toaster />
 					</AuthProvider>

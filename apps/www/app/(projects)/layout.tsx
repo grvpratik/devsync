@@ -2,31 +2,42 @@ import { SidebarProvider, SidebarTrigger } from "www/components/ui/sidebar";
 
 import Nav from "www/components/features/landing/Nav";
 import { AppSidebar } from "www/components/sidebar/AppSideBar";
+import { getSessionCookie } from "www/hooks/use-server-session";
+import { ApiService, isSuccess } from "www/external/api";
 export interface SearchHistory {
 	id: any;
 	title: string;
 	url: string;
 }
-const data = {
-	user: {
-		name: "pratik",
-		email: "pratikgaurav37@gmail.com",
-		avatar: "/profile/pratikgrv.jpg",
-	},
-};
-const MainResponse: any[]=[{id:34,title:"rtr",url:"rer"}]
-const history: SearchHistory[] = MainResponse.map((data) => {
-	return {
-		id: data.id,
-		title: data.title,
-		url: `/build/${data.id}`,
-	};
-});
-export const response = MainResponse;
-export default function AiLayout({ children }: { children: React.ReactNode }) {
+
+
+export default async function AiLayout({
+	children,
+}: {
+	children: React.ReactNode;
+}) {
+	const session = await getSessionCookie();
+	const result = await ApiService.getAllProjectsByUser(session!);
+	console.log(result, "ALL");
+	const response =  await ApiService.getAllProjectsByUser(session!);
+
+	let history: SearchHistory[] = [];
+	if (isSuccess(response)) {
+		console.log("✅ Data:", response.result);
+		history = result.result.map((idx) => {
+		return {
+			id: idx.id,
+			title: idx.metadata.name ?? "Unnamed",
+			url: `/build/${idx.id}`,
+		};
+	});
+	} else {
+		console.error("❌ Error:", response.error.message);
+	}
+	
 	return (
 		<SidebarProvider>
-			<AppSidebar user={data.user} history={history} />
+			<AppSidebar history={history} />
 			<main className=" w-full h-screen flex flex-col   ">
 				<Nav />
 				{children}

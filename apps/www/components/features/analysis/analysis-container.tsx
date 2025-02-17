@@ -34,7 +34,7 @@ import { MultiDateRangeSelector } from "../../form/phase-selector";
 // Types and Interfaces
 interface AnalysisProps {
 	res: any;
-	id:string
+	id: string;
 }
 
 interface TabConfig {
@@ -71,7 +71,7 @@ const ANALYSIS_TABS: TabConfig[] = [
 	},
 ];
 
-const Analysis: React.FC<AnalysisProps> = ({ res,id }) => {
+const Analysis: React.FC<AnalysisProps> = ({ res, id }) => {
 	const [activeTab, setActiveTab] = React.useState<AnalysisTabs>(
 		AnalysisTabs.Overview
 	);
@@ -100,19 +100,15 @@ const Analysis: React.FC<AnalysisProps> = ({ res,id }) => {
 				</Tabs>
 				<div>
 					<Dialog>
-						<DialogTrigger>schedule</DialogTrigger>
+						<DialogTrigger>schedule</DialogTrigger><DialogContent className=" font-sans ">
 						<DialogHeader>
 							<DialogTitle>Create schedule</DialogTitle>
 							<DialogDescription>
-								{/* This action cannot be undone. This will permanently delete
-									your account and remove your data from our servers. */}
+								
 							</DialogDescription>
 						</DialogHeader>
-						<DialogContent className="">
-							<DialogTitle>title</DialogTitle>
-							<div className=" w-full h-[400px]  overflow-y-scroll">
-								<MultiDateRangeSelector id={id}/>
-							</div>
+						
+							<MultiDateRangeSelector id={id} />
 						</DialogContent>
 					</Dialog>
 				</div>

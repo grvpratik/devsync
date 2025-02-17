@@ -68,7 +68,7 @@ const LoginButton = () => {
 	console.log("picture url", authState.user?.picture);
 	if (authState.user) {
 		return (
-			<div className="space-y-4">
+			<div className="space-y-4 font-sans">
 				{/* <pre className="bg-gray-100 p-4 rounded-lg overflow-auto">
 					{JSON.stringify(authState.user, null, 2)}
 				</pre>

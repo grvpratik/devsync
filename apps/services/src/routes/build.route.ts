@@ -10,6 +10,8 @@ buildRoute.post("/search", BuildController.getSearch);
 
 buildRoute.post("/project/:id", BuildController.getReportById);
 
+buildRoute.post("/project", BuildController.getAllUserReport);
+
 // buildRoute.post("/:id/edit/market", );
 
 // buildRoute.post("/:id/edit/feature", async (c) => {

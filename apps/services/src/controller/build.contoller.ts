@@ -2,7 +2,12 @@ import { Context } from "hono";
 import { PrismaD1 } from "@prisma/adapter-d1";
 import { Prisma, PrismaClient } from "@prisma/client";
 
-import { IdeaValidationResponse, RefreshField } from "shared";
+import {
+	IdeaValidationResponse,
+	RefreshField,
+	PhasesOutputSchema,
+	Phases,
+} from "shared";
 
 import { SearchRequestSchema } from "../types";
 import { GenerativeAI } from "../prompt";
@@ -13,7 +18,7 @@ import { z } from "zod";
 
 export const BuildController = {
 	getSearch: async (c: Context) => {
-		const userId = c.get("userId") || "cm73x26p80000yf0cekb44sro";
+		const userId :string= c.get("userId") ??"";
 		if (!userId) {
 			throw new AuthError("authentication required");
 		}
@@ -147,7 +152,7 @@ export const BuildController = {
 		);
 	},
 	getReportById: async (c: Context) => {
-		const userId = c.get("userId") || "cm73x26p80000yf0cekb44sro";
+		const userId = c.get("userId") ?? ""
 		if (!userId) {
 			throw new AuthError("authentication required");
 		}
@@ -161,6 +166,7 @@ export const BuildController = {
 					await prisma.projectReport.findUnique({
 						where: {
 							id: projectId,
+							userId
 						},
 					})
 			);
@@ -178,7 +184,7 @@ export const BuildController = {
 	},
 	refreshField: async (c: Context) => {
 		const { GEMINI_API } = c.env;
-		const userId = c.get("userId") || "cm73x26p80000yf0cekb44sro";
+		const userId = c.get("userId") ??"";
 		if (!userId) {
 			throw new AuthError("Forbidden");
 		}
@@ -271,7 +277,7 @@ export const BuildController = {
 			end_date: z.string().refine((val) => !isNaN(Date.parse(val)), {
 				message: "Invalid date format for end_date",
 			}),
-			content: z.array(z.any()),
+			content: z.array(z.any()).optional(),
 		});
 
 		const PhaseTampleteArray = z.array(PhaseTamplete);
@@ -290,6 +296,7 @@ export const BuildController = {
 			);
 		}
 		const body = await c.req.json();
+		console.log(body);
 		const parsed = PhaseTampleteArray.safeParse(body);
 
 		console.log(body);
@@ -323,6 +330,9 @@ export const BuildController = {
 		if (!project) {
 			throw new AppError("Project not found", 404, "NOT_FOUND");
 		}
+		if (!project.phases) {
+			throw new AppError("Project phases have already been created", 402, "ALREADY_EXIST");
+		}
 		const prompt = project.prompt;
 		const features: any = project.feature;
 		const mvp = features.mvp;
@@ -333,6 +343,17 @@ export const BuildController = {
 			mvp,
 			phasesInfo
 		);
+		const insertedPhase: Phases = phasesResult!;
+
+		const phaseWithDate = insertedPhase.map((item, index) => {
+			const phaseInfo = parsed.data[index];
+			return {
+				name:item.name,
+				start_date: phaseInfo.start_date,
+				end_date: phaseInfo.end_date,
+				tasks: item.tasks.map((val) => ({ ...val, done: false })),
+			};
+		});
 		const updatedSchedule = await safeExecutePrismaOperation(
 			async () =>
 				await prisma.projectReport.update({
@@ -341,11 +362,44 @@ export const BuildController = {
 						userId,
 					},
 					data: {
-						phases: phasesResult as Prisma.InputJsonValue,
+						phases: phaseWithDate as Prisma.InputJsonValue,
 					},
 				})
 		);
-
+		console.log(updatedSchedule)
+		
 		return c.json({ success: true, result: updatedSchedule.phases }, 200);
 	},
+	getAllUserReport:async(c:Context)=>{
+		
+		const userId = c.get("userId") ?? "";
+		if (!userId) {
+			throw new AuthError("authentication required");
+		}
+		
+
+		try {
+			
+			const adapter = new PrismaD1(c.env.DB);
+			const prisma = new PrismaClient({ adapter });
+			const result = await safeExecutePrismaOperation(
+				async () =>
+					await prisma.projectReport.findMany({
+						where: {
+							userId,
+						},
+					})
+			);
+			console.log(result);
+			return c.json(
+				{
+					success: true,
+					result,
+				},
+				200
+			);
+		} catch (error) {
+			throw new AppError("Server error");
+		}
+	}
 };

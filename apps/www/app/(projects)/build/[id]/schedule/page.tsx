@@ -1,26 +1,15 @@
 import axios, { AxiosResponse } from "axios";
 import React from "react";
 import ScheduleCalendar from "www/components/features/schedule/ScheduleCalendar";
+import { ApiService } from "www/external/api";
+import { getSessionCookie } from "www/hooks/use-server-session";
 
-async function getData(id: string): Promise<AxiosResponse | null> {
-	try {
-		const URL = `${process.env.NEXT_PUBLIC_API!}/build/project/${id}/schedule`;
-		console.log(`Fetching: ${URL}`);
 
-		const res = await axios.get(URL);
-		//	console.log("API Response:", res.data);
-
-		return res;
-	} catch (error: any) {
-		console.error("Error fetching data:", error.message || error);
-
-		return null;
-	}
-}
 const SchedulePage = async ({ params }: { params: { id: string } }) => {
 	const { id } = await params;
-	const result = await getData(id);
-	//console.log(result?.data.result);
+	const session= await getSessionCookie()
+	const result = await ApiService.getProjectById(id,session!)
+	console.log(result.result.phases,"sechedule");
 	if (!result) {
 		return (
 			<main className="flex flex-col justify-center items-center h-screen font-sans">
@@ -35,7 +24,7 @@ const SchedulePage = async ({ params }: { params: { id: string } }) => {
 	//fetch
 	return (
 		<main className="mx-4 mb-4">
-			<ScheduleCalendar result={result && result.data.result} />
+			<ScheduleCalendar result={result && result.result.phases} />
 		</main>
 	);
 };
