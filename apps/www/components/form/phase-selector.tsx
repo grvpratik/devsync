@@ -14,7 +14,7 @@ import {
 import { Calendar } from "www/components/ui/calendar";
 import { cn } from "www/lib/utils";
 import { useRouter, usePathname } from "next/navigation";
-import { ApiService } from "www/external/api";
+import { ApiService } from "www/lib/api";
 import { ScrollArea } from "www/components/ui/scroll-area";
 
 // Types

@@ -1,15 +1,23 @@
-import { SidebarProvider, SidebarTrigger } from "www/components/ui/sidebar";
-
+import { SidebarProvider } from "www/components/ui/sidebar";
 import Nav from "www/components/features/landing/Nav";
 import { AppSidebar } from "www/components/sidebar/AppSideBar";
 import { getSessionCookie } from "www/hooks/use-server-session";
-import { ApiService, isSuccess } from "www/external/api";
+import { ApiService, isSuccess } from "www/lib/api";
+import { projectEntrypointsSubscribe } from "next/dist/build/swc/generated-native";
+
 export interface SearchHistory {
 	id: any;
 	title: string;
 	url: string;
 }
 
+async function fetchProjects(session: string) {
+	const result = await ApiService.getAllProjectsByUser(session);
+	if (isSuccess(result)) {
+		return result.result;
+	}
+	return [];
+}
 
 export default async function AiLayout({
 	children,
@@ -17,29 +25,29 @@ export default async function AiLayout({
 	children: React.ReactNode;
 }) {
 	const session = await getSessionCookie();
-	const result = await ApiService.getAllProjectsByUser(session!);
-	console.log(result, "ALL");
-	const response =  await ApiService.getAllProjectsByUser(session!);
 
 	let history: SearchHistory[] = [];
-	if (isSuccess(response)) {
-		console.log("✅ Data:", response.result);
-		history = result.result.map((idx) => {
+	let projects: any[] = [];
+
+	const result = await fetchProjects(session!);
+	history = result.map((project: any) => ({
+		id: project.id,
+		title: project.metadata.name ?? "Unnamed",
+		url: `/build/${project.id}`,
+	}));
+	projects = result.filter((project: any) => project.phases !== null);
+	const projectSidebar = projects.map((val) => {
 		return {
-			id: idx.id,
-			title: idx.metadata.name ?? "Unnamed",
-			url: `/build/${idx.id}`,
+			id: val.id,
+			name: val.metadata.name ?? "Unnamed",
+			url: `/build/${val.id}/schedule`,
 		};
 	});
-	} else {
-		console.error("❌ Error:", response.error.message);
-	}
-	
 	return (
 		<SidebarProvider>
-			<AppSidebar history={history} />
-			<main className=" w-full h-screen flex flex-col   ">
-				<Nav />
+			{session && <AppSidebar history={history} projectList={projectSidebar} />}
+			<main className="w-full h-screen flex flex-col">
+				<Nav sidebar={true} />
 				{children}
 			</main>
 		</SidebarProvider>

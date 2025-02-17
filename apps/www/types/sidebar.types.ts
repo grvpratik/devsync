@@ -15,4 +15,5 @@ export interface User {
 
 export interface AppSidebarProps {
 	history: SearchHistory[];
+	projectList:any
 }

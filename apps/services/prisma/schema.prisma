@@ -25,13 +25,34 @@ model ProjectReport {
   id        String   @id @default(uuid())
   prompt    String
   timestamp DateTime @default(now())
-  userId    String  
+  userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   metadata  Json?
   overview  Json?
   feature   Json?
   market    Json?
-  phases    Json?
+  phases    Phases[]
+}
+
+model Phases {
+  id        String   @id @default(uuid())
+  name      String
+  desc      String?
+  startDate DateTime
+  endDate   DateTime
+
+  projectId String 
+  project   ProjectReport @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks     Tasks[]
+}
+
+model Tasks {
+  id          String  @id @default(uuid())
+  desc        String
+  name        String
+  phaseId     String 
+  phase       Phases  @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+  isCompleted Boolean @default(false)
 }
 
 // model Metadata {

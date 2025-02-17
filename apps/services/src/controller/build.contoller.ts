@@ -15,10 +15,37 @@ import { AppError, AuthError, ValidationError } from "../error";
 import { safeExecutePrismaOperation } from "../middleware/prisma";
 
 import { z } from "zod";
+interface Phase {
+	name: string;
+	tasks: {
+		name: string;
+		desc: string;
+		isCompleted: boolean;
+	}[];
+}
+// Schema for batch task creation
+const CreateTaskSchema = z.object({
+	name: z.string(),
+	desc: z.string(),
+	phaseId: z.string(),
+});
+
+const CreateTasksSchema = z.array(CreateTaskSchema);
+
+// Schema for batch task updates
+const UpdateTaskSchema = z.object({
+	id: z.string(),
+	isCompleted: z.boolean(),
+});
+
+const UpdateTasksSchema = z.array(UpdateTaskSchema);
+
+// Schema for batch task deletion
+const DeleteTasksSchema = z.array(z.string());
 
 export const BuildController = {
 	getSearch: async (c: Context) => {
-		const userId :string= c.get("userId") ??"";
+		const userId: string = c.get("userId") ?? "cm73x26p80000yf0cekb44sro";
 		if (!userId) {
 			throw new AuthError("authentication required");
 		}
@@ -152,7 +179,7 @@ export const BuildController = {
 		);
 	},
 	getReportById: async (c: Context) => {
-		const userId = c.get("userId") ?? ""
+		const userId = c.get("userId") ?? "cm73x26p80000yf0cekb44sro";
 		if (!userId) {
 			throw new AuthError("authentication required");
 		}
@@ -166,7 +193,7 @@ export const BuildController = {
 					await prisma.projectReport.findUnique({
 						where: {
 							id: projectId,
-							userId
+							userId,
 						},
 					})
 			);
@@ -184,7 +211,7 @@ export const BuildController = {
 	},
 	refreshField: async (c: Context) => {
 		const { GEMINI_API } = c.env;
-		const userId = c.get("userId") ??"";
+		const userId = c.get("userId") ?? "";
 		if (!userId) {
 			throw new AuthError("Forbidden");
 		}
@@ -268,7 +295,8 @@ export const BuildController = {
 		);
 	},
 	getPhases: async (c: Context) => {
-		const PhaseTamplete = z.object({
+		// Schema validation
+		const PhaseTemplate = z.object({
 			name: z.string(),
 			description: z.string(),
 			start_date: z.string().refine((val) => !isNaN(Date.parse(val)), {
@@ -280,106 +308,363 @@ export const BuildController = {
 			content: z.array(z.any()).optional(),
 		});
 
-		const PhaseTampleteArray = z.array(PhaseTamplete);
+		const PhaseTemplateArray = z.array(PhaseTemplate);
 
-		const { GEMINI_API } = c.env;
-		const userId = c.get("userId") || "cm73x26p80000yf0cekb44sro";
-		if (!userId) {
-			throw new AuthError("Forbidden");
-		}
-		const { id } = await c.req.param();
-		if (!id) {
-			throw new AppError(
-				"Missing id or field parameter",
-				400,
-				"VALIDATION_ERROR"
+		try {
+			const { GEMINI_API } = c.env;
+			const userId = c.get("userId") || "cm73x26p80000yf0cekb44sro";
+
+			if (!userId) {
+				throw new AuthError("Forbidden");
+			}
+
+			const { id } = await c.req.param();
+			if (!id) {
+				throw new AppError("Missing id parameter", 400, "VALIDATION_ERROR");
+			}
+
+			const body = await c.req.json();
+			const parsed = PhaseTemplateArray.safeParse(body);
+
+			if (!parsed.success) {
+				throw new ValidationError("Invalid phase details", parsed.error);
+			}
+
+			const phasesInfo = parsed.data.map((phase) => ({
+				name: phase.name,
+				desc: phase.description,
+			}));
+
+			const adapter = new PrismaD1(c.env.DB);
+			const prisma = new PrismaClient({ adapter });
+
+			// First, check if project exists and has no phases
+			const project = await prisma.projectReport.findUnique({
+				where: {
+					id,
+					userId,
+				},
+				include: {
+					phases: {
+						include: {
+							tasks: true,
+						},
+					},
+				},
+			});
+
+			if (!project) {
+				throw new AppError("Project not found", 404, "NOT_FOUND");
+			}
+
+			if (project.phases && project.phases.length > 0) {
+				throw new AppError(
+					"Project phases have already been created",
+					402,
+					"ALREADY_EXIST"
+				);
+			}
+
+			const prompt = project.prompt;
+			const features: any = project.feature;
+			const mvp = features.mvp;
+
+			// Get phases from GenerativeAI
+			const phasesResult = await GenerativeAI.phases(
+				prompt,
+				GEMINI_API,
+				mvp,
+				phasesInfo
 			);
-		}
-		const body = await c.req.json();
-		console.log(body);
-		const parsed = PhaseTampleteArray.safeParse(body);
 
-		console.log(body);
-		if (!parsed.success) {
-			throw new ValidationError("invalid phase details", parsed.error);
-		}
-		// const {  } = parsed.data;
-		// console.log(parsed.data,"parsed");
-		const phasesInfo =
-			parsed.data &&
-			parsed.data.map((phase) => {
+			if (!phasesResult) {
+				throw new AppError(
+					"Failed to generate phases",
+					500,
+					"GENERATION_ERROR"
+				);
+			}
+
+			// Combine AI generated data with user provided dates
+			const phaseWithDate = phasesResult.map((item, index) => {
+				const phaseInfo = parsed.data[index];
 				return {
-					name: phase.name,
-					desc: phase.description,
+					name: item.name,
+					desc: item?.desc || null, // Handle optional description
+					startDate: new Date(phaseInfo.start_date), // Convert string to Date
+					endDate: new Date(phaseInfo.end_date), // Convert string to Date
+					tasks: {
+						create: item.tasks.map((task) => ({
+							name: task.title,
+							desc: task.desc,
+							isCompleted: false,
+						})),
+					},
 				};
 			});
-		console.log("parsed info", phasesInfo);
 
-		const adapter = new PrismaD1(c.env.DB);
-		const prisma = new PrismaClient({ adapter });
-		const project = await safeExecutePrismaOperation(
-			async () =>
-				await prisma.projectReport.findUnique({
-					where: {
-						id,
-						userId,
+			// Update project with new phases using proper nested creation
+			const updatedProject = await prisma.projectReport.update({
+				where: {
+					id,
+					userId,
+				},
+				data: {
+					phases: {
+						create: phaseWithDate,
 					},
-				})
-		);
+				},
+				include: {
+					phases: {
+						include: {
+							tasks: true,
+						},
+					},
+				},
+			});
 
-		if (!project) {
-			throw new AppError("Project not found", 404, "NOT_FOUND");
+			await prisma.$disconnect();
+
+			return c.json(
+				{
+					success: true,
+					result: updatedProject.phases,
+				},
+				200
+			);
+		} catch (error) {
+			// Handle specific errors
+			if (
+				error instanceof AuthError ||
+				error instanceof AppError ||
+				error instanceof ValidationError
+			) {
+				throw error;
+			}
+
+			// Log unexpected errors
+			console.error("Unexpected error:", error);
+			throw new AppError("Internal server error", 500, "INTERNAL_SERVER_ERROR");
 		}
-		if (!project.phases) {
-			throw new AppError("Project phases have already been created", 402, "ALREADY_EXIST");
-		}
-		const prompt = project.prompt;
-		const features: any = project.feature;
-		const mvp = features.mvp;
-
-		const phasesResult = await GenerativeAI.phases(
-			prompt,
-			GEMINI_API,
-			mvp,
-			phasesInfo
-		);
-		const insertedPhase: Phases = phasesResult!;
-
-		const phaseWithDate = insertedPhase.map((item, index) => {
-			const phaseInfo = parsed.data[index];
-			return {
-				name:item.name,
-				start_date: phaseInfo.start_date,
-				end_date: phaseInfo.end_date,
-				tasks: item.tasks.map((val) => ({ ...val, done: false })),
-			};
-		});
-		const updatedSchedule = await safeExecutePrismaOperation(
-			async () =>
-				await prisma.projectReport.update({
-					where: {
-						id,
-						userId,
-					},
-					data: {
-						phases: phaseWithDate as Prisma.InputJsonValue,
-					},
-				})
-		);
-		console.log(updatedSchedule)
-		
-		return c.json({ success: true, result: updatedSchedule.phases }, 200);
 	},
-	getAllUserReport:async(c:Context)=>{
-		
+	batchCreateTasks: async (c: Context) => {
+		try {
+			const userId = c.get("userId");
+			if (!userId) {
+				throw new AuthError("Forbidden");
+			}
+
+			const body = await c.req.json();
+			const parsed = CreateTasksSchema.safeParse(body);
+
+			if (!parsed.success) {
+				throw new ValidationError("Invalid task details", parsed.error);
+			}
+
+			const adapter = new PrismaD1(c.env.DB);
+			const prisma = new PrismaClient({ adapter });
+
+			// Verify all phases exist and belong to user's projects
+			const phaseIds = [...new Set(parsed.data.map((task) => task.phaseId))];
+
+			const phases = await prisma.phases.findMany({
+				where: {
+					id: { in: phaseIds },
+					project: {
+						userId: userId,
+					},
+				},
+			});
+
+			if (phases.length !== phaseIds.length) {
+				throw new AppError(
+					"One or more phases not found or unauthorized",
+					404,
+					"NOT_FOUND"
+				);
+			}
+
+			// Create all tasks in a transaction
+			const createdTasks = await prisma.$transaction(
+				parsed.data.map((task) =>
+					prisma.tasks.create({
+						data: {
+							name: task.name,
+							desc: task.desc,
+							phaseId: task.phaseId,
+							isCompleted: false,
+						},
+					})
+				)
+			);
+
+			await prisma.$disconnect();
+
+			return c.json(
+				{
+					success: true,
+					result: createdTasks,
+				},
+				201
+			);
+		} catch (error) {
+			if (
+				error instanceof AuthError ||
+				error instanceof AppError ||
+				error instanceof ValidationError
+			) {
+				throw error;
+			}
+			console.error("Unexpected error:", error);
+			throw new AppError("Internal server error", 500, "INTERNAL_SERVER_ERROR");
+		}
+	},
+	batchUpdateTasks: async (c: Context) => {
+		try {
+			const userId = c.get("userId");
+			if (!userId) {
+				throw new AuthError("Forbidden");
+			}
+
+			const body = await c.req.json();
+			const parsed = UpdateTasksSchema.safeParse(body);
+
+			if (!parsed.success) {
+				throw new ValidationError("Invalid task updates", parsed.error);
+			}
+
+			const adapter = new PrismaD1(c.env.DB);
+			const prisma = new PrismaClient({ adapter });
+
+			// Verify all tasks exist and belong to user's projects
+			const taskIds = parsed.data.map((task) => task.id);
+
+			const existingTasks = await prisma.tasks.findMany({
+				where: {
+					id: { in: taskIds },
+					phase: {
+						project: {
+							userId: userId,
+						},
+					},
+				},
+			});
+
+			if (existingTasks.length !== taskIds.length) {
+				throw new AppError(
+					"One or more tasks not found or unauthorized",
+					404,
+					"NOT_FOUND"
+				);
+			}
+
+			// Update all tasks in a transaction
+			const updatedTasks = await prisma.$transaction(
+				parsed.data.map((task) =>
+					prisma.tasks.update({
+						where: { id: task.id },
+						data: { isCompleted: task.isCompleted },
+					})
+				)
+			);
+
+			await prisma.$disconnect();
+
+			return c.json(
+				{
+					success: true,
+					result: updatedTasks,
+				},
+				200
+			);
+		} catch (error) {
+			if (
+				error instanceof AuthError ||
+				error instanceof AppError ||
+				error instanceof ValidationError
+			) {
+				throw error;
+			}
+			console.error("Unexpected error:", error);
+			throw new AppError("Internal server error", 500, "INTERNAL_SERVER_ERROR");
+		}
+	},
+	batchDeleteTasks: async (c: Context) => {
+		try {
+			const userId = c.get("userId");
+			if (!userId) {
+				throw new AuthError("Forbidden");
+			}
+
+			const body = await c.req.json();
+			const parsed = DeleteTasksSchema.safeParse(body);
+
+			if (!parsed.success) {
+				throw new ValidationError("Invalid task ids", parsed.error);
+			}
+
+			const adapter = new PrismaD1(c.env.DB);
+			const prisma = new PrismaClient({ adapter });
+
+			// Verify all tasks exist and belong to user's projects
+			const taskIds = parsed.data;
+
+			const existingTasks = await prisma.tasks.findMany({
+				where: {
+					id: { in: taskIds },
+					phase: {
+						project: {
+							userId: userId,
+						},
+					},
+				},
+			});
+
+			if (existingTasks.length !== taskIds.length) {
+				throw new AppError(
+					"One or more tasks not found or unauthorized",
+					404,
+					"NOT_FOUND"
+				);
+			}
+
+			// Delete all tasks in a transaction
+			const deletedTasks = await prisma.$transaction(
+				taskIds.map((taskId) =>
+					prisma.tasks.delete({
+						where: { id: taskId },
+					})
+				)
+			);
+
+			await prisma.$disconnect();
+
+			return c.json(
+				{
+					success: true,
+					count: deletedTasks.length,
+				},
+				200
+			);
+		} catch (error) {
+			if (
+				error instanceof AuthError ||
+				error instanceof AppError ||
+				error instanceof ValidationError
+			) {
+				throw error;
+			}
+			console.error("Unexpected error:", error);
+			throw new AppError("Internal server error", 500, "INTERNAL_SERVER_ERROR");
+		}
+	},
+	getAllUserReport: async (c: Context) => {
 		const userId = c.get("userId") ?? "";
 		if (!userId) {
 			throw new AuthError("authentication required");
 		}
-		
 
 		try {
-			
 			const adapter = new PrismaD1(c.env.DB);
 			const prisma = new PrismaClient({ adapter });
 			const result = await safeExecutePrismaOperation(
@@ -401,5 +686,36 @@ export const BuildController = {
 		} catch (error) {
 			throw new AppError("Server error");
 		}
-	}
+	},
+	deleteProjectById: async (c: Context) => {
+		const userId = c.get("userId") ?? "";
+		if (!userId) {
+			throw new AuthError("authentication required");
+		}
+		try {
+			const projectId = (await c.req.param("id")) || "";
+			//console.log("🔍 Project:", projectId);
+			const adapter = new PrismaD1(c.env.DB);
+			const prisma = new PrismaClient({ adapter });
+			const result = await safeExecutePrismaOperation(
+				async () =>
+					await prisma.projectReport.delete({
+						where: {
+							id: projectId,
+							userId,
+						},
+					})
+			);
+			console.log(result);
+			return c.json(
+				{
+					success: true,
+					result,
+				},
+				200
+			);
+		} catch (error) {
+			throw new AppError("Server error");
+		}
+	},
 };

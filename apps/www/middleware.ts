@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { AuthApiService } from "./external/api";
+import { AuthApiService } from "./lib/api";
 
 // Define route patterns with more specific types
 type RoutePattern = {
@@ -30,21 +30,23 @@ function matchRoute(path: string, route: RoutePattern): boolean {
 }
 
 export default async function middleware(req: NextRequest) {
+	const path = req.nextUrl.pathname;
+
+	// Clean the path to handle trailing slashes consistently
+	const normalizedPath =
+		path.endsWith("/") && path !== "/" ? path.slice(0, -1) : path;
+
+	// Check if route is protected or public
+	const isProtectedRoute = protectedRoutes.some((route) =>
+		matchRoute(normalizedPath, route)
+	);
+	const isPublicRoute = publicRoutes.some((route) =>
+		matchRoute(normalizedPath, route)
+	);
+	if (!isProtectedRoute && !isPublicRoute) {
+		return NextResponse.next();
+	}
 	try {
-		const path = req.nextUrl.pathname;
-
-		// Clean the path to handle trailing slashes consistently
-		const normalizedPath =
-			path.endsWith("/") && path !== "/" ? path.slice(0, -1) : path;
-
-		// Check if route is protected or public
-		const isProtectedRoute = protectedRoutes.some((route) =>
-			matchRoute(normalizedPath, route)
-		);
-		const isPublicRoute = publicRoutes.some((route) =>
-			matchRoute(normalizedPath, route)
-		);
-
 		// Get session cookie
 		const sessionCookie = await (await cookies()).get("session_id");
 		const sessionId = sessionCookie?.value ?? "";
@@ -74,7 +76,7 @@ export default async function middleware(req: NextRequest) {
 	} catch (error) {
 		console.error("Middleware error:", error);
 		// Fail secure: redirect to login on error
-		return NextResponse.redirect(new URL("/login", req.nextUrl));
+		return NextResponse.redirect(new URL("/", req.nextUrl));
 	}
 }
 

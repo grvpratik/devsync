@@ -25,7 +25,7 @@ interface SessionInfo {
 
 interface SessionValidation {
 	valid: boolean;
-	reason?: "no-session" | "expired" | "error";
+	reason?: "no-session" | "expired" | "error" |any;
 	expiresIn?: number;
 	lastActivity?: number;
 }
@@ -33,6 +33,23 @@ interface SessionValidation {
 type SuccessResponse<T> = {
 	success: true;
 	result: T;
+};
+const TIMEOUT_MS = 3000; // 3 seconds timeout
+const MAX_RETRIES = 2; // Maximum 2 retries
+const RETRY_DELAY_MS = 1000; // 1 second between retries
+
+// Helper to delay execution
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Helper to determine if error is retryable
+const isRetryableError = (error: unknown): boolean => {
+	return (
+		error instanceof AxiosError &&
+		(error.code === "ERR_NETWORK" ||
+			error.code === "ECONNABORTED" ||
+			error.response?.status === 500 ||
+			error.response?.status === 503)
+	);
 };
 
 type ErrorResponse = {
@@ -73,56 +90,8 @@ const instance: AxiosInstance = axios.create({
 	},
 });
 
-// const handleApiError = (error: unknown) => {
-// 	if (axios.isAxiosError(error)) {
-// 		const axiosError = error as AxiosError<any>;
-// 		if (axiosError.response) {
-// 			// Server responded with error
-// 			return {
-// 				error: axiosError.response.data?.message || "Server error",
-// 				status: axiosError.response.status,
-// 			};
-// 		}
-// 		if (axiosError.request) {
-// 			// No response received
-// 			return {
-// 				error: "Network error - no response received",
-// 				status: 0,
-// 			};
-// 		}
-// 	}
-// 	// Something else went wrong
-// 	return {
-// 		error: "An unexpected error occurred",
-// 		status: 500,
-// 	};
-// };
-
-// Response interceptor for handling auth errors
-// instance.interceptors.response.use(
-// 	(response) => response,
-// 	async (error) => {
-// 		if (error.response?.status === 401) {
-// 			// Clear any local auth state
-// 			if (typeof window !== "undefined") {
-// 				window.dispatchEvent(new CustomEvent("auth:required"));
-// 				window.location.href = "/login";
-// 			}
-// 		}
-// 		return Promise.reject(error);
-// 	}
-// );
-
 export const AuthApiService = {
-	// Authentication Status
-	// checkLoginStatus: async () => {
-	// 	try {
-	// 		const response = await instance.get("/user/auth/session");
-	// 		return response.data;
-	// 	} catch (error) {
-	// 		return handleApiError(error);
-	// 	}
-	// },
+	
 
 	// Session Management
 	serverCheck: async (): Promise<boolean> => {
@@ -136,20 +105,49 @@ export const AuthApiService = {
 	},
 
 	validateSession: async (cookie?: string): Promise<SessionValidation> => {
-		try {
-			const response = await instance.get("/user/auth/validate", {
-				headers:
-					cookie ?
-						{
-							Cookie: `session_id=${cookie}`,
-						}
-					:	undefined,
-			});
-			return response.data;
-		} catch (error) {
-			console.log(error);
-			return { valid: false, reason: "error" };
+		let retryCount = 0;
+
+		while (retryCount <= MAX_RETRIES) {
+			try {
+				const controller = new AbortController();
+				const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
+				const response = await instance.get("/user/auth/validate", {
+					headers:
+						cookie ?
+							{
+								Cookie: `session_id=${cookie}`,
+							}
+						:	undefined,
+					signal: controller.signal,
+					timeout: TIMEOUT_MS,
+				});
+
+				clearTimeout(timeoutId);
+				return response.data;
+			} catch (error) {
+				console.error(`Attempt ${retryCount + 1} failed:`, error);
+
+				if (error instanceof Error && error.name === "AbortError") {
+					console.warn("Request aborted due to timeout");
+				}
+
+				if (retryCount === MAX_RETRIES || !isRetryableError(error)) {
+					console.error("Max retries reached or non-retryable error");
+					return { valid: false, reason: "auth_service_unavailable" };
+				}
+
+				// Exponential backoff with jitter
+				const jitter = Math.random() * 200; // Random delay between 0-200ms
+				const backoffDelay = RETRY_DELAY_MS * Math.pow(2, retryCount) + jitter;
+
+				console.log(`Retrying in ${Math.floor(backoffDelay)}ms...`);
+				await delay(backoffDelay);
+				retryCount++;
+			}
 		}
+
+		return { valid: false, reason: "max_retries_exceeded" };
 	},
 
 	// Get all active sessions

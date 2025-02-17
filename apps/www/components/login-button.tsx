@@ -3,7 +3,7 @@ import React from "react";
 import { getGoogleUrl } from "www/lib/auth";
 import { useAuth } from "www/wrapper/auth-provider";
 import { Button } from "./ui/button";
-import { AuthApiService } from "www/external/api";
+import { AuthApiService } from "www/lib/api";
 import { useToast } from "www/hooks/use-toast";
 import { useState } from "react";
 import {

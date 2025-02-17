@@ -18,8 +18,9 @@ import { NavUser } from "../NavUser";
 import { AppSidebarProps } from "www/types/sidebar.types";
 import { MAIN_MENU_ITEMS, FOOTER_MENU_ITEMS } from "www/lib/constant";
 import { useAuth } from "www/wrapper/auth-provider";
+import CollapsibleSidebar from "./CollapsableSidebar";
 
-export function AppSidebar({  history }: AppSidebarProps) {
+export function AppSidebar({ history, projectList }: AppSidebarProps) {
 	const [searchQuery, setSearchQuery] = useState("");
 	const { authState } = useAuth();
 	const filteredItems = useMemo(
@@ -57,25 +58,7 @@ export function AppSidebar({  history }: AppSidebarProps) {
 						</SidebarMenu>
 					</SidebarGroupContent>
 				</SidebarGroup>
-
-				<SidebarGroup>
-					<SidebarGroupLabel>Main</SidebarGroupLabel>
-					<SidebarGroupContent>
-						
-						<SidebarMenu>
-							{MAIN_MENU_ITEMS.map((item) => (
-								<SidebarMenuItem key={item.name}>
-									<SidebarMenuButton asChild>
-										<a href={item.url}>
-											<item.icon />
-											<span>{item.name}</span>
-										</a>
-									</SidebarMenuButton>
-								</SidebarMenuItem>
-							))}
-						</SidebarMenu>
-					</SidebarGroupContent>
-				</SidebarGroup>
+				<CollapsibleSidebar activeProjects={projectList} />
 
 				<SidebarGroup>
 					<SidebarGroupContent>

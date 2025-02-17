@@ -41,10 +41,10 @@ export const RANDOM_COLORS = [
 
 export const RANDOM_BG_COLORS = RANDOM_COLORS.map((color) => `bg-${color}-500`);
 
-import { FolderOpen, Settings } from "lucide-react";
+import { Folder, FolderOpen, PanelLeft, Settings } from "lucide-react";
 
 export const MAIN_MENU_ITEMS = [
-	{ name: "Projects", url: "/ai/projects", icon: FolderOpen },
+	{ name: "Projects", url: "/ai/projects", icon: PanelLeft},
 ];
 
 export const FOOTER_MENU_ITEMS = [

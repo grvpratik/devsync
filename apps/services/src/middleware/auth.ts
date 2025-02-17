@@ -1,16 +1,7 @@
-import { Hono, Next } from "hono";
-
-export const user = new Hono();
-
-import { Context } from "hono";
-import { Prisma, PrismaClient } from "@prisma/client";
-import { setCookie, getCookie, deleteCookie } from "hono/cookie";
 import { PrismaD1 } from "@prisma/adapter-d1";
-import { googleAuth } from "@hono/oauth-providers/google";
-
-// Constants for session management
-const SESSION_DURATION = 7 * 24 * 60 * 60; // 7 days in seconds
-const SESSION_REFRESH_THRESHOLD = 24 * 60 * 60; // 24 hours in seconds
+import { PrismaClient } from "@prisma/client";
+import { Context, Next } from "hono";
+import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 
 interface SessionUser {
 	userId: string;
@@ -29,6 +20,10 @@ interface SessionData {
 		ip?: string;
 	};
 }
+const SESSION_DURATION = 7 * 24 * 60 * 60; // 7 days in seconds
+const SESSION_REFRESH_THRESHOLD = 24 * 60 * 60; // 24 hours in seconds
+
+
 function uuidValidate(uuid: string): boolean {
 	const uuidRegex =
 		/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -328,9 +323,6 @@ export const userRoutes = {
 
 		return c.redirect("http://localhost:3000/auth/callback", 301);
 	},
-
-	// Get all active sessions for the current user
-
 	// Logout from specific device
 	logoutSession: async (c: Context) => {
 		
@@ -364,7 +356,6 @@ export const userRoutes = {
 
 		return c.json({ success: true });
 	},
-
 	// // Logout from all devices
 	logoutAll: async (c: Context) => {
 		const sessionId = getCookie(c, "session_id");
@@ -405,7 +396,6 @@ export const userRoutes = {
 			})),
 		});
 	},
-
 	validateSession: async (c: Context) => {
 		const sessionId = getCookie(c, "session_id");
 		// console.log("middleware validate session id", sessionId);
@@ -448,38 +438,3 @@ export const userRoutes = {
 	},
 };
 //for google signin
-user.use(
-	"/auth/callback",
-	async (c: Context, next) => {
-		const sessionId = getCookie(c, "session_id");
-		console.log("STEP 1 ->");
-		console.log("session callback", sessionId);
-		if (sessionId) {
-			const userId = await c.env.SESSION_STORE.get(sessionId);
-			console.log("userid", userId);
-			if (userId) {
-				return c.redirect("http://localhost:3000/");
-			}
-			deleteCookie(c, "session_id");
-		}
-		await next();
-	},
-	async (c: Context, next: Next) => {
-		console.log("GOOGLE AUTH");
-		return await googleAuth({
-			client_id: c.env.GOOGLE_CLIENT_ID,
-			client_secret: c.env.GOOGLE_CLIENT_SECRET,
-			scope: ["openid", "email", "profile"],
-		})(c, next);
-	}
-);
-//for next js middleware to check user validitation
-user.get("/auth/validate", userRoutes.validateSession);
-//after success google auth it create db and session to set cookies
-user.get("/auth/callback", userRoutes.handleInitialCallback);
-//for context for frontent to get profile to show ui and hook
-user.post("/auth/data", getUserProfile, userRoutes.getUserData);
-//
-user.get("/auth/sessions", checkSession, userRoutes.getSessions);
-user.post("/auth/logout/session", checkSession, userRoutes.logoutSession);
-user.post("/auth/logout/all", checkSession, userRoutes.logoutAll);

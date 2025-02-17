@@ -1,16 +1,13 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { AuthApiService } from "www/external/api";
+import { AuthApiService } from "www/lib/api";
 import { getGoogleUrl } from "www/lib/auth";
 
-
 interface User {
-
 	email: string;
 	name: string;
 	picture?: string;
-
 }
 
 interface AuthError {
@@ -102,8 +99,8 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
 	const login = async () => {
 		try {
 			// Store current path for redirect after login
-			// const currentPath = window.location.pathname;
-			// sessionStorage.setItem("authRedirect", currentPath);
+			const currentPath = window.location.pathname;
+			sessionStorage.setItem("authRedirect", currentPath);
 
 			// Redirect to Google login
 			window.location.href = getGoogleUrl();
@@ -136,7 +133,6 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
 				user: null,
 			});
 
-			
 			window.location.href = "/";
 		} catch (error) {
 			setAuthState((prev) => ({

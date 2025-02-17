@@ -35,15 +35,15 @@ export function NavUser({
 		name: string;
 		email: string;
 		picture?: string;
-	}|null;
+	} | null;
 }) {
 	const { isMobile } = useSidebar();
 
 	return (
 		<SidebarFooter>
 			<SidebarMenu>
-					{user &&<SidebarMenuItem>
-				
+				{user && (
+					<SidebarMenuItem>
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
 								<SidebarMenuButton
@@ -107,8 +107,8 @@ export function NavUser({
 								</DropdownMenuItem>
 							</DropdownMenuContent>
 						</DropdownMenu>
-					
-				</SidebarMenuItem>}
+					</SidebarMenuItem>
+				)}
 			</SidebarMenu>
 		</SidebarFooter>
 	);

@@ -1,15 +1,15 @@
 import axios, { AxiosResponse } from "axios";
 import React from "react";
 import ScheduleCalendar from "www/components/features/schedule/ScheduleCalendar";
-import { ApiService } from "www/external/api";
+import { ApiService } from "www/lib/api";
 import { getSessionCookie } from "www/hooks/use-server-session";
-
+import TaskManagement from "www/components/features/schedule/BatchTask";
 
 const SchedulePage = async ({ params }: { params: { id: string } }) => {
 	const { id } = await params;
-	const session= await getSessionCookie()
-	const result = await ApiService.getProjectById(id,session!)
-	console.log(result.result.phases,"sechedule");
+	const session = await getSessionCookie();
+	const result = await ApiService.getProjectById(id, session!);
+	console.log(result.result.phases, "sechedule");
 	if (!result) {
 		return (
 			<main className="flex flex-col justify-center items-center h-screen font-sans">
@@ -25,6 +25,7 @@ const SchedulePage = async ({ params }: { params: { id: string } }) => {
 	return (
 		<main className="mx-4 mb-4">
 			<ScheduleCalendar result={result && result.result.phases} />
+			<TaskManagement />
 		</main>
 	);
 };

@@ -1,8 +1,6 @@
 import { Hono } from "hono";
-
-
-import { user } from "./../middleware/auth";
 import { buildRoute } from "./build.route";
+import { user } from "./user.route";
 
 export const base = new Hono();
 

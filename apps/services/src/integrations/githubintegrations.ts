@@ -124,35 +124,6 @@ async function searchRepositories(
 	}
 }
 
-async function getUserInfo(username: string, accessToken: string = ""): Promise<UserInfo | null> {
-	try {
-		const response = await fetch(`${baseUrl}/users/${username}`, {
-			method: "GET",
-			headers: createHeaders(accessToken),
-		});
-
-		if (!response.ok) {
-			throw new Error(`HTTP error! status: ${response.status}`);
-		}
-
-		const user = await response.json() as GitHubUserResponse;
-		return {
-			name: user.name,
-			username: user.login,
-			bio: user.bio,
-			publicRepos: user.public_repos,
-			followers: user.followers,
-			following: user.following,
-			location: user.location,
-			email: user.email,
-			profileUrl: user.html_url,
-			avatarUrl: user.avatar_url,
-		};
-	} catch (error) {
-		console.error("Error fetching user info:", error);
-		return null;
-	}
-}
 
 async function getRepositoryDetails(
 	owner: string,
@@ -189,40 +160,7 @@ async function getRepositoryDetails(
 	}
 }
 
-async function listUserRepositories(
-	username: string,
-	options: RepositoryListOptions = {},
-	accessToken: string = ""
-): Promise<Repository[]> {
-	const { type = "all", sort = "updated", direction = "desc" } = options;
 
-	try {
-		const response = await fetch(
-			`${baseUrl}/users/${username}/repos?type=${type}&sort=${sort}&direction=${direction}`,
-			{
-				method: "GET",
-				headers: createHeaders(accessToken),
-			}
-		);
-
-		if (!response.ok) {
-			throw new Error(`HTTP error! status: ${response.status}`);
-		}
-
-		const repositories = await response.json() as GitHubRepoResponse[];
-		return repositories.slice(0, 20).map((repo: any) => ({
-			name: repo.full_name,
-			description: repo.description,
-			language: repo.language,
-			stars: repo.stargazers_count,
-			forks: repo.forks_count,
-			url: repo.html_url,
-		}));
-	} catch (error) {
-		console.error("Error listing user repositories:", error);
-		return [];
-	}
-}
 
 // async function demonstrateGitHubAPI(): Promise<void> {
 // 	const accessToken = ""; // Add your GitHub personal access token here if needed
