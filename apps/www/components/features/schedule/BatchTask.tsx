@@ -2,10 +2,10 @@
 
 import { useState, useCallback } from "react";
 import { Plus, Trash2, Save, Loader2, Check } from "lucide-react";
-// import { useToast } from "www/components/ui/use-toast";
+
 import { Button } from "www/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "www/components/ui/card";
-// import { Checkbox } from "www/components/ui/checkbox";
+ import { Checkbox } from "www/components/ui/checkbox";
 import {
 	Dialog,
 	DialogContent,
@@ -191,12 +191,12 @@ const TaskCard = ({
 								key={task.id}
 								className="flex items-start space-x-4 rounded-lg border p-4 transition-colors hover:bg-accent"
 							>
-								{/* <Checkbox
+								<Checkbox
 									checked={pendingChanges[task.id] ?? task.isCompleted}
 									onCheckedChange={(checked) =>
 										handleCheckboxChange(task.id, checked as boolean)
 									}
-								/> */}
+								/>
 								<div className="flex-1 space-y-1">
 									<p
 										className={`${
@@ -214,6 +214,7 @@ const TaskCard = ({
 								<Button
 									variant="ghost"
 									size="icon"
+                                    className="  hover:bg-destructive/50"
 									onClick={() => setDeleteTask(task)}
 								>
 									<Trash2 className="h-4 w-4" />
@@ -294,11 +295,11 @@ const TaskCard = ({
 					</AlertDialogHeader>
 					<AlertDialogFooter>
 						<AlertDialogCancel>Cancel</AlertDialogCancel>
-						<AlertDialogAction onClick={handleDeleteTask} disabled={isLoading}>
+						<AlertDialogAction onClick={handleDeleteTask} disabled={isLoading} className=" flex gap-1 items-center">
 							{isLoading ?
 								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
 							:	<Trash2 className="mr-2 h-4 w-4" />}
-							Delete Task
+							<span>Delete Task</span>
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>

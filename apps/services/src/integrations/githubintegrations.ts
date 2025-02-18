@@ -18,18 +18,6 @@ interface Repository {
 	language: string | null;
 }
 
-interface UserInfo {
-	name: string | null;
-	username: string;
-	bio: string | null;
-	publicRepos: number;
-	followers: number;
-	following: number;
-	location: string | null;
-	email: string | null;
-	profileUrl: string;
-	avatarUrl: string;
-}
 
 interface RepositoryDetails extends Repository {
 	openIssues: number;
@@ -39,24 +27,7 @@ interface RepositoryDetails extends Repository {
 	visibility: string;
 }
 
-interface ContributionStats {
-	totalContributions: number;
-	eventTypes: Record<string, number>;
-	recentRepositories: string[];
-}
 
-interface GitHubUserResponse {
-	name: string | null;
-	login: string;
-	bio: string | null;
-	public_repos: number;
-	followers: number;
-	following: number;
-	location: string | null;
-	email: string | null;
-	html_url: string;
-	avatar_url: string;
-}
 
 interface GitHubRepoResponse {
 	full_name: string;
@@ -77,11 +48,12 @@ const baseUrl = "https://api.github.com";
 function createHeaders(accessToken: string): Record<string, string> {
 	return {
 		Accept: "application/vnd.github.v3+json",
+		'User-Agent': 'request',
 		...(accessToken && { Authorization: `token ${accessToken}` }),
 	};
 }
 
-async function searchRepositories(
+export async function searchRepositories(
 	query: string,
 	options: SearchOptions = {},
 	accessToken: string = ""
@@ -101,6 +73,7 @@ async function searchRepositories(
 			`${baseUrl}/search/repositories?q=${encodeURIComponent(searchQuery)}`,
 			{
 				method: "GET",
+				
 				headers: createHeaders(accessToken),
 			}
 		);

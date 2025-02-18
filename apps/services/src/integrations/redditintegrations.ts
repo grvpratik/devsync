@@ -1,7 +1,7 @@
 import axios from "axios";
 
 interface SearchPostsParams {
-	accessToken: string;
+	token: string;
 	query: string;
 	subreddit?: string;
 	sort?: "relevance" | "hot" | "top" | "new" | "comments";
@@ -52,7 +52,8 @@ export async function generateRedditToken(c: any) {
 				password: clientSecret!,
 			},
 			headers: {
-				"User-Agent": "app/1.0",
+				"User-Agent":
+					"app/1.0 ",
 			},
 		}
 	);
@@ -62,11 +63,11 @@ export async function generateRedditToken(c: any) {
 }
 export async function searchSubreddits(
 	query: string,
-	c: any
+	token: any
 ): Promise<Subreddit[]> {
-	const { REDDIT_ACCESS_TOKEN } = c.env;
+	
 
-	const accessToken = REDDIT_ACCESS_TOKEN;
+	const accessToken =token;
 
 	const searchResponse = await axios.get(
 		"https://oauth.reddit.com/subreddits/search",
@@ -90,7 +91,7 @@ export async function searchSubreddits(
 }
 
 export async function searchRedditPosts({
-	accessToken,
+	token,
 	query,
 	subreddit = "",
 	sort = "relevance",
@@ -114,13 +115,13 @@ export async function searchRedditPosts({
 			type: "link", // Search for posts
 		},
 		headers: {
-			Authorization: `Bearer ${accessToken}`,
+			Authorization: `Bearer ${token}`,
 			"User-Agent": "YourAppName/1.0",
 		},
 	});
 
 	// Process and return post results
-	return searchResponse.data.data.children.map((post:any) => ({
+	return searchResponse.data.data.children.map((post: any) => ({
 		title: post.data.title,
 		author: post.data.author,
 		subreddit: post.data.subreddit,
