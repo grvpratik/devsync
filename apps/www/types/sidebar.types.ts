@@ -1,5 +1,5 @@
 import { LucideIcon } from "lucide-react";
-import { SearchHistory } from "www/app/(projects)/layout";
+import {  SidebarProjects } from "www/app/(projects)/layout";
 
 export interface MenuItem {
 	title: string;
@@ -14,6 +14,6 @@ export interface User {
 }
 
 export interface AppSidebarProps {
-	history: SearchHistory[];
-	projectList:any
+	history: SidebarProjects[];
+	projectList:SidebarProjects[]
 }

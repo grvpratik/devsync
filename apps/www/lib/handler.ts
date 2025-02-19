@@ -14,6 +14,7 @@ type ErrorResponse = {
 };
 type ApiResult<T> = SuccessResponse<T> | ErrorResponse;
 type SuccessResponse<T> = {
+	url: any;
 	success: true;
 	result: T;
 };

@@ -22,7 +22,7 @@ import {
 	PROJECT_TYPE,
 	AI_MODELS_LIST,
 } from "www/lib/constant";
-
+import { api, isSuccess } from "www/lib/handler";
 
 const AI_MODELS = AI_MODELS_LIST.map((model) => ({
 	...model,
@@ -47,14 +47,13 @@ const searchService = {
 		return axios.post(`${process.env.NEXT_PUBLIC_API!}/build/search`, input, {
 			withCredentials: true,
 			headers: {
-			"Content-Type": "application/json",
+				"Content-Type": "application/json",
 			},
 		});
 	},
 };
 
 export default function AiSearch() {
-	
 	const { toast } = useToast();
 	const [loading, setLoading] = useState<boolean>(false);
 	const [state, setState] = useState<StateProps>({
@@ -76,18 +75,25 @@ export default function AiSearch() {
 		setLoading(true);
 
 		try {
-			const response = await searchService.submit({
+			const input = {
 				value: state.value,
 				project: state.selectedProject,
 				model: state.selectedModel,
-			});
-			if (response.status !== 200) {
-				handleError(response && response.data.error.message);
-				return;
-			}
-			const result = response.data;
+			};
+			const response = await api.post<any>(
+				"/build/search",
+				input
+			);
 
-			router.push(`/build/${result.url}`);
+			if (isSuccess(response)) {
+				router.push(`/build/${response.url}`);
+			} else {
+				toast({
+					variant: "destructive",
+					title: response.error.code,
+					description: response.error.message,
+				});
+			}
 		} catch (error) {
 			handleError(error);
 		} finally {

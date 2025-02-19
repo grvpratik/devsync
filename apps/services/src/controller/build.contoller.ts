@@ -179,7 +179,7 @@ export const BuildController = {
 		);
 	},
 	getReportById: async (c: Context) => {
-		const userId = c.get("userId") ?? "cm73x26p80000yf0cekb44sro";
+		const userId = c.get("userId") ;
 		if (!userId) {
 			throw new AuthError("authentication required");
 		}
@@ -212,6 +212,7 @@ export const BuildController = {
 			throw new AppError("Server error");
 		}
 	},
+
 	refreshField: async (c: Context) => {
 		const { GEMINI_API } = c.env;
 		const userId = c.get("userId") ?? "";

@@ -6,12 +6,12 @@ import { getSessionCookie } from "www/hooks/use-server-session";
 import { api } from "www/lib/handler";
 import { ProjectReportResponse } from "shared";
 
-export interface SearchHistory {
+
+export interface SidebarProjects {
 	id: string;
 	title: string;
 	url: string;
 }
-
 
 async function fetchProjects(session: string) {
 	const result = await api.post<ProjectReportResponse[]>(
@@ -46,8 +46,8 @@ export default async function AiLayout({
 		);
 	}
 
-	let history: SearchHistory[] = [];
-	let projectSidebar: { id: string; name: string; url: string }[] = [];
+	let history: SidebarProjects[] = [];
+	let projectSidebar: SidebarProjects[] = [];
 
 	try {
 		const projects = await fetchProjects(session);
@@ -60,11 +60,11 @@ export default async function AiLayout({
 				url: `/build/${project.id}`,
 			}));
 
-		projectSidebar = projects
+		projectSidebar  = projects
 			.filter((project: ProjectReportResponse) => project.phases !== null)
 			.map((project: ProjectReportResponse) => ({
 				id: project.id,
-				name: project.metadata.name ?? "Unnamed",
+				title: project.metadata.name ?? "Unnamed",
 				url: `/build/${project.id}/schedule`,
 			}));
 	} catch (error) {

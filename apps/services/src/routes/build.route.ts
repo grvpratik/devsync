@@ -19,7 +19,7 @@ buildRoute.post("/search", BuildController.getSearch);
 
 buildRoute.post("/project/:id", BuildController.getReportById);
 
-buildRoute.delete("/project/:id", BuildController.getReportById);
+buildRoute.delete("/project/:id", BuildController.deleteProjectById);
 
 buildRoute.post("/project", BuildController.getAllUserReport);
 
