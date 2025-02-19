@@ -1,33 +1,66 @@
-import axios, { AxiosResponse } from "axios";
 import React from "react";
 import ScheduleCalendar from "www/components/features/schedule/ScheduleCalendar";
-import { ApiService } from "www/lib/api";
-import { getSessionCookie } from "www/hooks/use-server-session";
+import { api, isSuccess } from "www/lib/handler";
 import TaskManagement from "www/components/features/schedule/BatchTask";
+import { Phases, ProjectReportResponse } from "shared";
+import ScheduleGrid from "www/components/features/schedule/ScheduleGrid";
+import { getSessionCookie } from "www/hooks/use-server-session";
+
+interface ProjectResult extends ProjectReportResponse {}
 
 const SchedulePage = async ({ params }: { params: { id: string } }) => {
-	const { id } = await params;
+	const { id } = params;
 	const session = await getSessionCookie();
-	const result = await ApiService.getProjectById(id, session!);
-	console.log(result.result.phases, "sechedule");
-	if (!result) {
+	try {
+		const result = await api.post<ProjectResult>(
+			`/build/project/${id}`,
+			{},
+			{ session }
+		);
+
+		if (!isSuccess(result)) {
+			return (
+				<main className="flex flex-col justify-center items-center h-screen font-sans">
+					<h1 className="text-2xl font-bold text-red-600">Error</h1>
+					<p className="text-gray-700">
+						{result.error?.message ||
+							"Failed to fetch project data. Please try again later."}
+					</p>
+				</main>
+			);
+		}
+
+		if (!result.result.phases) {
+			return (
+				<main className="flex flex-col justify-center items-center h-screen font-sans">
+					<h1 className="text-2xl font-bold text-gray-800">
+						No Schedule Available
+					</h1>
+					<p className="text-gray-600">
+						This project doesn't have any phases or schedule information yet.
+					</p>
+				</main>
+			);
+		}
+
+		return (
+			<main className="mx-4 mb-4 font-sans">
+				{/* <ScheduleCalendar result={result.result.phases} />*/}
+			
+				<ScheduleGrid metadata={result.result.metadata} />
+			</main>
+		);
+	} catch (error) {
+		console.error("Error fetching project schedule:", error);
 		return (
 			<main className="flex flex-col justify-center items-center h-screen font-sans">
-				<h1 className="text-2xl font-bold text-red-600">Error</h1>
+				<h1 className="text-2xl font-bold text-red-600">Unexpected Error</h1>
 				<p className="text-gray-700">
-					Failed to fetch business data. Please try again later.
+					An unexpected error occurred while loading the schedule.
 				</p>
 			</main>
 		);
 	}
-
-	//fetch
-	return (
-		<main className="mx-4 mb-4">
-			<ScheduleCalendar result={result && result.result.phases} />
-			<TaskManagement />
-		</main>
-	);
 };
 
 export default SchedulePage;

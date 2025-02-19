@@ -4,7 +4,7 @@ import { AppSidebar } from "www/components/sidebar/AppSideBar";
 import { getSessionCookie } from "www/hooks/use-server-session";
 
 import { api } from "www/lib/handler";
-import { IdeaValidationResponse, Phases } from "shared";
+import { ProjectReportResponse } from "shared";
 
 export interface SearchHistory {
 	id: string;
@@ -12,17 +12,14 @@ export interface SearchHistory {
 	url: string;
 }
 
-interface ProjectReportResponse extends IdeaValidationResponse {
-	id: string;
-	phases?: Phases;
-}
+
 async function fetchProjects(session: string) {
 	const result = await api.post<ProjectReportResponse[]>(
 		"/build/project",
 		{},
 		{ session }
 	);
-	console.log(result);
+
 	if (result.success) {
 		return result.result || [];
 	}

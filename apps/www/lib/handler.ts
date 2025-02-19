@@ -3,7 +3,7 @@ import {
 	type AxiosInstance,
 	type AxiosRequestConfig,
 } from "axios";
-import { cookies } from "next/headers";
+
 type ErrorResponse = {
 	success: false;
 	error: {
@@ -37,6 +37,7 @@ interface RetryConfig {
 export class ApiHandler {
 	private instance: AxiosInstance;
 	private retryConfig: RetryConfig;
+	private isServer: boolean;
 
 	constructor(axiosInstance: AxiosInstance, config?: Partial<RetryConfig>) {
 		this.instance = axiosInstance;
@@ -48,6 +49,7 @@ export class ApiHandler {
 			statusCodesToRetry: [408, 429, 500, 502, 503, 504],
 			...config,
 		};
+		this.isServer = typeof window === "undefined";
 	}
 
 	private calculateDelay(retryCount: number): number {
@@ -70,20 +72,6 @@ export class ApiHandler {
 		);
 	}
 
-	private async getSessionCookie(session?: string): Promise<string | null> {
-		if (session) {
-			return session;
-		} else return null;
-
-		// try {
-		// 	const cookieStore = await cookies();
-		// 	return (cookieStore.get("session_id")?.value) || null;
-		// } catch (e) {
-		// 	// Not running on server
-		// 	return null;
-		// }
-	}
-
 	async request<T>(
 		method: string,
 		url: string,
@@ -97,10 +85,11 @@ export class ApiHandler {
 		const { session, headers = {}, config = {} } = options || {};
 		let retryCount = 0;
 
-		// Get session cookie from parameter or server component
-		const sessionCookie = await this.getSessionCookie(session);
+		if (this.isServer) {
+		}
+		const sessionCookie = session;
 		console.log("getsession inside request", sessionCookie);
-		// Set up headers with session if available
+
 		const requestHeaders: Record<string, string> = {
 			...headers,
 		};
@@ -116,7 +105,9 @@ export class ApiHandler {
 					url,
 					data: method !== "GET" ? data : undefined,
 					params: method === "GET" ? data : undefined,
-					headers: requestHeaders,
+					
+					headers: sessionCookie ? requestHeaders : undefined,
+					withCredentials:true,
 					...config,
 				});
 
@@ -210,8 +201,8 @@ export class ApiHandler {
 	}
 }
 
-// Usage example:
 import axios from "axios";
+import { truncate } from "fs";
 
 const instance = axios.create({
 	baseURL: process.env.NEXT_PUBLIC_API || "http://localhost:8787",

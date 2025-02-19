@@ -2,10 +2,16 @@
 
 import { useState, useCallback } from "react";
 import { Plus, Trash2, Save, Loader2, Check } from "lucide-react";
-
+import {AnimatePresence, motion}from 'framer-motion'
 import { Button } from "www/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "www/components/ui/card";
- import { Checkbox } from "www/components/ui/checkbox";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "www/components/ui/card";
+import { Checkbox } from "www/components/ui/checkbox";
 import {
 	Dialog,
 	DialogContent,
@@ -17,6 +23,7 @@ import {
 import { Input } from "www/components/ui/input";
 import { Label } from "www/components/ui/label";
 import { Textarea } from "www/components/ui/textarea";
+import { ChevronRight, X } from "lucide-react";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -28,6 +35,7 @@ import {
 	AlertDialogTitle,
 } from "www/components/ui/alert-dialog";
 import { useToast } from "www/hooks/use-toast";
+import { Badge } from "www/components/ui/badge";
 
 // Types
 interface Task {
@@ -214,7 +222,7 @@ const TaskCard = ({
 								<Button
 									variant="ghost"
 									size="icon"
-                                    className="  hover:bg-destructive/50"
+									className="  hover:bg-destructive/50"
 									onClick={() => setDeleteTask(task)}
 								>
 									<Trash2 className="h-4 w-4" />
@@ -295,7 +303,11 @@ const TaskCard = ({
 					</AlertDialogHeader>
 					<AlertDialogFooter>
 						<AlertDialogCancel>Cancel</AlertDialogCancel>
-						<AlertDialogAction onClick={handleDeleteTask} disabled={isLoading} className=" flex gap-1 items-center">
+						<AlertDialogAction
+							onClick={handleDeleteTask}
+							disabled={isLoading}
+							className=" flex gap-1 items-center"
+						>
 							{isLoading ?
 								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
 							:	<Trash2 className="mr-2 h-4 w-4" />}
@@ -312,47 +324,8 @@ const TaskCard = ({
 
 // Main Component
 export default function TaskManagement() {
-	const [phases, setPhases] = useState<Phase[]>([
-		{
-			id: "phase1",
-			name: "To Do",
-			tasks: [
-				{
-					id: "task1",
-					name: "Design new landing page",
-					desc: "Create wireframes and mockups",
-					isCompleted: false,
-					phaseId: "phase1",
-				},
-			],
-		},
-		{
-			id: "phase2",
-			name: "In Progress",
-			tasks: [
-				{
-					id: "task2",
-					name: "Implement authentication",
-					desc: "Add login and signup functionality",
-					isCompleted: false,
-					phaseId: "phase2",
-				},
-			],
-		},
-		{
-			id: "phase3",
-			name: "Done",
-			tasks: [
-				{
-					id: "task3",
-					name: "Setup project structure",
-					desc: "Initialize repository and configure build tools",
-					isCompleted: true,
-					phaseId: "phase3",
-				},
-			],
-		},
-	]);
+	
+	
 
 	const handleTaskUpdate = useCallback(
 		async (phaseId: string, updatedTasks: Task[]) => {
@@ -412,20 +385,144 @@ export default function TaskManagement() {
 			throw new Error("Failed to delete tasks");
 		}
 	}, []);
+	const [phases, setPhases] = useState<any[]>([
+		{
+			id: "phase1",
+			name: "MVP",
+			startDate: "2025-01-15",
+			endDate: "2025-02-28",
+			tasks: [
+				{
+					id: "task1",
+					name: "Design new landing page",
+					desc: "Create wireframes and mockups",
+					isCompleted: false,
+					phaseId: "phase1",
+				},
+			],
+		},
+		{
+			id: "phase2",
+			name: "INFar",
+			startDate: "2025-03-01",
+			endDate: "2025-04-15",
+			tasks: [
+				{
+					id: "task2",
+					name: "Implement authentication",
+					desc: "Add login and signup functionality",
+					isCompleted: false,
+					phaseId: "phase2",
+				},
+			],
+		},
+		{
+			id: "phase3",
+			name: "Done",
+			startDate: "2025-04-16",
+			endDate: "2025-05-30",
+			tasks: [
+				{
+					id: "task3",
+					name: "Setup project structure",
+					desc: "Initialize repository and configure build tools",
+					isCompleted: true,
+					phaseId: "phase3",
+				},
+			],
+		},
+	]);
 
-	return (
-		<div className="p-6">
-			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-				{phases.map((phase) => (
-					<TaskCard
+	const [selectedPhaseId, setSelectedPhaseId] = useState<string | null>(null);
+	const [dialogOpen, setDialogOpen] = useState(false);
+const getTaskStats = (phase: Phase) => {
+	const totalTasks = phase.tasks.length;
+	const completedTasks = phase.tasks.filter((task) => task.isCompleted).length;
+	const pendingTasks = totalTasks - completedTasks;
+
+	return { totalTasks, completedTasks, pendingTasks };
+};
+
+const handlePhaseClick = (phaseId: string) => {
+	setSelectedPhaseId(phaseId);
+	setDialogOpen(true);
+};
+
+const selectedPhase = phases.find((phase) => phase.id === selectedPhaseId);
+
+return (
+	<div className="p-4 max-w-4xl mx-auto">
+		<h1 className="text-2xl font-bold mb-6">Project Phases</h1>
+
+		<div className="flex flex-col gap-4">
+			{phases.map((phase) => {
+				const { totalTasks, completedTasks, pendingTasks } =
+					getTaskStats(phase);
+
+				return (
+					<Card
 						key={phase.id}
-						phase={phase}
-						onTaskUpdate={(tasks) => handleTaskUpdate(phase.id, tasks)}
+						className="cursor-pointer hover:shadow-md transition-shadow"
+						onClick={() => handlePhaseClick(phase.id)}
+					>
+						<CardHeader className="pb-2">
+							<CardTitle>{phase.name}</CardTitle>
+							{phase.startDate && phase.endDate && (
+								<CardDescription>
+									{phase.startDate} to {phase.endDate}
+								</CardDescription>
+							)}
+						</CardHeader>
+						<CardContent>
+							<div className="flex justify-between items-center mb-4">
+								<span className="text-sm text-gray-600">
+									Tasks: {totalTasks}
+								</span>
+								<ChevronRight className="h-5 w-5 text-gray-400" />
+							</div>
+							<div className="flex flex-wrap gap-2">
+								<Badge
+									variant="outline"
+									className="bg-green-50 text-green-700 border-green-200"
+								>
+									{completedTasks} Completed
+								</Badge>
+								<Badge
+									variant="outline"
+									className="bg-yellow-50 text-yellow-700 border-yellow-200"
+								>
+									{pendingTasks} Pending
+								</Badge>
+								<Badge
+									variant="outline"
+									className="bg-blue-50 text-blue-700 border-blue-200"
+								>
+									{Math.round((completedTasks / totalTasks) * 100) || 0}%
+									Progress
+								</Badge>
+							</div>
+						</CardContent>
+					</Card>
+				);
+			})}
+		</div>
+
+		<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+			<DialogContent className="sm:max-w-2xl">
+				<DialogHeader>
+					<DialogTitle>{selectedPhase?.name} Tasks</DialogTitle>
+				</DialogHeader>
+
+				{selectedPhase && (
+					<TaskCard
+						phase={selectedPhase}
+						onTaskUpdate={(tasks) => handleTaskUpdate(selectedPhase.id, tasks)}
 						onTaskDelete={handleTaskDelete}
 						onTaskCreate={handleTaskCreate}
 					/>
-				))}
-			</div>
-		</div>
-	);
+				)}
+			</DialogContent>
+		</Dialog>
+	</div>
+);
 }

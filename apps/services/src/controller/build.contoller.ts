@@ -195,6 +195,9 @@ export const BuildController = {
 							id: projectId,
 							userId,
 						},
+						include:{
+							phases:true
+						}
 					})
 			);
 			console.log(result);
@@ -659,7 +662,7 @@ export const BuildController = {
 		}
 	},
 	getAllUserReport: async (c: Context) => {
-		const userId = c.get("userId") ?? "cm73x26p80000yf0cekb44sro";
+		const userId = c.get("userId") ?? '';
 		if (!userId) {
 			throw new AuthError("authentication required");
 		}

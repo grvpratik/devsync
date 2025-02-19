@@ -8,6 +8,7 @@ import { Input } from "www/components/ui/input";
 import { Label } from "www/components/ui/label";
 import {
 	Popover,
+	PopoverClose,
 	PopoverContent,
 	PopoverTrigger,
 } from "www/components/ui/popover";
@@ -100,22 +101,37 @@ const DateRangeList = ({
 	dateRanges: DateRangeItem[];
 	onRemove: (index: number) => void;
 }) => (
-	<div className="space-y-2">
-		<h3 className="font-semibold">Selected Date Ranges:</h3>
-		{dateRanges.map((range, index) => (
-			<div
-				key={`${range.name}-${range.start_date}`}
-				className="flex justify-between items-center bg-muted p-2 rounded"
-			>
-				<span>
-					{range.name}: {format(range.start_date, "LLL dd, y")} -{" "}
-					{format(range.end_date, "LLL dd, y")}
-				</span>
-				<Button variant="destructive" size="sm" onClick={() => onRemove(index)}>
-					Remove
-				</Button>
+	<div className="space-y-4 my-6">
+		<h3 className="font-semibold text-lg">Selected Date Ranges</h3>
+		{dateRanges.length === 0 ?
+			<div className="text-muted-foreground text-sm italic p-4 text-center bg-muted/50 rounded-md">
+				No date ranges selected yet
 			</div>
-		))}
+		:	<div className="space-y-3">
+				{dateRanges.map((range, index) => (
+					<div
+						key={`${range.name}-${range.start_date}`}
+						className="flex justify-between items-center bg-muted/80 p-4 rounded-lg hover:bg-muted transition-colors"
+					>
+						<div className="space-y-1">
+							<h4 className="font-medium text-sm">{range.name}</h4>
+							<p className="text-sm text-muted-foreground">
+								{format(range.start_date, "LLL dd, y")} -{" "}
+								{format(range.end_date, "LLL dd, y")}
+							</p>
+						</div>
+						<Button
+							variant="destructive"
+							size="sm"
+							onClick={() => onRemove(index)}
+							className="ml-4 hover:bg-destructive/90"
+						>
+							Remove
+						</Button>
+					</div>
+				))}
+			</div>
+		}
 	</div>
 );
 
@@ -225,7 +241,7 @@ export function MultiDateRangeSelector({
 
 	return (
 		<ScrollArea className="max-h-[28rem] font-sans ">
-			<div className="h-full ">
+			<div className="h-full ml-2 mr-4">
 				<div className="space-y-2">
 					<Label htmlFor="name">Name</Label>
 					<div className="flex space-x-2">
@@ -244,14 +260,16 @@ export function MultiDateRangeSelector({
 								<PopoverContent className="w-[200px] p-0">
 									<div className="p-2">
 										{suggestions.map((suggestion) => (
-											<Button
-												key={suggestion}
-												variant="ghost"
-												className="w-full justify-start text-left"
-												onClick={() => setCurrentName(suggestion)}
-											>
-												{suggestion}
-											</Button>
+											<PopoverClose>
+												<Button
+													key={suggestion}
+													variant="ghost"
+													className="w-full justify-start text-left"
+													onClick={() => setCurrentName(suggestion)}
+												>
+													{suggestion}
+												</Button>
+											</PopoverClose>
 										))}
 									</div>
 								</PopoverContent>
@@ -295,7 +313,7 @@ export function MultiDateRangeSelector({
 
 				<div>
 					<h3 className="font-semibold mb-2">JSON Output:</h3>
-					<pre className="bg-muted p-2 rounded overflow-x-auto">
+					<pre className="bg-muted p-2 rounded overflow-x-auto text-xs">
 						{jsonOutput}
 					</pre>
 				</div>

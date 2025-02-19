@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { AuthApiService } from "www/lib/api";
 import { getGoogleUrl } from "www/lib/auth";
+import { api, isSuccess } from "www/lib/handler";
 
 interface User {
 	email: string;
@@ -63,22 +64,23 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
 	};
 
 	const refreshUser = async () => {
-		try {
-			setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
-			const response = await AuthApiService.getUserData();
-
+		setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
+		const response = await api.post<any>(`/user/auth/data`);
+		if (isSuccess(response)) {
+	console.log(response,"AUTHCONTEXT")	
 			setAuthState({
 				isLoading: false,
 				isInitialized: true,
 				error: null,
 				user: response.user,
 			});
-		} catch (error) {
+		} else {
+				console.log(response, "AUTHCONTEXTERROR");	
 			setAuthState((prev) => ({
 				...prev,
 				isLoading: false,
 				isInitialized: true,
-				error: handleError(error, "Failed to fetch user data"),
+				error: response.error as AuthError,
 				user: null,
 			}));
 		}

@@ -47,7 +47,11 @@ buildRoute.post("/phase/test", async (c: Context) => {
 	const prisma = new PrismaClient({ adapter });
 
 	// const body = await c.req.json();
-	const result = await prisma.projectReport.findMany();
+	const result = await prisma.projectReport.findMany({
+		include:{
+			phases:true
+		}
+	});
 	// // console.log(body);
 	// console.log(result);
 const token=await generateRedditToken(c)

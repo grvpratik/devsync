@@ -433,7 +433,10 @@ export const userRoutes = {
 				401
 			);
 		return c.json(
-			{ user: { name: user.name, email: user.email, picture: user.image_url } },
+			{
+				success: true,
+				user: { name: user.name, email: user.email, picture: user.image_url },
+			},
 			200
 		);
 	},
