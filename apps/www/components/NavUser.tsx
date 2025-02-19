@@ -6,6 +6,7 @@ import {
 	ChevronsUpDown,
 	CreditCard,
 	LogOut,
+	Moon,
 	Sparkles,
 } from "lucide-react";
 
@@ -27,6 +28,8 @@ import {
 	useSidebar,
 } from "www/components/ui/sidebar";
 import LoginButton from "./login-button";
+import ThemeToggle from "./ui/theme-toggle";
+import { Day } from "react-day-picker";
 
 export function NavUser({
 	user,
@@ -85,7 +88,8 @@ export function NavUser({
 								<DropdownMenuGroup>
 									<DropdownMenuItem>
 										<Sparkles />
-										Upgrade to Pro
+										Theme 
+										<ThemeToggle/>
 									</DropdownMenuItem>
 								</DropdownMenuGroup>
 								<DropdownMenuSeparator />

@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { Plus, Trash2, Save, Loader2, Check } from "lucide-react";
-import {AnimatePresence, motion}from 'framer-motion'
+
 import { Button } from "www/components/ui/button";
 import {
 	Card,

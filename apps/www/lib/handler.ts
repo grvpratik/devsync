@@ -12,20 +12,14 @@ type ErrorResponse = {
 		code?: string;
 	};
 };
+
 type ApiResult<T> = SuccessResponse<T> | ErrorResponse;
 type SuccessResponse<T> = {
 	url: any;
 	success: true;
 	result: T;
 };
-// type ApiResult<T> = {
-// 	success: boolean;
-// 	result?: T;
-// 	error?: {
-// 		message: string;
-// 		code?: string;
-// 	};
-// };
+
 
 interface RetryConfig {
 	maxRetries: number;
@@ -153,7 +147,7 @@ export class ApiHandler {
 		}
 	}
 
-	// Convenience methods
+	
 	async get<T>(
 		url: string,
 		params?: any,
@@ -215,8 +209,9 @@ const instance = axios.create({
 });
 
 export const api = new ApiHandler(instance);
+
 export function isSuccess<T>(
 	response: ApiResult<T>
-): response is { success: true; result: T } {
+)  {
 	return response.success === true;
 }
