@@ -13,7 +13,7 @@ import {searchRepositories}from "../integrations/githubintegrations"
 
 export const buildRoute = new Hono();
 
-// buildRoute.use("*", checkSession);
+ buildRoute.use("*", checkSession);
 
 buildRoute.post("/search", BuildController.getSearch);
 
@@ -43,11 +43,11 @@ buildRoute.delete(
 );
 
 buildRoute.post("/phase/test", async (c: Context) => {
-	// const adapter = new PrismaD1(c.env.DB);
-	// const prisma = new PrismaClient({ adapter });
+	const adapter = new PrismaD1(c.env.DB);
+	const prisma = new PrismaClient({ adapter });
 
 	// const body = await c.req.json();
-	// const result = await prisma.phases.findMany();
+	const result = await prisma.projectReport.findMany();
 	// // console.log(body);
 	// console.log(result);
 const token=await generateRedditToken(c)
@@ -59,10 +59,11 @@ const token=await generateRedditToken(c)
 	// const posts=await searchRedditPosts(params);
 	// console.log(token,posts)
 	console.log(c.env.GITHUB_TOKEN);
-const list =await searchRepositories("trading bot ts", c.env.GITHUB_TOKEN);
-console.log(list)
+// const list =await searchRepositories("trading bot ts", c.env.GITHUB_TOKEN);
+
+console.log(result)
 	return c.json({
-		ok:"ff"
+	result
 	});
 });
 // buildRoute.post("/:id/phase/edit", async (c) => {

@@ -659,7 +659,7 @@ export const BuildController = {
 		}
 	},
 	getAllUserReport: async (c: Context) => {
-		const userId = c.get("userId") ?? "";
+		const userId = c.get("userId") ?? "cm73x26p80000yf0cekb44sro";
 		if (!userId) {
 			throw new AuthError("authentication required");
 		}

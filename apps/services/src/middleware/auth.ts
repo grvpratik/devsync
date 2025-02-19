@@ -23,7 +23,6 @@ interface SessionData {
 const SESSION_DURATION = 7 * 24 * 60 * 60; // 7 days in seconds
 const SESSION_REFRESH_THRESHOLD = 24 * 60 * 60; // 24 hours in seconds
 
-
 function uuidValidate(uuid: string): boolean {
 	const uuidRegex =
 		/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -221,7 +220,7 @@ const SessionManager = {
 // Modified middleware to handle session validation
 export const checkSession = async (c: Context, next: Next) => {
 	const sessionId = getCookie(c, "session_id");
-	console.log(sessionId,"build route")
+	console.log(sessionId, "build route");
 
 	if (!sessionId) {
 		return c.json(
@@ -239,13 +238,16 @@ export const checkSession = async (c: Context, next: Next) => {
 		deleteCookie(c, "session_id");
 		return c.json(
 			{
-				status: "unauthenticated b",
+				success: false,
 				user: null,
+				error: {
+					message: "unauthenticated b",
+				},
 			},
 			401
 		);
 	}
-	 c.set("userId", sessionData.userId);
+	c.set("userId", sessionData.userId);
 	await next();
 };
 
@@ -325,7 +327,6 @@ export const userRoutes = {
 	},
 	// Logout from specific device
 	logoutSession: async (c: Context) => {
-		
 		const currentUser = c.get("userId");
 		if (!currentUser) return c.json({ error: "Unauthorized" }, 401);
 

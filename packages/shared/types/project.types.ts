@@ -102,12 +102,7 @@ export const AudienceBehaviorSchema = z.object({
 	preferred_channels: z.array(z.string()),
 });
 
-export const MarketTrendsSchema = z.object({
-	market_size: z.string(),
-	growth_rate: z.string(),
-	emerging_technologies: z.array(z.string()),
-	regulatory_factors: z.array(z.string()),
-});
+
 
 export const AudienceSchema = z.object({
 	psychographics: z.object({
@@ -138,13 +133,21 @@ export const MarketSchema = z.object({
 });
 
 export type Market = z.infer<typeof MarketSchema>;
-export type MarketTrends = z.infer<typeof MarketTrendsSchema>;
+
 export type Audience = z.infer<typeof AudienceSchema>;
 export type Competitors = z.infer<typeof CompetitorSchema>;
 
 // ============================================================================
 // Feature Related Schemas
 // ============================================================================
+export const GithubProjectSchema = z.object({
+	name: z.string(),
+	description: z.string(),
+	stars: z.number(),
+	url: z.string(),
+	langauage: z.string().optional(),
+});
+
 export const FeatureSchema = z.object({
 	id: z.string(),
 	name: z.string(),
@@ -152,6 +155,7 @@ export const FeatureSchema = z.object({
 	priority: z.enum(["high", "low", "medium"]),
 	complexity: z.number().min(1).max(10),
 	type: z.enum(["must-have", "should-have", "nice-to-have"]),
+	github: z.array(GithubProjectSchema).optional(),
 });
 
 export const FeaturesResponseSchema = z.object({
@@ -161,3 +165,5 @@ export const FeaturesResponseSchema = z.object({
 
 export type Feature = z.infer<typeof FeaturesResponseSchema>;
 export type FeatureItem = z.infer<typeof FeatureSchema>;
+export type GithubProject = z.infer<typeof GithubProjectSchema>;
+

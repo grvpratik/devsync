@@ -211,6 +211,14 @@ export const AuthApiService = {
 	},
 };
 
+
+
+
+
+
+
+
+
 export const ApiService = {
 	getAllProjectsByUser: async (session: string): Promise<ApiResponse<any>> => {
 		try {
@@ -305,6 +313,12 @@ export const ApiService = {
 		}
 	},
 };
+
+export const ProjectService={
+	
+}
+
+
 
 // export const useAuth = () => {
 // 	const [user, setUser] = useState<User | null>(null);

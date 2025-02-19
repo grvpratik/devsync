@@ -1,5 +1,5 @@
 "use client";
-import { UserIcon } from "lucide-react";
+import { Bird, UserIcon } from "lucide-react";
 import { useState, useMemo } from "react";
 import {
 	Sidebar,
@@ -39,7 +39,7 @@ export function AppSidebar({ history, projectList }: AppSidebarProps) {
 					<SidebarMenuItem>
 						<div className="flex gap-2 items-center p-2">
 							<div className="flex py-2 aspect-square size-5 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
-								<UserIcon className="size-4" />
+								<Bird className="size-4" />
 							</div>
 							<span className="truncate font-semibold">BuildAi</span>
 						</div>

@@ -185,4 +185,7 @@ GenerativeAI = {
 			}
 		}
 	},
+	integration:async(idea:string, mvp:any, market:any, key:string)=>{
+
+	}
 };
