@@ -5,7 +5,7 @@ import { NODE_ENV } from "./lib/constant";
 import { PrismaError } from "./middleware/prisma";
 import { ContentfulStatusCode } from "hono/utils/http-status";
 
-// 1. Custom Error Classes
+
 export class AppError extends Error {
 	constructor(
 		public message: string,

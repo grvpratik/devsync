@@ -37,7 +37,7 @@ const ScoreIndicator: React.FC<ScoreIndicatorProps> = ({
   ];
 
   return (
-    <div className=" rounded-xl p-6 max-w-md">
+    <div className=" rounded-xl p-6 min-w-md">
       <div className="flex items-center mb-4">
         <span className="text-gray-300  font-medium">Overall implementation</span>
         <div className="ml-2 w-3 h-3 rounded-full border border-gray-600 flex items-center justify-center">

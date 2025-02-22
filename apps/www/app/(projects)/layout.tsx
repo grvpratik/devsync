@@ -6,7 +6,6 @@ import { getSessionCookie } from "www/hooks/use-server-session";
 import { api } from "www/lib/handler";
 import { ProjectReportResponse } from "shared";
 
-
 export interface SidebarProjects {
 	id: string;
 	title: string;
@@ -51,17 +50,23 @@ export default async function AiLayout({
 
 	try {
 		const projects = await fetchProjects(session);
-
+		console.log(projects, "projects");
 		history = projects
-			.filter((project: ProjectReportResponse) => project.phases === null)
+			.filter(
+				(project: ProjectReportResponse) =>
+					!project.phases || project.phases.length === 0
+			)
 			.map((project: ProjectReportResponse) => ({
 				id: project.id,
 				title: project.metadata.name ?? "Unnamed",
 				url: `/build/${project.id}`,
 			}));
 
-		projectSidebar  = projects
-			.filter((project: ProjectReportResponse) => project.phases !== null)
+		projectSidebar = projects
+			.filter(
+				(project: ProjectReportResponse) =>
+					project.phases && project.phases?.length > 0
+			)
 			.map((project: ProjectReportResponse) => ({
 				id: project.id,
 				title: project.metadata.name ?? "Unnamed",
@@ -69,9 +74,8 @@ export default async function AiLayout({
 			}));
 	} catch (error) {
 		console.error("Error fetching projects:", error);
-		
 	}
-
+	console.log(history, projectSidebar, "history, projectSidebar");
 	return (
 		<SidebarProvider>
 			<AppSidebar history={history} projectList={projectSidebar} />

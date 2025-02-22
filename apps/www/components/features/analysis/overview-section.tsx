@@ -169,10 +169,10 @@ import {
 import ScoreIndicator from "../../ScoreIndicator";
 import { MetaData, Overview } from "shared";
 
-const OverviewAnalysis: React.FC<{ metadata: MetaData; overview: Overview }> = ({
-	metadata,
-	overview,
-}) => {
+const OverviewAnalysis: React.FC<{
+	metadata: MetaData;
+	overview: Overview;
+}> = ({ metadata, overview }) => {
 	// if (!data) {
 	// 	return <main>error extracting data</main>;
 	// }
@@ -203,33 +203,54 @@ const OverviewAnalysis: React.FC<{ metadata: MetaData; overview: Overview }> = (
 				<Card className="p-4">
 					<div className="flex flex-col gap-2">
 						<div className="size-12 bg-blue-500 rounded-lg flex items-center justify-center">
-							<span className="text-2xl font-bold text-white">{metadata.name.charAt(0)}</span>
+							<span className="text-2xl font-bold text-white">
+								{metadata.name.charAt(0)}
+							</span>
 						</div>
 						<h1 className="font-bold text-lg">{metadata.name}</h1>
-						<p className="text-sm text-muted-foreground">{metadata.description}</p>
+						<p className="text-sm text-muted-foreground">
+							{metadata.description}
+						</p>
 						<div className="flex flex-wrap gap-2">
 							{metadata.tags.map((tag) => (
-								<span key={tag} className="px-2 py-1 bg-secondary rounded-md text-xs">{tag}</span>
+								<span
+									key={tag}
+									className="px-2 py-1 bg-secondary rounded-md text-xs"
+								>
+									{tag}
+								</span>
 							))}
 						</div>
+						<Card>
+							<CardHeader>
+								<CardTitle>Problem Statement</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<p className="text-muted-foreground">{overview.problem}</p>
+							</CardContent>
+						</Card>
 					</div>
 				</Card>
 
-				<Card className="col-span-1 lg:col-span-2">
+				<Card className="">
 					<CardHeader>
 						<CardTitle>Project Score</CardTitle>
 					</CardHeader>
-					<CardContent className="flex justify-between items-center">
-						<ScoreIndicator score={54} />
-						<div className="space-y-4">
+					<CardContent className=" ">
+						
+							<ScoreIndicator score={54} />
+						
+						{/* <div className="space-y-4">
 							<h3 className="font-bold">Key Features</h3>
 							{overview.suggestion.slice(0, 3).map((item, index) => (
 								<div key={index} className="space-y-1">
 									<h4 className="font-semibold">{item.name}</h4>
-									<p className="text-sm text-muted-foreground">{item.description}</p>
+									<p className="text-sm text-muted-foreground">
+										{item.description}
+									</p>
 								</div>
 							))}
-						</div>
+						</div> */}
 					</CardContent>
 				</Card>
 
@@ -239,18 +260,14 @@ const OverviewAnalysis: React.FC<{ metadata: MetaData; overview: Overview }> = (
 					</CardHeader>
 					<CardContent>
 						{overview.missing.map((item, index) => (
-							<><div key={index} className="mb-3"></div><h4 className="font-semibold">{item.name}</h4><p className="text-sm text-muted-foreground">{item.description}</p></>
-							
+							<>
+								<div key={index} className="mb-3"></div>
+								<h4 className="font-semibold">{item.name}</h4>
+								<p className="text-sm text-muted-foreground">
+									{item.description}
+								</p>
+							</>
 						))}
-					</CardContent>
-				</Card>
-
-				<Card>
-					<CardHeader>
-						<CardTitle>Problem Statement</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<p className="text-muted-foreground">{overview.problem}</p>
 					</CardContent>
 				</Card>
 
@@ -272,7 +289,9 @@ const OverviewAnalysis: React.FC<{ metadata: MetaData; overview: Overview }> = (
 							{overview.indication.map((item, index) => (
 								<div key={index} className="space-y-1">
 									<h4 className="font-semibold">{item.name}</h4>
-									<p className="text-sm text-muted-foreground">{item.description}</p>
+									<p className="text-sm text-muted-foreground">
+										{item.description}
+									</p>
 								</div>
 							))}
 						</div>

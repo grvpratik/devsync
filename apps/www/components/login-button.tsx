@@ -62,9 +62,9 @@ const LoginButton = () => {
 		);
 	}
 
-	if (authState.error) {
-		return <Button variant="destructive">{authState.error.message}</Button>;
-	}
+	// if (authState.error) {
+	// 	return <Button variant="destructive">{authState.error.message}</Button>;
+	// }
 	console.log("picture url", authState.user?.picture);
 	if (authState.user) {
 		return (

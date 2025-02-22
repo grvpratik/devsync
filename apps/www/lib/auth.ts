@@ -4,8 +4,8 @@ export const getGoogleUrl = () => {
 	// const rootUrl = "https://accounts.google.com/o/oauth2/v2/auth";
 
 	// const options = {
-	// 	redirect_uri: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/auth/callback`,
-	// 	client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '',
+	// 	redirect_uri: `${process.env.NEXT_PUBLIC_API}/user/auth/callback`,
+	// 	client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "",
 	// 	access_type: "offline",
 	// 	response_type: "code",
 	// 	prompt: "consent",
@@ -15,6 +15,6 @@ export const getGoogleUrl = () => {
 	// 	].join(" "),
 	// };
 
-	// return `${rootUrl}?${new URLSearchParams(options)}`;
+	//  return `${rootUrl}?${new URLSearchParams(options)}`;
     return `${NEXT_PUBLIC_API}/user/auth/callback`
 };

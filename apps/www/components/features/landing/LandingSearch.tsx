@@ -22,7 +22,7 @@ import {
 	PROJECT_TYPE,
 	AI_MODELS_LIST,
 } from "www/lib/constant";
-import { api, isSuccess } from "www/lib/handler";
+import { api, isSuccess, SuccessSearchResponse } from "www/lib/handler";
 
 const AI_MODELS = AI_MODELS_LIST.map((model) => ({
 	...model,
@@ -80,12 +80,10 @@ export default function AiSearch() {
 				project: state.selectedProject,
 				model: state.selectedModel,
 			};
-			const response = await api.post<any>(
-				"/build/search",
-				input
-			);
+			const response = await api.post("/build/search", input);
 
 			if (isSuccess(response)) {
+				console.log("response", response);
 				router.push(`/build/${response.url}`);
 			} else {
 				toast({

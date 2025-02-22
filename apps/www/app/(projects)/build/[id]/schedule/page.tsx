@@ -10,7 +10,10 @@ interface ProjectResult extends ProjectReportResponse {}
 
 const SchedulePage = async ({ params }: { params: { id: string } }) => {
 	const { id } = params;
-	const session = await getSessionCookie();
+	const session: string = (await getSessionCookie()) ?? "";
+	if (!session) {
+		return <div>login first</div>;
+	}
 	try {
 		const result = await api.post<ProjectResult>(
 			`/build/project/${id}`,
@@ -46,8 +49,12 @@ const SchedulePage = async ({ params }: { params: { id: string } }) => {
 		return (
 			<main className="mx-4 mb-4 font-sans">
 				{/* <ScheduleCalendar result={result.result.phases} />*/}
-			
-				<ScheduleGrid metadata={result.result.metadata} />
+
+				<ScheduleGrid
+					metadata={result.result.metadata}
+					phases={result.result.phases}
+					id={id}
+				/>
 			</main>
 		);
 	} catch (error) {

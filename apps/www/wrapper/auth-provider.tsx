@@ -86,7 +86,7 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
 		}
 	};
 
-	// Check auth status on mount only if we don't have initialUser
+
 	useEffect(() => {
 		if (!initialUser) {
 			refreshUser();

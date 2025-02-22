@@ -34,7 +34,7 @@ const CreateTasksSchema = z.array(CreateTaskSchema);
 
 // Schema for batch task updates
 const UpdateTaskSchema = z.object({
-	id: z.string(),
+	taskId: z.string(),
 	isCompleted: z.boolean(),
 });
 
@@ -45,7 +45,7 @@ const DeleteTasksSchema = z.array(z.string());
 
 export const BuildController = {
 	getSearch: async (c: Context) => {
-		const userId: string = c.get("userId") ?? "cm73x26p80000yf0cekb44sro";
+		const userId: string = c.get("userId");
 		if (!userId) {
 			throw new AuthError("authentication required");
 		}
@@ -142,6 +142,7 @@ export const BuildController = {
 							result.feature ?
 								(result.feature as Prisma.InputJsonValue)
 							:	Prisma.JsonNull,
+
 						user: {
 							connect: {
 								id: userId,
@@ -179,7 +180,7 @@ export const BuildController = {
 		);
 	},
 	getReportById: async (c: Context) => {
-		const userId = c.get("userId") ;
+		const userId = c.get("userId");
 		if (!userId) {
 			throw new AuthError("authentication required");
 		}
@@ -195,9 +196,13 @@ export const BuildController = {
 							id: projectId,
 							userId,
 						},
-						include:{
-							phases:true
-						}
+						include: {
+							phases: {
+								include: {
+									tasks: true,
+								},
+							},
+						},
 					})
 			);
 			console.log(result);
@@ -316,7 +321,7 @@ export const BuildController = {
 
 		try {
 			const { GEMINI_API } = c.env;
-			const userId = c.get("userId") || "cm73x26p80000yf0cekb44sro";
+			const userId = c.get("userId");
 
 			if (!userId) {
 				throw new AuthError("Forbidden");
@@ -532,7 +537,7 @@ export const BuildController = {
 
 			const body = await c.req.json();
 			const parsed = UpdateTasksSchema.safeParse(body);
-
+			console.log(parsed.data, "batch");
 			if (!parsed.success) {
 				throw new ValidationError("Invalid task updates", parsed.error);
 			}
@@ -541,7 +546,7 @@ export const BuildController = {
 			const prisma = new PrismaClient({ adapter });
 
 			// Verify all tasks exist and belong to user's projects
-			const taskIds = parsed.data.map((task) => task.id);
+			const taskIds = parsed.data.map((task) => task.taskId);
 
 			const existingTasks = await prisma.tasks.findMany({
 				where: {
@@ -566,7 +571,7 @@ export const BuildController = {
 			const updatedTasks = await prisma.$transaction(
 				parsed.data.map((task) =>
 					prisma.tasks.update({
-						where: { id: task.id },
+						where: { id: task.taskId },
 						data: { isCompleted: task.isCompleted },
 					})
 				)
@@ -663,7 +668,7 @@ export const BuildController = {
 		}
 	},
 	getAllUserReport: async (c: Context) => {
-		const userId = c.get("userId") ?? '';
+		const userId = c.get("userId") ?? "";
 		if (!userId) {
 			throw new AuthError("authentication required");
 		}
@@ -676,6 +681,9 @@ export const BuildController = {
 					await prisma.projectReport.findMany({
 						where: {
 							userId,
+						},
+						include: {
+							phases: true,
 						},
 					})
 			);

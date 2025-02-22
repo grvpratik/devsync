@@ -100,7 +100,7 @@ const Analysis: React.FC<AnalysisProps> = ({ res, id }) => {
 				</Tabs>
 				<div>
 					<Dialog>
-						<DialogTrigger>schedule</DialogTrigger><DialogContent className=" font-sans ">
+						<DialogTrigger  className=" fixed bottom-0 w-full flex  justify-center "> Schedule</DialogTrigger><DialogContent className=" font-sans ">
 						<DialogHeader>
 							<DialogTitle>Create schedule</DialogTitle>
 							<DialogDescription>

@@ -1,22 +1,52 @@
-import { memo } from "react";
-import { cn } from "www/lib/utils";
-import { MenuItem } from "www/types/sidebar.types";
-import { RANDOM_BG_COLORS } from "www/lib/constant";
-import { SidebarMenuItem, SidebarMenuButton } from "../ui/sidebar";
+import { MoreHorizontal, Loader2, Trash2 } from "lucide-react";
+import {
+	SidebarMenuItem,
+	SidebarMenuButton,
+	SidebarMenuAction,
+} from "../ui/sidebar";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
-export const SidebarItem = memo(({ item }: { item: MenuItem }) => {
-  const bgColor = RANDOM_BG_COLORS[Math.floor(Math.random() * RANDOM_BG_COLORS.length)];
+interface SidebarItemProps {
+	item: {
+		id: string;
+		title: string;
+		url: string;
+	};
+	onDelete: () => void;
+	isDeleting: boolean;
+}
 
-  return (
-    <SidebarMenuItem key={item.title} className="rounded-lg">
-      <SidebarMenuButton asChild>
-        <a href={item.url} className="flex items-center gap-2 p-1">
-          <span className={cn("size-2 mx-1 rounded-full bg-violet-500",)} />
-          <span className="truncate">{item.title}</span>
-        </a>
-      </SidebarMenuButton>
-    </SidebarMenuItem>
-  );
-});
-
-SidebarItem.displayName = "SidebarItem";
+export function SidebarItem({ item, onDelete, isDeleting }: SidebarItemProps) {
+	return (
+		<SidebarMenuItem>
+			<SidebarMenuButton asChild>
+				<a href={item.url}>
+					<span>{item.title}</span>
+				</a>
+			</SidebarMenuButton>
+			<DropdownMenu>
+				<DropdownMenuTrigger asChild>
+					<SidebarMenuAction>
+						{isDeleting ?
+							<Loader2 className="w-4 h-4 animate-spin" />
+						:	<MoreHorizontal className="w-4 h-4" />}
+					</SidebarMenuAction>
+				</DropdownMenuTrigger>
+				<DropdownMenuContent side="right" align="start" className="min-w-fit">
+					<DropdownMenuItem
+						onClick={onDelete}
+						className="text-red-500 flex justify-between"
+					>
+						<span>Delete</span>
+						<Trash2 className="size-2" />
+					</DropdownMenuItem>
+				</DropdownMenuContent>
+			</DropdownMenu>
+		</SidebarMenuItem>
+	);
+}

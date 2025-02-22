@@ -1,0 +1,422 @@
+"use client";
+import React, { useState, useEffect, useMemo, JSX } from "react";
+import { Button } from "www/components/ui/button";
+import { Card, CardContent } from "www/components/ui/card";
+
+import {
+	Tabs,
+	TabsContent,
+	TabsList,
+	TabsTrigger,
+} from "www/components/ui/tabs";
+import { Input } from "www/components/ui/input";
+import { ChevronLeft, ChevronRight, Search, Save, Loader2 } from "lucide-react";
+import { format, addDays, startOfWeek, parseISO, isValid } from "date-fns";
+import { toast } from "www/hooks/use-toast";
+import { api, isSuccess } from "www/lib/handler";
+import { cn } from "www/lib/utils";
+import TaskCard from "./task-card";
+import { DayInfo, Phase, TabType, Task, TaskUpdate, WeekCalendarProps } from "./types";
+
+
+
+const EmptyState: React.FC<{ message: string }> = ({ message }) => (
+	<p className="text-center text-muted-foreground py-4">{message}</p>
+);
+
+const LoadingState: React.FC = () => (
+	<div className="flex justify-center items-center py-8">
+		<Loader2 className="h-8 w-8 animate-spin text-primary" />
+	</div>
+);
+
+export const WeekCalendar: React.FC<WeekCalendarProps> = ({
+	id,
+	phases = [],
+	onPhaseChange,
+	initialDate,
+}) => {
+
+	// 	{
+	// 		id: "phase-1",
+	// 		name: "MVP",
+	// 		startDate: "2025-02-01T00:00:00.000Z",
+	// 		endDate: "2025-02-15T23:59:59.999Z",
+	// 		tasks: [
+	// 			{
+	// 				id: "task-1",
+	// 				name: "Design User Interface",
+	// 				desc: "Create wireframes and mockups for the main dashboard",
+	// 				isCompleted: true,
+	// 			},
+	// 			{
+	// 				id: "task-2",
+	// 				name: "Implement Authentication",
+	// 				desc: "Set up user login and registration flows",
+	// 				isCompleted: false,
+	// 			},
+	// 		],
+	// 	},
+	// 	{
+	// 		id: "phase-2",
+	// 		name: "Beta Release",
+	// 		startDate: "2025-02-16T00:00:00.000Z",
+	// 		endDate: "2025-02-28T23:59:59.999Z",
+	// 		tasks: [
+	// 			{
+	// 				id: "task-3",
+	// 				name: "User Feedback Collection",
+	// 				desc: "Gather and analyze user feedback",
+	// 				isCompleted: false,
+	// 			},
+	// 			{
+	// 				id: "task-4",
+	// 				name: "Fix Critical Bugs",
+	// 				desc: "Address high-priority issues reported by beta testers",
+	// 				isCompleted: true,
+	// 			},
+	// 		],
+	// 	},
+	// ];
+
+	// States
+	const [selectedDate, setSelectedDate] = useState<Date>(
+		initialDate || new Date()
+	);
+	const [searchQuery, setSearchQuery] = useState<string>("");
+	const [activePhase, setActivePhase] = useState<Phase | null>(null);
+	const [activeTab, setActiveTab] = useState<TabType>("today");
+	const [modifiedTasks, setModifiedTasks] = useState<Record<string, boolean>>(
+		{}
+	);
+	const [isInitializing, setIsInitializing] = useState<boolean>(true);
+	const [isSaving, setIsSaving] = useState<boolean>(false);
+
+	const hasChanges = Object.keys(modifiedTasks).length > 0;
+
+	const weekDays = useMemo<DayInfo[]>(() => {
+		const startDate = startOfWeek(selectedDate, { weekStartsOn: 1 });
+		return Array.from({ length: 7 }).map((_, index) => {
+			const date = addDays(startDate, index);
+			return {
+				date,
+				dayName: format(date, "EEE"),
+				dayNumber: format(date, "dd"),
+			};
+		});
+	}, [selectedDate]);
+
+	useEffect(() => {
+		setIsInitializing(true);
+
+		try {
+			const phase = phases.find((phase) => {
+				if (!phase.startDate || !phase.endDate) return false;
+
+				const phaseStart = parseISO(phase.startDate);
+				const phaseEnd = parseISO(phase.endDate);
+
+				if (!isValid(phaseStart) || !isValid(phaseEnd)) return false;
+
+				return selectedDate >= phaseStart && selectedDate <= phaseEnd;
+			});
+
+			setActivePhase(phase || null);
+			if (onPhaseChange) {
+				onPhaseChange(phase || null);
+			}
+			setModifiedTasks({});
+		} catch (error) {
+			console.error("Error finding active phase:", error);
+			toast({
+				title: "Error",
+				description: "Failed to determine active phase",
+				variant: "destructive",
+			});
+		} finally {
+			setIsInitializing(false);
+		}
+	}, [selectedDate, phases, onPhaseChange]);
+
+	// Filter tasks based on search query
+	const filteredTasks = useMemo(() => {
+		if (!activePhase?.tasks?.length) return [];
+
+		return activePhase.tasks.filter(
+			(task) =>
+				task.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+				task.desc.toLowerCase().includes(searchQuery.toLowerCase())
+		);
+	}, [activePhase, searchQuery]);
+
+	// Get pending and completed tasks
+	const pendingTasks = useMemo(
+		() =>
+			filteredTasks.filter((task) =>
+				modifiedTasks.hasOwnProperty(task.id) ?
+					!modifiedTasks[task.id]
+				:	!task.isCompleted
+			),
+		[filteredTasks, modifiedTasks]
+	);
+
+	const completedTasks = useMemo(
+		() =>
+			filteredTasks.filter((task) =>
+				modifiedTasks.hasOwnProperty(task.id) ?
+					modifiedTasks[task.id]
+				:	task.isCompleted
+			),
+		[filteredTasks, modifiedTasks]
+	);
+
+	const handleTaskToggle = (taskId: string, currentStatus: boolean): void => {
+		setModifiedTasks((prev) => ({
+			...prev,
+			[taskId]: !currentStatus,
+		}));
+	};
+
+	const saveChanges = async (): Promise<void> => {
+		if (Object.keys(modifiedTasks).length === 0) return;
+
+		setIsSaving(true);
+		try {
+			// Prepare data for API call
+			const updates: TaskUpdate[] = Object.entries(modifiedTasks).map(
+				([taskId, isCompleted]) => ({
+					taskId,
+					isCompleted,
+				})
+			);
+
+			const result = await api.patch(
+				`/build/project/${id}/phases/batch`,
+				updates
+			);
+			if (!isSuccess(result)) {
+				toast({
+					title: "Error",
+					description: result.error.message || "Failed to save changes",
+					variant: "destructive",
+				});
+				return;
+			}
+
+			// Clear modified tasks after successful save
+			setModifiedTasks({});
+			toast({
+				title: "Changes saved",
+				description: `Updated ${updates.length} task(s)`,
+			});
+		} catch (error) {
+			console.error("Failed to save changes", error);
+			toast({
+				title: "Error",
+				description: "Failed to save changes. Please try again.",
+				variant: "destructive",
+			});
+		} finally {
+			setIsSaving(false);
+		}
+	};
+
+	const handlePrevWeek = (): void => {
+		setSelectedDate((prevDate) => addDays(prevDate, -7));
+	};
+
+	const handleNextWeek = (): void => {
+		setSelectedDate((prevDate) => addDays(prevDate, 7));
+	};
+
+	const isSelectedDay = (dayNumber: string): boolean => {
+		return format(selectedDate, "dd") === dayNumber;
+	};
+
+	// Render helper functions
+	const renderTaskList = (tasks: Task[]): JSX.Element => {
+		if (tasks.length === 0) {
+			return (
+				<EmptyState
+					message={
+						activeTab === "today" ?
+							`No tasks for ${format(selectedDate, "MMMM d, yyyy")}`
+						:	`No ${activeTab} tasks`
+					}
+				/>
+			);
+		}
+
+		return (
+			<Card>
+				<CardContent className="p-4">
+					<div className="divide-y divide-border">
+						{tasks.map((task) => {
+							const isModified = modifiedTasks.hasOwnProperty(task.id);
+							const effectiveStatus =
+								isModified ? modifiedTasks[task.id] : task.isCompleted;
+
+							return (
+								<TaskCard
+									key={task.id}
+									task={task}
+									isModified={isModified}
+									effectiveStatus={effectiveStatus}
+									onToggle={handleTaskToggle}
+								/>
+							);
+						})}
+					</div>
+				</CardContent>
+			</Card>
+		);
+	};
+
+	// Main render
+	return (
+		<div className="max-w-md mx-auto bg-background text-foreground rounded-lg shadow-sm">
+			<div className="p-4">
+				<div className="flex justify-between items-center mb-4">
+					<h2 className="text-xl font-semibold">Schedule</h2>
+					<Button variant="ghost" className="text-sm">
+						See All
+					</Button>
+				</div>
+
+				{/* Calendar navigation */}
+				<div className="mb-6">
+					<div className="flex justify-between items-center mb-4">
+						<Button
+							variant="ghost"
+							size="icon"
+							onClick={handlePrevWeek}
+							aria-label="Previous week"
+						>
+							<ChevronLeft className="h-4 w-4" />
+						</Button>
+						<span className="font-medium">
+							{format(selectedDate, "MMM, yyyy")}
+						</span>
+						<Button
+							variant="ghost"
+							size="icon"
+							onClick={handleNextWeek}
+							aria-label="Next week"
+						>
+							<ChevronRight className="h-4 w-4" />
+						</Button>
+					</div>
+
+					<div className="grid grid-cols-7 gap-1">
+						{weekDays.map(({ dayName, dayNumber, date }) => (
+							<Button
+								key={dayNumber}
+								variant={isSelectedDay(dayNumber) ? "default" : "ghost"}
+								className={cn(
+									"flex flex-col h-16",
+									isSelectedDay(dayNumber) &&
+										"bg-primary text-primary-foreground hover:bg-primary/90"
+								)}
+								onClick={() => setSelectedDate(date)}
+								aria-label={format(date, "EEEE, MMMM d, yyyy")}
+							>
+								<span className="text-xs">{dayName}</span>
+								<span className="text-lg">{dayNumber}</span>
+							</Button>
+						))}
+					</div>
+				</div>
+
+				{/* Main content area with loading/content states */}
+				<div className="min-h-[300px]">
+					{/* Initial loading state */}
+					{isInitializing && <LoadingState />}
+
+					{/* No active phase message - only show when not loading */}
+					{!isInitializing && !activePhase && (
+						<EmptyState
+							message={`No active phase for ${format(selectedDate, "MMMM d, yyyy")}`}
+						/>
+					)}
+
+					{/* Active phase content - only show when not loading and there is an active phase */}
+					{!isInitializing && activePhase && (
+						<>
+							<div className="mb-4">
+								<h3 className="font-semibold text-primary">
+									{activePhase.name}
+								</h3>
+								<p className="text-sm text-muted-foreground">
+									{format(parseISO(activePhase.startDate), "MMM d")} -{" "}
+									{format(parseISO(activePhase.endDate), "MMM d, yyyy")}
+								</p>
+							</div>
+
+							{/* Search input */}
+							<div className="relative mb-4">
+								<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+								<Input
+									placeholder="Search tasks..."
+									className="pl-9"
+									value={searchQuery}
+									onChange={(e) => setSearchQuery(e.target.value)}
+									aria-label="Search tasks"
+								/>
+							</div>
+
+							{/* Save changes button */}
+							{hasChanges && (
+								<div className="mb-4 flex justify-end">
+									<Button
+										onClick={saveChanges}
+										disabled={isSaving}
+										className="bg-primary text-primary-foreground hover:bg-primary/90"
+										aria-label="Save changes"
+									>
+										{isSaving ?
+											<span className="flex items-center">
+												<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+												Saving...
+											</span>
+										:	<span className="flex items-center">
+												<Save className="mr-2 h-4 w-4" />
+												Save Changes ({Object.keys(modifiedTasks).length})
+											</span>
+										}
+									</Button>
+								</div>
+							)}
+
+							{/* Tabs */}
+							<Tabs
+								value={activeTab}
+								onValueChange={(value) => setActiveTab(value as TabType)}
+								className="w-full"
+							>
+								<TabsList className="grid w-full grid-cols-3 mb-4">
+									<TabsTrigger value="today">Today</TabsTrigger>
+									<TabsTrigger value="pending">Pending</TabsTrigger>
+									<TabsTrigger value="completed">Completed</TabsTrigger>
+								</TabsList>
+
+								<TabsContent value="today" className="mt-0">
+									{renderTaskList(filteredTasks)}
+								</TabsContent>
+
+								<TabsContent value="pending" className="mt-0">
+									{renderTaskList(pendingTasks)}
+								</TabsContent>
+
+								<TabsContent value="completed" className="mt-0">
+									{renderTaskList(completedTasks)}
+								</TabsContent>
+							</Tabs>
+						</>
+					)}
+				</div>
+			</div>
+		</div>
+	);
+};
+
+export default WeekCalendar;

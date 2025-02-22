@@ -4,7 +4,7 @@ import {
 	type AxiosRequestConfig,
 } from "axios";
 
-type ErrorResponse = {
+export type ErrorResponse = {
 	success: false;
 	error: {
 		message: string;
@@ -12,14 +12,16 @@ type ErrorResponse = {
 		code?: string;
 	};
 };
-
-type ApiResult<T> = SuccessResponse<T> | ErrorResponse;
-type SuccessResponse<T> = {
-	url: any;
+// export type SuccessSearchResponse = {
+// 	url: string;
+// 	success: true;
+// };
+export type ApiResult<T> = SuccessResponse<T> | ErrorResponse ;
+export type SuccessResponse<T> = {
 	success: true;
 	result: T;
+	url?:string;
 };
-
 
 interface RetryConfig {
 	maxRetries: number;
@@ -100,9 +102,9 @@ export class ApiHandler {
 					url,
 					data: method !== "GET" ? data : undefined,
 					params: method === "GET" ? data : undefined,
-					
+
 					headers: sessionCookie ? requestHeaders : undefined,
-					withCredentials:true,
+					withCredentials: true,
 					...config,
 				});
 
@@ -147,7 +149,6 @@ export class ApiHandler {
 		}
 	}
 
-	
 	async get<T>(
 		url: string,
 		params?: any,
@@ -186,13 +187,14 @@ export class ApiHandler {
 
 	async delete<T>(
 		url: string,
+		data?: any,
 		options?: {
 			session?: string;
 			headers?: Record<string, string>;
 			config?: AxiosRequestConfig;
 		}
 	): Promise<ApiResult<T>> {
-		return this.request<T>("DELETE", url, {}, options);
+		return this.request<T>("DELETE", url, data, options);
 	}
 }
 
@@ -210,8 +212,6 @@ const instance = axios.create({
 
 export const api = new ApiHandler(instance);
 
-export function isSuccess<T>(
-	response: ApiResult<T>
-)  {
+export function isSuccess<T>(response: ApiResult<T>) {
 	return response.success === true;
 }

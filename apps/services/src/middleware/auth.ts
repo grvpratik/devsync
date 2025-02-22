@@ -2,6 +2,7 @@ import { PrismaD1 } from "@prisma/adapter-d1";
 import { PrismaClient } from "@prisma/client";
 import { Context, Next } from "hono";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
+import { AuthError } from "../error";
 
 interface SessionUser {
 	userId: string;
@@ -223,30 +224,16 @@ export const checkSession = async (c: Context, next: Next) => {
 	console.log(sessionId, "build route");
 
 	if (!sessionId) {
-		return c.json(
-			{
-				status: "unauthenticated a",
-				user: null,
-			},
-			401
-		);
+		throw new AuthError("No session ID found");
 	}
 
 	const sessionData = await SessionManager.get(c, sessionId);
 
 	if (!sessionData) {
 		deleteCookie(c, "session_id");
-		return c.json(
-			{
-				success: false,
-				user: null,
-				error: {
-					message: "unauthenticated b",
-				},
-			},
-			401
-		);
+		throw new AuthError("Session expired");
 	}
+				
 	c.set("userId", sessionData.userId);
 	await next();
 };
@@ -256,7 +243,7 @@ export const getUserProfile = async (c: Context, next: Next) => {
 	console.log(sessionId, "USER COOKIE");
 
 	if (!sessionId) {
-		return c.json({ status: "unauthenticated c", user: null }, 401);
+		throw new AuthError("No session ID found");
 	}
 
 	// Get userId from KV store
@@ -428,7 +415,7 @@ export const userRoutes = {
 			return c.json(
 				{
 					sucess: false,
-					message: "user not found",
+					error:{message: "user not found"},
 				},
 				401
 			);

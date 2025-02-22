@@ -30,7 +30,7 @@ import {
 import LoginButton from "./login-button";
 import ThemeToggle from "./ui/theme-toggle";
 import { Day } from "react-day-picker";
-
+import { useAuth } from "www/wrapper/auth-provider";
 export function NavUser({
 	user,
 }: {
@@ -41,6 +41,7 @@ export function NavUser({
 	} | null;
 }) {
 	const { isMobile } = useSidebar();
+const {logout}=useAuth()
 
 	return (
 		<SidebarFooter>
@@ -105,7 +106,7 @@ export function NavUser({
 									</DropdownMenuItem>
 								</DropdownMenuGroup>
 								<DropdownMenuSeparator />
-								<DropdownMenuItem>
+								<DropdownMenuItem onClick={() =>logout()}>
 									<LogOut />
 									Log out
 								</DropdownMenuItem>

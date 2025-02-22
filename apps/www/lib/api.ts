@@ -62,11 +62,6 @@ type ErrorResponse = {
 };
 
 type ApiResponse<T> = SuccessResponse<T> | ErrorResponse;
-export function isSuccess<T>(
-	response: ApiResponse<T>
-): response is SuccessResponse<T> {
-	return response.success === true;
-}
 
 export interface Phase {
 	name: string;
