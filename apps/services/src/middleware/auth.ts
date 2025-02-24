@@ -228,12 +228,13 @@ export const checkSession = async (c: Context, next: Next) => {
 	}
 
 	const sessionData = await SessionManager.get(c, sessionId);
-
+console.log(sessionData,"sessionCheck")
 	if (!sessionData) {
+		console.log("No session data found");
 		deleteCookie(c, "session_id");
 		throw new AuthError("Session expired");
 	}
-				
+
 	c.set("userId", sessionData.userId);
 	await next();
 };
@@ -316,8 +317,9 @@ export const userRoutes = {
 	logoutSession: async (c: Context) => {
 		const currentUser = c.get("userId");
 		if (!currentUser) return c.json({ error: "Unauthorized" }, 401);
+		const body = await c.req.json();
+		const sessionIdToDelete = body.sessionId ?? null;
 
-		const sessionIdToDelete = c.req.query("sessionId");
 		const currentSessionId = getCookie(c, "session_id");
 
 		// Validate sessionId format if provided
@@ -357,14 +359,16 @@ export const userRoutes = {
 		return c.json({ success: true });
 	},
 	getSessions: async (c: Context) => {
-		const sessionId = getCookie(c, "session_id");
+		const sessionId = await getCookie(c, "session_id");
+		console.log(sessionId, "get sessions");
 		if (!sessionId) {
-			return c.json({ sessions: [] }, 401);
+			return c.json({ success: false, sessions: [] }, 401);
 		}
 
 		const sessionData = await SessionManager.get(c, sessionId);
+		console.log(sessionData, "sessionData");
 		if (!sessionData) {
-			return c.json({ sessions: [] }, 401);
+			return c.json({ success:false,sessions: [] }, 401);
 		}
 
 		// Cleanup expired sessions before returning list
@@ -375,7 +379,9 @@ export const userRoutes = {
 			sessionData.userId
 		);
 		return c.json({
+			success: true,
 			sessions: sessions.map((session) => ({
+				sessionId:session.sessionId,
 				deviceInfo: session.deviceInfo,
 				createdAt: session.createdAt,
 				lastActivityAt: session.lastActivityAt,
@@ -415,7 +421,7 @@ export const userRoutes = {
 			return c.json(
 				{
 					sucess: false,
-					error:{message: "user not found"},
+					error: { message: "user not found" },
 				},
 				401
 			);

@@ -3,10 +3,14 @@ import Analysis from "www/components/features/analysis/analysis-container";
 import { ProjectReportResponse } from "shared";
 import { api, isSuccess } from "www/lib/handler";
 import { getSessionCookie } from "www/hooks/use-server-session";
+import { redirect } from "next/navigation";
 
 const BuildPage = async ({ params }: { params: { id: string } }) => {
 	const { id } = params;
 	const session = await getSessionCookie();
+	if(!session){
+		return redirect('/')
+	}
 	try {
 		const result = await api.post<ProjectReportResponse>(
 			`/build/project/${id}`,

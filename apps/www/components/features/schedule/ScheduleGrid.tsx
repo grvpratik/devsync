@@ -27,9 +27,9 @@ const ScheduleGrid = ({metadata,phases,id}) => {
 				</div>
 				<div className=" row-span-1 col-span-1">calendar</div>
 			</div> */}
-			<div className=" row-span-2 col-span-1">
+			<div className=" flex ">
 				<TaskManagement projectPhases={phases} id={id}/>
-				{/* <MeetingCalendar id={id} phases={phases} /> */}
+				<MeetingCalendar id={id} phases={phases} />
 			</div>
 		</>
 	);

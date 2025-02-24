@@ -33,7 +33,7 @@ export default async function AiLayout({
 	children: React.ReactNode;
 }) {
 	const session = await getSessionCookie();
-	console.log(session, "layout");
+	
 	if (!session) {
 		return (
 			<SidebarProvider>
@@ -50,7 +50,7 @@ export default async function AiLayout({
 
 	try {
 		const projects = await fetchProjects(session);
-		console.log(projects, "projects");
+		//console.log(projects, "projects");
 		history = projects
 			.filter(
 				(project: ProjectReportResponse) =>
@@ -75,7 +75,7 @@ export default async function AiLayout({
 	} catch (error) {
 		console.error("Error fetching projects:", error);
 	}
-	console.log(history, projectSidebar, "history, projectSidebar");
+	
 	return (
 		<SidebarProvider>
 			<AppSidebar history={history} projectList={projectSidebar} />

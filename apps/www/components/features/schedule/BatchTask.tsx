@@ -308,9 +308,9 @@ export default function TaskManagement({
 	);
 
 	return (
-		<div className="p-6 max-w-7xl mx-auto">
+		<div className="p-2 max-w-7xl mx-auto">
 			<h1 className="text-3xl font-bold mb-6">Project Phases</h1>
-			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+			<div className="flex flex-wrap gap-4">
 				{phases.map((phase) => (
 					<PhaseCard
 						key={phase.id}

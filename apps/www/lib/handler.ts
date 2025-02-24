@@ -12,15 +12,14 @@ export type ErrorResponse = {
 		code?: string;
 	};
 };
-// export type SuccessSearchResponse = {
-// 	url: string;
-// 	success: true;
-// };
+
 export type ApiResult<T> = SuccessResponse<T> | ErrorResponse ;
 export type SuccessResponse<T> = {
+    sessions?: any;
 	success: true;
 	result: T;
 	url?:string;
+	
 };
 
 interface RetryConfig {
@@ -85,7 +84,7 @@ export class ApiHandler {
 		if (this.isServer) {
 		}
 		const sessionCookie = session;
-		console.log("getsession inside request", sessionCookie);
+		
 
 		const requestHeaders: Record<string, string> = {
 			...headers,
@@ -203,7 +202,7 @@ import { truncate } from "fs";
 
 const instance = axios.create({
 	baseURL: process.env.NEXT_PUBLIC_API || "http://localhost:8787",
-	timeout: 10000,
+	timeout: 30000,
 	headers: {
 		"Content-Type": "application/json",
 		withCredentials: true,

@@ -4,6 +4,8 @@ export interface Task {
 	name: string;
 	desc: string;
 	isCompleted: boolean;
+	phaseId?: string;
+	phaseName?: string;
 }
 
 export interface Phase {

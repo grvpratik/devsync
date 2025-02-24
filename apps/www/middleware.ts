@@ -11,7 +11,7 @@ type RoutePattern = {
 // Protected routes configuration
 const protectedRoutes: RoutePattern[] = [
 	{ path: "/build", exact: true },
-	{ path: "/setting", exact: true },
+	{ path: "/settings", exact: true },
 	{ path: "/build/", exact: false },
 ];
 

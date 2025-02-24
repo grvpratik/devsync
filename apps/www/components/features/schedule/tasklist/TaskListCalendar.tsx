@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo, JSX } from "react";
 import { Button } from "www/components/ui/button";
 import { Card, CardContent } from "www/components/ui/card";
-
+import { Checkbox } from "www/components/ui/checkbox";
 import {
 	Tabs,
 	TabsContent,
@@ -10,20 +10,36 @@ import {
 	TabsTrigger,
 } from "www/components/ui/tabs";
 import { Input } from "www/components/ui/input";
-import { ChevronLeft, ChevronRight, Search, Save, Loader2 } from "lucide-react";
-import { format, addDays, startOfWeek, parseISO, isValid } from "date-fns";
+import {
+	ChevronLeft,
+	ChevronRight,
+	Search,
+	Check,
+	Clock,
+	Save,
+	Loader2,
+} from "lucide-react";
+import {
+	format,
+	addDays,
+	startOfWeek,
+	parseISO,
+	isValid,
+	isBefore,
+} from "date-fns";
 import { toast } from "www/hooks/use-toast";
 import { api, isSuccess } from "www/lib/handler";
-import { cn } from "www/lib/utils";
-import TaskCard from "./task-card";
+import { cn } from "www/lib/utils"; // Assuming you have a utility for class name merging
 import { DayInfo, Phase, TabType, Task, TaskUpdate, WeekCalendarProps } from "./types";
+import { TaskCard } from "./task-card";
 
 
-
+// Empty state component
 const EmptyState: React.FC<{ message: string }> = ({ message }) => (
 	<p className="text-center text-muted-foreground py-4">{message}</p>
 );
 
+// Loading state component
 const LoadingState: React.FC = () => (
 	<div className="flex justify-center items-center py-8">
 		<Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -36,66 +52,27 @@ export const WeekCalendar: React.FC<WeekCalendarProps> = ({
 	onPhaseChange,
 	initialDate,
 }) => {
-
-	// 	{
-	// 		id: "phase-1",
-	// 		name: "MVP",
-	// 		startDate: "2025-02-01T00:00:00.000Z",
-	// 		endDate: "2025-02-15T23:59:59.999Z",
-	// 		tasks: [
-	// 			{
-	// 				id: "task-1",
-	// 				name: "Design User Interface",
-	// 				desc: "Create wireframes and mockups for the main dashboard",
-	// 				isCompleted: true,
-	// 			},
-	// 			{
-	// 				id: "task-2",
-	// 				name: "Implement Authentication",
-	// 				desc: "Set up user login and registration flows",
-	// 				isCompleted: false,
-	// 			},
-	// 		],
-	// 	},
-	// 	{
-	// 		id: "phase-2",
-	// 		name: "Beta Release",
-	// 		startDate: "2025-02-16T00:00:00.000Z",
-	// 		endDate: "2025-02-28T23:59:59.999Z",
-	// 		tasks: [
-	// 			{
-	// 				id: "task-3",
-	// 				name: "User Feedback Collection",
-	// 				desc: "Gather and analyze user feedback",
-	// 				isCompleted: false,
-	// 			},
-	// 			{
-	// 				id: "task-4",
-	// 				name: "Fix Critical Bugs",
-	// 				desc: "Address high-priority issues reported by beta testers",
-	// 				isCompleted: true,
-	// 			},
-	// 		],
-	// 	},
-	// ];
-
 	// States
 	const [selectedDate, setSelectedDate] = useState<Date>(
 		initialDate || new Date()
 	);
 	const [searchQuery, setSearchQuery] = useState<string>("");
 	const [activePhase, setActivePhase] = useState<Phase | null>(null);
+	const [activePhaseIndex, setActivePhaseIndex] = useState<number>(-1);
 	const [activeTab, setActiveTab] = useState<TabType>("today");
 	const [modifiedTasks, setModifiedTasks] = useState<Record<string, boolean>>(
 		{}
 	);
 	const [isInitializing, setIsInitializing] = useState<boolean>(true);
 	const [isSaving, setIsSaving] = useState<boolean>(false);
+	const [allTasks, setAllTasks] = useState<Task[]>([]);
 
+	// Derived state
 	const hasChanges = Object.keys(modifiedTasks).length > 0;
 
+	// Calculate week days
 	const weekDays = useMemo<DayInfo[]>(() => {
-		const startDate = startOfWeek(selectedDate, { weekStartsOn: 1 });
+		const startDate = startOfWeek(selectedDate, { weekStartsOn: 1 }); // Start from Monday
 		return Array.from({ length: 7 }).map((_, index) => {
 			const date = addDays(startDate, index);
 			return {
@@ -106,36 +83,66 @@ export const WeekCalendar: React.FC<WeekCalendarProps> = ({
 		});
 	}, [selectedDate]);
 
+	
 	useEffect(() => {
 		setIsInitializing(true);
 
-		try {
-			const phase = phases.find((phase) => {
-				if (!phase.startDate || !phase.endDate) return false;
+		
+		
+			try {
+				let currentPhaseIndex = -1;
+				const phase = phases.find((phase, index) => {
+					if (!phase.startDate || !phase.endDate) return false;
 
-				const phaseStart = parseISO(phase.startDate);
-				const phaseEnd = parseISO(phase.endDate);
+					const phaseStart = parseISO(phase.startDate);
+					const phaseEnd = parseISO(phase.endDate);
 
-				if (!isValid(phaseStart) || !isValid(phaseEnd)) return false;
+					if (!isValid(phaseStart) || !isValid(phaseEnd)) return false;
 
-				return selectedDate >= phaseStart && selectedDate <= phaseEnd;
-			});
+					const isActive =
+						selectedDate >= phaseStart && selectedDate <= phaseEnd;
+					if (isActive) {
+						currentPhaseIndex = index;
+					}
+					return isActive;
+				});
 
-			setActivePhase(phase || null);
-			if (onPhaseChange) {
-				onPhaseChange(phase || null);
+				setActivePhase(phase || null);
+				setActivePhaseIndex(currentPhaseIndex);
+
+				// Prepare all tasks with phase information
+				const allRelevantTasks: Task[] = [];
+				phases.forEach((p, index) => {
+					// Only include tasks from current phase and earlier phases
+					if (currentPhaseIndex >= 0 && index <= currentPhaseIndex) {
+						const tasksWithPhaseInfo = p.tasks.map((task) => ({
+							...task,
+							phaseId: p.id,
+							phaseName: p.name,
+						}));
+						allRelevantTasks.push(...tasksWithPhaseInfo);
+					}
+				});
+
+				setAllTasks(allRelevantTasks);
+
+				if (onPhaseChange) {
+					onPhaseChange(phase || null);
+				}
+				setModifiedTasks({});
+			} catch (error) {
+				console.error("Error finding active phase:", error);
+				toast({
+					title: "Error",
+					description: "Failed to determine active phase",
+					variant: "destructive",
+				});
+			} finally {
+				setIsInitializing(false);
 			}
-			setModifiedTasks({});
-		} catch (error) {
-			console.error("Error finding active phase:", error);
-			toast({
-				title: "Error",
-				description: "Failed to determine active phase",
-				variant: "destructive",
-			});
-		} finally {
-			setIsInitializing(false);
-		}
+		
+
+		
 	}, [selectedDate, phases, onPhaseChange]);
 
 	// Filter tasks based on search query
@@ -148,6 +155,17 @@ export const WeekCalendar: React.FC<WeekCalendarProps> = ({
 				task.desc.toLowerCase().includes(searchQuery.toLowerCase())
 		);
 	}, [activePhase, searchQuery]);
+
+	// Filter all tasks based on search query
+	const filteredAllTasks = useMemo(() => {
+		if (!allTasks.length) return [];
+
+		return allTasks.filter(
+			(task) =>
+				task.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+				task.desc.toLowerCase().includes(searchQuery.toLowerCase())
+		);
+	}, [allTasks, searchQuery]);
 
 	// Get pending and completed tasks
 	const pendingTasks = useMemo(
@@ -170,6 +188,28 @@ export const WeekCalendar: React.FC<WeekCalendarProps> = ({
 		[filteredTasks, modifiedTasks]
 	);
 
+	// Get all pending and completed tasks from current and previous phases
+	const allPendingTasks = useMemo(
+		() =>
+			filteredAllTasks.filter((task) =>
+				modifiedTasks.hasOwnProperty(task.id) ?
+					!modifiedTasks[task.id]
+				:	!task.isCompleted
+			),
+		[filteredAllTasks, modifiedTasks]
+	);
+
+	const allCompletedTasks = useMemo(
+		() =>
+			filteredAllTasks.filter((task) =>
+				modifiedTasks.hasOwnProperty(task.id) ?
+					modifiedTasks[task.id]
+				:	task.isCompleted
+			),
+		[filteredAllTasks, modifiedTasks]
+	);
+
+	// Handler functions
 	const handleTaskToggle = (taskId: string, currentStatus: boolean): void => {
 		setModifiedTasks((prev) => ({
 			...prev,
@@ -182,7 +222,7 @@ export const WeekCalendar: React.FC<WeekCalendarProps> = ({
 
 		setIsSaving(true);
 		try {
-			// Prepare data for API call
+			
 			const updates: TaskUpdate[] = Object.entries(modifiedTasks).map(
 				([taskId, isCompleted]) => ({
 					taskId,
@@ -272,7 +312,7 @@ export const WeekCalendar: React.FC<WeekCalendarProps> = ({
 		);
 	};
 
-	// Main render
+	
 	return (
 		<div className="max-w-md mx-auto bg-background text-foreground rounded-lg shadow-sm">
 			<div className="p-4">
@@ -283,7 +323,7 @@ export const WeekCalendar: React.FC<WeekCalendarProps> = ({
 					</Button>
 				</div>
 
-				{/* Calendar navigation */}
+			
 				<div className="mb-6">
 					<div className="flex justify-between items-center mb-4">
 						<Button
@@ -327,19 +367,19 @@ export const WeekCalendar: React.FC<WeekCalendarProps> = ({
 					</div>
 				</div>
 
-				{/* Main content area with loading/content states */}
+				
 				<div className="min-h-[300px]">
-					{/* Initial loading state */}
+					
 					{isInitializing && <LoadingState />}
 
-					{/* No active phase message - only show when not loading */}
+					
 					{!isInitializing && !activePhase && (
 						<EmptyState
 							message={`No active phase for ${format(selectedDate, "MMMM d, yyyy")}`}
 						/>
 					)}
 
-					{/* Active phase content - only show when not loading and there is an active phase */}
+					
 					{!isInitializing && activePhase && (
 						<>
 							<div className="mb-4">
@@ -352,7 +392,6 @@ export const WeekCalendar: React.FC<WeekCalendarProps> = ({
 								</p>
 							</div>
 
-							{/* Search input */}
 							<div className="relative mb-4">
 								<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
 								<Input
@@ -364,7 +403,7 @@ export const WeekCalendar: React.FC<WeekCalendarProps> = ({
 								/>
 							</div>
 
-							{/* Save changes button */}
+							
 							{hasChanges && (
 								<div className="mb-4 flex justify-end">
 									<Button
@@ -387,7 +426,7 @@ export const WeekCalendar: React.FC<WeekCalendarProps> = ({
 								</div>
 							)}
 
-							{/* Tabs */}
+							
 							<Tabs
 								value={activeTab}
 								onValueChange={(value) => setActiveTab(value as TabType)}
@@ -395,8 +434,8 @@ export const WeekCalendar: React.FC<WeekCalendarProps> = ({
 							>
 								<TabsList className="grid w-full grid-cols-3 mb-4">
 									<TabsTrigger value="today">Today</TabsTrigger>
-									<TabsTrigger value="pending">Pending</TabsTrigger>
-									<TabsTrigger value="completed">Completed</TabsTrigger>
+									<TabsTrigger value="pending">All Pending</TabsTrigger>
+									<TabsTrigger value="completed">All Completed</TabsTrigger>
 								</TabsList>
 
 								<TabsContent value="today" className="mt-0">
@@ -404,11 +443,11 @@ export const WeekCalendar: React.FC<WeekCalendarProps> = ({
 								</TabsContent>
 
 								<TabsContent value="pending" className="mt-0">
-									{renderTaskList(pendingTasks)}
+									{renderTaskList(allPendingTasks)}
 								</TabsContent>
 
 								<TabsContent value="completed" className="mt-0">
-									{renderTaskList(completedTasks)}
+									{renderTaskList(allCompletedTasks)}
 								</TabsContent>
 							</Tabs>
 						</>

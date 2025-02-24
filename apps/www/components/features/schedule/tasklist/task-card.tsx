@@ -8,7 +8,9 @@ import {
 } from "lucide-react";
 import { cn } from "www/lib/utils";
 import { Task } from "./types";
-const TaskCard: React.FC<{
+
+// Component for rendering individual task
+export const TaskCard: React.FC<{
 	task: Task;
 	isModified: boolean;
 	effectiveStatus: boolean;
@@ -37,6 +39,9 @@ const TaskCard: React.FC<{
 				)}
 			</h4>
 			<p className="text-xs text-muted-foreground mt-1">{task.desc}</p>
+			{task.phaseName && (
+				<p className="text-xs text-primary mt-1">From: {task.phaseName}</p>
+			)}
 		</div>
 		<div className="mt-1">
 			{effectiveStatus ?
@@ -45,4 +50,3 @@ const TaskCard: React.FC<{
 		</div>
 	</div>
 );
- export default TaskCard
