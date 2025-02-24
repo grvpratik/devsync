@@ -26,7 +26,7 @@ export function SidebarItem({ item, onDelete, isDeleting }: SidebarItemProps) {
 		<SidebarMenuItem>
 			<SidebarMenuButton asChild>
 				<a href={item.url}>
-					<span>{item.title}</span>
+				<div className=" size-2 rounded-full bg-blue-500"></div>	<span>{item.title}</span>
 				</a>
 			</SidebarMenuButton>
 			<DropdownMenu>

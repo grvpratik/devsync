@@ -74,7 +74,7 @@ const DateRangeInput = ({
 			</PopoverTrigger>
 			<PopoverContent className="min-w-fit p-0" align="end">
 				<Calendar
-					className="w-full font-sans rounded-md"
+					className="w-full  rounded-md"
 					initialFocus
 					mode="range"
 					defaultMonth={currentDateRange?.from}
@@ -240,7 +240,7 @@ export function MultiDateRangeSelector({
 	);
 
 	return (
-		<ScrollArea className="max-h-[28rem] font-sans ">
+		<ScrollArea className="max-h-[28rem]  ">
 			<div className="h-full ml-2 mr-4">
 				<div className="space-y-2">
 					<Label htmlFor="name">Name</Label>

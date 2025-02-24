@@ -41,7 +41,7 @@ export function NavUser({
 	} | null;
 }) {
 	const { isMobile } = useSidebar();
-const {logout}=useAuth()
+	const { logout } = useAuth();
 
 	return (
 		<SidebarFooter>
@@ -66,7 +66,7 @@ const {logout}=useAuth()
 								</SidebarMenuButton>
 							</DropdownMenuTrigger>
 							<DropdownMenuContent
-								className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-xl  font-sans "
+								className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-xl   "
 								side={isMobile ? "bottom" : "right"}
 								align="end"
 								sideOffset={4}
@@ -89,8 +89,8 @@ const {logout}=useAuth()
 								<DropdownMenuGroup>
 									<DropdownMenuItem>
 										<Sparkles />
-										Theme 
-										<ThemeToggle/>
+										Theme
+										<ThemeToggle />
 									</DropdownMenuItem>
 								</DropdownMenuGroup>
 								<DropdownMenuSeparator />
@@ -106,7 +106,7 @@ const {logout}=useAuth()
 									</DropdownMenuItem>
 								</DropdownMenuGroup>
 								<DropdownMenuSeparator />
-								<DropdownMenuItem onClick={() =>logout()}>
+								<DropdownMenuItem onClick={() => logout()}>
 									<LogOut />
 									Log out
 								</DropdownMenuItem>

@@ -1,3 +1,6 @@
+
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import React from "react";
 import { Button } from "www/components/ui/button";
 import { getSessionCookie } from "www/hooks/use-server-session";
@@ -5,6 +8,9 @@ import { api, isSuccess } from "www/lib/handler";
 
 const SettingsPage = async () => {
 	const session = await getSessionCookie();
+	if(!session){
+		return redirect('/')
+	}
 	const sessionlist = await api.get("user/auth/sessions", null, { session });
 	console.log(sessionlist);
 	if (!isSuccess(sessionlist)) {
@@ -52,6 +58,9 @@ const SettingsPage = async () => {
 										{ sessionId: sessionData.sessionId },
 										{ session }
 									);
+									if(isSuccess(logout)){
+									revalidatePath('/setting',"page")
+									}
 									console.log("logout", logout);
 								}}
 							>

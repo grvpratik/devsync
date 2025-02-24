@@ -68,7 +68,7 @@ const LoginButton = () => {
 	console.log("picture url", authState.user?.picture);
 	if (authState.user) {
 		return (
-			<div className="space-y-4 font-sans">
+			<div className="space-y-4 ">
 				{/* <pre className="bg-gray-100 p-4 rounded-lg overflow-auto">
 					{JSON.stringify(authState.user, null, 2)}
 				</pre>
@@ -89,11 +89,11 @@ const LoginButton = () => {
 	return (
 		<Dialog open={isOpen} onOpenChange={setIsOpen}>
 			<DialogTrigger asChild>
-				<Button variant="default" className="px-6 font-sans rounded-full">
+				<Button variant="default" className="px-6  rounded-full">
 					Login
 				</Button>
 			</DialogTrigger>
-			<DialogContent className="sm:max-w-md rounded-lg font-sans ">
+			<DialogContent className="sm:max-w-md rounded-lg  ">
 				<DialogHeader>
 					<DialogTitle className="text-center">Welcome Back</DialogTitle>
 				</DialogHeader>

@@ -25,11 +25,11 @@ export default async function RootLayout({
 	const session = await getSessionCookie();
 	const result = await api.post<any>(`/user/auth/data`, {}, { session });
 	console.log(result, "ROOt");
-	const user = null;
+	const user = isSuccess(result) ? result : null;
 	return (
 		<html lang="en">
 			<body
-				className={`${geistSans.variable} ${geistMono.variable} antialiased  `}
+				className={`${geistSans.variable} ${geistMono.variable} antialiased  font-sans `}
 			>
 				<ThemeProvider
 					attribute="class"

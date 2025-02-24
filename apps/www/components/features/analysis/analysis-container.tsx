@@ -85,7 +85,7 @@ const Analysis: React.FC<AnalysisProps> = ({ res, id }) => {
 	}, [res.result]);
 
 	return (
-		<div className="flex flex-col w-full h-full font-sans overflow-hidden">
+		<div className="flex flex-col w-full h-full  overflow-hidden">
 			<main className="flex-1 flex flex-col">
 				<Tabs
 					value={activeTab}
@@ -100,14 +100,16 @@ const Analysis: React.FC<AnalysisProps> = ({ res, id }) => {
 				</Tabs>
 				<div>
 					<Dialog>
-						<DialogTrigger  className=" fixed bottom-0 w-full flex  justify-center "> Schedule</DialogTrigger><DialogContent className=" font-sans ">
-						<DialogHeader>
-							<DialogTitle>Create schedule</DialogTitle>
-							<DialogDescription>
-								
-							</DialogDescription>
-						</DialogHeader>
-						
+						<DialogTrigger className=" fixed bottom-0 w-full flex  justify-center ">
+							{" "}
+							Schedule
+						</DialogTrigger>
+						<DialogContent className="  ">
+							<DialogHeader>
+								<DialogTitle>Create schedule</DialogTitle>
+								<DialogDescription></DialogDescription>
+							</DialogHeader>
+
 							<MultiDateRangeSelector id={id} />
 						</DialogContent>
 					</Dialog>

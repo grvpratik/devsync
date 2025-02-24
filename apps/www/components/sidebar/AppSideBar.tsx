@@ -101,7 +101,7 @@ export function AppSidebar({ history, projectList }: AppSidebarProps) {
 	};
 
 	return (
-		<Sidebar variant="floating" className="overflow-hidden font-sans">
+		<Sidebar  className="overflow-hidden ">
 			<SidebarHeader>
 				<SidebarMenu>
 					<SidebarMenuItem>

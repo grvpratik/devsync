@@ -79,7 +79,7 @@ export default async function AiLayout({
 	return (
 		<SidebarProvider>
 			<AppSidebar history={history} projectList={projectSidebar} />
-			<main className="w-full h-screen flex flex-col">
+			<main className="w-full  flex flex-col rounded-lg overflow-hidden">
 				<Nav sidebar={true} />
 				{children}
 			</main>

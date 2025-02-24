@@ -8,8 +8,8 @@ import { redirect } from "next/navigation";
 const BuildPage = async ({ params }: { params: { id: string } }) => {
 	const { id } = params;
 	const session = await getSessionCookie();
-	if(!session){
-		return redirect('/')
+	if (!session) {
+		return redirect("/");
 	}
 	try {
 		const result = await api.post<ProjectReportResponse>(
@@ -20,7 +20,7 @@ const BuildPage = async ({ params }: { params: { id: string } }) => {
 
 		if (!isSuccess(result)) {
 			return (
-				<main className="flex flex-col justify-center items-center h-screen font-sans">
+				<main className="flex flex-col justify-center items-center h-screen ">
 					<h1 className="text-2xl font-bold text-red-600">Error</h1>
 					<p className="text-gray-700">
 						{result.error?.message ||
@@ -32,7 +32,7 @@ const BuildPage = async ({ params }: { params: { id: string } }) => {
 
 		if (!result.result) {
 			return (
-				<main className="flex flex-col justify-center items-center h-screen font-sans">
+				<main className="flex flex-col justify-center items-center h-screen ">
 					<h1 className="text-2xl font-bold text-gray-800">404 Not Found</h1>
 					<p className="text-gray-600">
 						The requested business could not be found.
@@ -49,7 +49,7 @@ const BuildPage = async ({ params }: { params: { id: string } }) => {
 	} catch (error) {
 		console.error("Error fetching project:", error);
 		return (
-			<main className="flex flex-col justify-center items-center h-screen font-sans">
+			<main className="flex flex-col justify-center items-center h-screen ">
 				<h1 className="text-2xl font-bold text-red-600">Unexpected Error</h1>
 				<p className="text-gray-700">
 					An unexpected error occurred while fetching the project.

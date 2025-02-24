@@ -23,7 +23,7 @@ const SchedulePage = async ({ params }: { params: { id: string } }) => {
 
 		if (!isSuccess(result)) {
 			return (
-				<main className="flex flex-col justify-center items-center h-screen font-sans">
+				<main className="flex flex-col justify-center items-center h-screen ">
 					<h1 className="text-2xl font-bold text-red-600">Error</h1>
 					<p className="text-gray-700">
 						{result.error?.message ||
@@ -35,7 +35,7 @@ const SchedulePage = async ({ params }: { params: { id: string } }) => {
 
 		if (!result.result.phases) {
 			return (
-				<main className="flex flex-col justify-center items-center h-screen font-sans">
+				<main className="flex flex-col justify-center items-center h-screen ">
 					<h1 className="text-2xl font-bold text-gray-800">
 						No Schedule Available
 					</h1>
@@ -47,7 +47,7 @@ const SchedulePage = async ({ params }: { params: { id: string } }) => {
 		}
 
 		return (
-			<main className="mx-4 mb-4 font-sans">
+			<main className="mx-4 mb-4 ">
 				{/* <ScheduleCalendar result={result.result.phases} />*/}
 
 				<ScheduleGrid
@@ -60,7 +60,7 @@ const SchedulePage = async ({ params }: { params: { id: string } }) => {
 	} catch (error) {
 		console.error("Error fetching project schedule:", error);
 		return (
-			<main className="flex flex-col justify-center items-center h-screen font-sans">
+			<main className="flex flex-col justify-center items-center h-screen ">
 				<h1 className="text-2xl font-bold text-red-600">Unexpected Error</h1>
 				<p className="text-gray-700">
 					An unexpected error occurred while loading the schedule.
