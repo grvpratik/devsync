@@ -1,5 +1,5 @@
 "use client";
-import { Bird, Loader2 } from "lucide-react";
+import { Bird, GalleryVerticalEnd, Home, Loader2 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -32,6 +32,7 @@ import {
 } from "www/components/ui/alert-dialog";
 import { toast } from "www/hooks/use-toast";
 import { api, isSuccess } from "www/lib/handler";
+import Link from "next/link";
 
 export function AppSidebar({ history, projectList }: AppSidebarProps) {
 	const [searchQuery, setSearchQuery] = useState("");
@@ -101,20 +102,24 @@ export function AppSidebar({ history, projectList }: AppSidebarProps) {
 	};
 
 	return (
-		<Sidebar  className="overflow-hidden ">
+		<Sidebar className="overflow-hidden ">
 			<SidebarHeader>
 				<SidebarMenu>
 					<SidebarMenuItem>
-						<div className="flex gap-2 items-center p-2">
-							<div className="flex py-2 aspect-square size-5 items-center justify-center rounded-md">
-								<Bird className="size-4" />
-							</div>
-							<span className="truncate font-semibold">BuildAi</span>
-						</div>
+						<SidebarMenuButton size="lg" asChild>
+							<a href="#">
+								<div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+									<GalleryVerticalEnd className="size-4" />
+								</div>
+								<div className="flex flex-col gap-0.5 leading-none">
+									<span className="font-semibold">Get Shit Done</span>
+									{/* <span className="">v1.0.0</span> */}
+								</div>
+							</a>
+						</SidebarMenuButton>
 					</SidebarMenuItem>
 				</SidebarMenu>
 			</SidebarHeader>
-
 			<SidebarContent>
 				<SidebarGroup>
 					<SidebarGroupContent>
@@ -126,7 +131,20 @@ export function AppSidebar({ history, projectList }: AppSidebarProps) {
 						</SidebarMenu>
 					</SidebarGroupContent>
 				</SidebarGroup>
-
+				<SidebarGroup className="py-0">
+					<SidebarGroupContent>
+						<SidebarMenu>
+							<SidebarGroupLabel>Main</SidebarGroupLabel>
+							<SidebarMenuItem>
+								<Link href={"/"}>
+									<SidebarMenuButton>
+										<Home /> home
+									</SidebarMenuButton>
+								</Link>
+							</SidebarMenuItem>
+						</SidebarMenu>
+					</SidebarGroupContent>
+				</SidebarGroup>
 				<CollapsibleSidebar
 					activeProjects={projectList}
 					onEdit={handleEdit}
@@ -134,7 +152,7 @@ export function AppSidebar({ history, projectList }: AppSidebarProps) {
 					isDeleting={isDeleting}
 				/>
 
-				<SidebarGroup>
+				<SidebarGroup className="mt-auto">
 					<SidebarGroupContent>
 						<SidebarMenu>
 							<SidebarGroupLabel>Previous</SidebarGroupLabel>
@@ -155,7 +173,6 @@ export function AppSidebar({ history, projectList }: AppSidebarProps) {
 					</SidebarGroupContent>
 				</SidebarGroup>
 			</SidebarContent>
-
 			<SidebarGroup>
 				<SidebarGroupContent>
 					<SidebarMenu>
@@ -172,9 +189,7 @@ export function AppSidebar({ history, projectList }: AppSidebarProps) {
 					</SidebarMenu>
 				</SidebarGroupContent>
 			</SidebarGroup>
-
 			<NavUser user={authState.user} />
-
 			<AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
 				<AlertDialogContent>
 					<AlertDialogHeader>

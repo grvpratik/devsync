@@ -12,6 +12,7 @@ export interface ProjectReportResponse extends IdeaValidationResponse {
 export enum RefreshField {
 	Market = "market",
 	Feature = "feature",
+	Overview = "overview",
 }
 
 // ============================================================================

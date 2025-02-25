@@ -129,7 +129,7 @@ function getTabContent(
 	switch (tabValue) {
 		case AnalysisTabs.Overview:
 			return (
-				<OverviewAnalysis metadata={data.metadata} overview={data.overview!} />
+				<OverviewAnalysis metadata={data.metadata} overview={data.overview!} id={data.id}/>
 			);
 		case AnalysisTabs.Features:
 			return <FeaturesAnalysis featureslist={data.feature!} />;

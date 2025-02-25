@@ -52,7 +52,7 @@ export const BuildController = {
 
 		const body = await c.req.json();
 		const parsed = SearchRequestSchema.safeParse(body);
-		console.log(body);
+		//console.log(body);
 		if (!parsed.success) {
 			throw new AppError(
 				"Invalid request format",
@@ -74,7 +74,7 @@ export const BuildController = {
 
 		// Get metadata information
 		const metadata = await GenerativeAI.metadata(value, GEMINI_API);
-		console.log(metadata);
+		//console.log(metadata);
 		if (!metadata) {
 			throw new AppError("Failed to retrieve metadata", 500, "METADATA_ERROR");
 		}
@@ -119,7 +119,7 @@ export const BuildController = {
 			...(marketResult && { market: marketResult }),
 			...(featureResult && { feature: featureResult }),
 		};
-		console.log(await prisma.projectReport.findMany());
+		//console.log(await prisma.projectReport.findMany());
 		const createProjectReport = async (
 			userId: string,
 			result: IdeaValidationResponse
@@ -170,7 +170,7 @@ export const BuildController = {
 			}
 		};
 		const report = await createProjectReport(userId, result);
-		console.log("PROJECT REPORT", report);
+		//console.log("PROJECT REPORT", report);
 		return c.json(
 			{
 				success: true,
@@ -205,7 +205,7 @@ export const BuildController = {
 						},
 					})
 			);
-			console.log(result);
+			//console.log(result);
 			return c.json(
 				{
 					success: true,
@@ -270,9 +270,9 @@ export const BuildController = {
 			case RefreshField.Market:
 				generatedResult = await GenerativeAI.market(prompt, GEMINI_API);
 				break;
-			// case RefreshField.Overview:
-			// 	generatedResult = await GenerativeAI.overview(prompt, GEMINI_API);
-			// 	break;
+			case RefreshField.Overview:
+				generatedResult = await GenerativeAI.overview(prompt, GEMINI_API);
+				break;
 			default:
 				throw new AppError("Invalid field type", 400, "VALIDATION_ERROR");
 		}
@@ -537,7 +537,7 @@ export const BuildController = {
 
 			const body = await c.req.json();
 			const parsed = UpdateTasksSchema.safeParse(body);
-			console.log(parsed.data, "batch");
+			//console.log(parsed.data, "batch");
 			if (!parsed.success) {
 				throw new ValidationError("Invalid task updates", parsed.error);
 			}
@@ -687,7 +687,7 @@ export const BuildController = {
 						},
 					})
 			);
-			console.log(result);
+			//console.log(result);
 			return c.json(
 				{
 					success: true,
@@ -718,7 +718,7 @@ export const BuildController = {
 						},
 					})
 			);
-			console.log(result);
+			//console.log(result);
 			return c.json(
 				{
 					success: true,

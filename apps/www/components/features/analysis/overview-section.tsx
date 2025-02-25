@@ -168,11 +168,13 @@ import {
 } from "www/components/ui/card";
 import ScoreIndicator from "../../ScoreIndicator";
 import { MetaData, Overview } from "shared";
+import RefetchAnalysis from "./refetech-analysis";
 
 const OverviewAnalysis: React.FC<{
 	metadata: MetaData;
 	overview: Overview;
-}> = ({ metadata, overview }) => {
+	id: string;
+}> = ({ metadata, overview, id }) => {
 	// if (!data) {
 	// 	return <main>error extracting data</main>;
 	// }
@@ -183,7 +185,9 @@ const OverviewAnalysis: React.FC<{
 	//         score: data[typedKey].score,
 	//     };
 	// });
-
+	if (!overview) {
+		return <RefetchAnalysis section="overview" id={id} />;
+	}
 	console.log(metadata);
 	return (
 		<main className="flex flex-col w-full  h-full ">
@@ -237,9 +241,8 @@ const OverviewAnalysis: React.FC<{
 						<CardTitle>Project Score</CardTitle>
 					</CardHeader>
 					<CardContent className=" ">
-						
-							<ScoreIndicator score={54} />
-						
+						<ScoreIndicator score={54} />
+
 						{/* <div className="space-y-4">
 							<h3 className="font-bold">Key Features</h3>
 							{overview.suggestion.slice(0, 3).map((item, index) => (

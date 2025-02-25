@@ -95,7 +95,7 @@ GenerativeAI = {
 			const chat = model.startChat({ history: OVERVIEW_EXAMPLE });
 			const result = await chat.sendMessage(idea);
 			const response = result.response.text();
-
+console.log(response,"OVerview ai")
 			// Validate and parse response
 			const rawData = JSON.parse(response);
 			const validated = OverviewSchema.parse(rawData);
