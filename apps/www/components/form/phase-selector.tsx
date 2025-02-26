@@ -41,7 +41,6 @@ interface Props {
 	onSubmitError?: (error: string) => void;
 }
 
-
 const DateRangeInput = ({
 	currentDateRange,
 	setCurrentDateRange,
@@ -226,7 +225,6 @@ export function MultiDateRangeSelector({
 		}
 	};
 
-	
 	const jsonOutput = useMemo(
 		() =>
 			JSON.stringify(
@@ -261,7 +259,7 @@ export function MultiDateRangeSelector({
 								<PopoverContent className="w-[200px] p-0">
 									<div className="p-2">
 										{suggestions.map((suggestion) => (
-											<PopoverClose>
+											<PopoverClose key={suggestion}>
 												<Button
 													key={suggestion}
 													variant="ghost"

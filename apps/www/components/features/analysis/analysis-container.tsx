@@ -10,7 +10,6 @@ import {
 } from "lucide-react";
 
 import OverviewAnalysis from "./overview-section";
-
 import MarketAnalysis from "./market-section";
 import {
 	Tabs,
@@ -86,7 +85,7 @@ const Analysis: React.FC<AnalysisProps> = ({ res, id }) => {
 	}, [res.result]);
 
 	return (
-		<div className="flex flex-col w-full h-full  overflow-hidden">
+		<div className="flex flex-col w-full h-full overflow-hidden relative">
 			<main className="flex-1 flex flex-col">
 				<Tabs
 					value={activeTab}
@@ -100,22 +99,21 @@ const Analysis: React.FC<AnalysisProps> = ({ res, id }) => {
 
 					{renderTabContents(tabs)}
 				</Tabs>
-				<div>
-					<Dialog>
-						<DialogTrigger
-							className=" fixed bottom-0  flex  justify-center "
-							asChild
-						>
-							
-								<Button>Schedule</Button>
-							
-						</DialogTrigger>
-						<DialogContent className="  ">
-							<DialogHeader>
-								<DialogTitle>Create schedule</DialogTitle>
-								{/* <DialogDescription> </DialogDescription> */}
-							</DialogHeader>
 
+				<div className="fixed bottom-4 left-0 right-0 flex justify-center">
+					<Dialog>
+						<DialogTrigger asChild>
+							<Button className="px-8 py-2 rounded-full shadow-md">
+								Schedule
+							</Button>
+						</DialogTrigger>
+						<DialogContent className="max-w-md">
+							<DialogHeader>
+								<DialogTitle>Create Schedule</DialogTitle>
+								<DialogDescription>
+									Set up dates for your project phases
+								</DialogDescription>
+							</DialogHeader>
 							<MultiDateRangeSelector id={id} />
 						</DialogContent>
 					</Dialog>
@@ -143,7 +141,10 @@ function getTabContent(
 				/>
 			);
 		case AnalysisTabs.Features:
-			return <FeatureList mvp={mvp} features={featuresList} id={data.id} />;
+			return <FeatureList
+			 mvp={mvp}
+			 features={featuresList} 
+			 id={data.id} />;
 		case AnalysisTabs.Market:
 			return <MarketAnalysis marketData={data.market} id={data.id} />;
 		default:
@@ -166,7 +167,7 @@ function renderTabTriggers(tabs: TabConfig[]): React.ReactNode {
 
 function renderTabContents(tabs: TabConfig[]): React.ReactNode {
 	return tabs.map(({ value, content }) => (
-		<TabsContent key={value} value={value} className="flex-1 m-2 rounded-lg ">
+		<TabsContent key={value} value={value} className="flex-1 m-2 rounded-lg">
 			{content}
 		</TabsContent>
 	));
