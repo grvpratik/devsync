@@ -33,7 +33,7 @@ export default async function AiLayout({
 	children: React.ReactNode;
 }) {
 	const session = await getSessionCookie();
-	
+
 	if (!session) {
 		return (
 			<SidebarProvider>
@@ -50,7 +50,7 @@ export default async function AiLayout({
 
 	try {
 		const projects = await fetchProjects(session);
-		//console.log(projects, "projects");
+		
 		history = projects
 			.filter(
 				(project: ProjectReportResponse) =>
@@ -75,11 +75,11 @@ export default async function AiLayout({
 	} catch (error) {
 		console.error("Error fetching projects:", error);
 	}
-	
+
 	return (
 		<SidebarProvider>
 			<AppSidebar history={history} projectList={projectSidebar} />
-			<main className="w-full  flex flex-col shadow rounded-xl overflow-hidden border-2 border-dotted border-border ">
+			<main className="w-full  flex flex-col shadow rounded-xl overflow-hidden border-2  border-dotted border-border ">
 				<Nav sidebar={true} />
 				{children}
 			</main>

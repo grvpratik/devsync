@@ -28,7 +28,9 @@ export interface IdeaValidationResponse {
 	resource?: any;
 }
 
-export interface BusinessIdeaResult extends IdeaValidationResponse {}
+export interface BusinessIdeaResult extends IdeaValidationResponse {
+	id:string
+}
 
 // ============================================================================
 // Task and Phase Schemas

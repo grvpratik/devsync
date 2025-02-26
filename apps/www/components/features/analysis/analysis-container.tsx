@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 
 import OverviewAnalysis from "./overview-section";
-import FeaturesAnalysis from "./feature-section";
+
 import MarketAnalysis from "./market-section";
 import {
 	Tabs,
@@ -30,6 +30,7 @@ import {
 	DialogTrigger,
 } from "www/components/ui/dialog";
 import { MultiDateRangeSelector } from "../../form/phase-selector";
+import FeatureList from "./feature-section";
 
 // Types and Interfaces
 interface AnalysisProps {
@@ -96,18 +97,23 @@ const Analysis: React.FC<AnalysisProps> = ({ res, id }) => {
 					<TabsList className="lg:h-fit bg-transparent m-2 lg:flex-col lg:gap-2 lg:items-start lg:justify-start lg:*:w-48 gap-2">
 						{renderTabTriggers(tabs)}
 					</TabsList>
+
 					{renderTabContents(tabs)}
 				</Tabs>
 				<div>
 					<Dialog>
-						<DialogTrigger className=" fixed bottom-0 w-full flex  justify-center ">
-							{" "}
-							Schedule
+						<DialogTrigger
+							className=" fixed bottom-0  flex  justify-center "
+							asChild
+						>
+							
+								<Button>Schedule</Button>
+							
 						</DialogTrigger>
 						<DialogContent className="  ">
 							<DialogHeader>
 								<DialogTitle>Create schedule</DialogTitle>
-								<DialogDescription></DialogDescription>
+								{/* <DialogDescription> </DialogDescription> */}
 							</DialogHeader>
 
 							<MultiDateRangeSelector id={id} />
@@ -125,16 +131,21 @@ function getTabContent(
 	data?: BusinessIdeaResult
 ): React.ReactNode {
 	if (!data) return null;
-
+	const mvp = data.feature ? data.feature.mvp : null;
+	const featuresList = data.feature ? data.feature?.features : null;
 	switch (tabValue) {
 		case AnalysisTabs.Overview:
 			return (
-				<OverviewAnalysis metadata={data.metadata} overview={data.overview!} id={data.id}/>
+				<OverviewAnalysis
+					metadata={data.metadata}
+					overview={data.overview!}
+					id={data.id}
+				/>
 			);
 		case AnalysisTabs.Features:
-			return <FeaturesAnalysis featureslist={data.feature!} />;
+			return <FeatureList mvp={mvp} features={featuresList} id={data.id} />;
 		case AnalysisTabs.Market:
-			return <MarketAnalysis marketData={data.market} />;
+			return <MarketAnalysis marketData={data.market} id={data.id} />;
 		default:
 			return null;
 	}

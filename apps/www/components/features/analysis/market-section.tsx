@@ -19,9 +19,10 @@ import {
 	Globe,
 	DollarSign,
 } from "lucide-react";
-import { Market, Competitors, MarketTrends, Audience } from "shared";
+import { Market, Competitors,  Audience } from "shared";
 interface MarketAnalysisProps {
 	marketData?: Market;
+	id: string;
 }
 const CompetitorCard = ({ competitor }: { competitor: Competitors }) => (
 	<Card className="h-full">
@@ -86,7 +87,6 @@ const AudienceInsights = ({ audience }: { audience: Audience }) => (
 		</CardHeader>
 		<CardContent className="space-y-4">
 			<div className="grid md:grid-cols-2 gap-4">
-
 				<div>
 					<h3 className="font-medium mb-2">Interests</h3>
 					<div className="flex flex-wrap gap-2">
@@ -139,7 +139,7 @@ const MarketTrendsCard = ({ trends }: { trends: MarketTrends }) => (
 	</Card>
 );
 
-const MarketAnalysis = ({ marketData }: MarketAnalysisProps) => {
+const MarketAnalysis = ({ marketData, id }: MarketAnalysisProps) => {
 	if (!marketData) return null;
 
 	return (

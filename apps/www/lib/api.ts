@@ -1,8 +1,4 @@
 import axios, { AxiosError, AxiosInstance } from "axios";
-import { headers } from "next/headers";
-
-import { ApiResult } from "shared";
-
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
 
@@ -70,12 +66,7 @@ export interface Phase {
 	end_date: Date;
 	content?: any[];
 }
-class ApiError extends Error {
-	constructor(message: string) {
-		super(message);
-		this.name = "ApiError";
-	}
-}
+
 // Create axios instance with default config
 const instance: AxiosInstance = axios.create({
 	baseURL: BASE_URL,
@@ -214,104 +205,6 @@ export const AuthApiService = {
 
 
 
-export const ApiService = {
-	getAllProjectsByUser: async (session: string): Promise<ApiResponse<any>> => {
-		try {
-			const response = await instance.post(
-				`/build/project`,
-				{},
-				{
-					headers: {
-						Cookie: `session_id=${session || ""}`,
-					},
-				}
-			);
-			console.log(response.data);
-			return response.data;
-		} catch (error) {
-			if (axios.isAxiosError(error)) {
-				const axiosError = error as AxiosError<ErrorResponse>;
-				return (
-					axiosError.response?.data || {
-						success: false,
-						error: { message: "Unknown error occurred" },
-					}
-				);
-			}
-			return { success: false, error: { message: "Network error" } };
-		}
-	},
-	getProjectById: async (
-		id: string,
-		session: string
-	): Promise<ApiResult<any>> => {
-		try {
-			const response = await instance.post(
-				`/build/project/${id}`,
-				{}, // Request body (empty in this case)
-				{
-					headers: {
-						Cookie: `session_id=${session || ""}`,
-					},
-				}
-			);
-			console.log(response.data);
-			return response.data;
-		} catch (error) {
-			console.error("error fetching project report", error);
-			return {
-				success: false,
-				error: {
-					message:
-						error instanceof Error ?
-							error.message
-						:	"Unable to fetch project report",
-				},
-			};
-		}
-	},
-	getPhases: async (id, range) => {
-		try {
-			const response = await instance.post(
-				`/build/project/${id}/phases`,
-				range
-			);
-			return response.data;
-		} catch (error) {
-			console.error("error fetching project report");
-			return {
-				success: false,
-				error: {
-					message:
-						error instanceof Error ?
-							error.message
-						:	"Unable to fetch project report",
-				},
-			};
-		}
-	},
-	getSearch: async () => {
-		try {
-			const response = await instance.post(`/build/search`);
-			return response.data;
-		} catch (error) {
-			console.error("error fetching project report");
-			return {
-				success: false,
-				error: {
-					message:
-						error instanceof Error ?
-							error.message
-						:	"Unable to fetch project report",
-				},
-			};
-		}
-	},
-};
-
-export const ProjectService={
-	
-}
 
 
 

@@ -14,33 +14,6 @@ export const AI_MODELS_LIST = [
 	{ name: "Claude", description: "Yes, the best for coding" },
 ];
 
-export const RANDOM_COLORS = [
-	"red",
-	"yellow",
-	"green",
-	"blue",
-	"indigo",
-	"purple",
-	"pink",
-	"gray",
-	"trueGray",
-	"warmGray",
-	"coolGray",
-	"blueGray",
-	"orange",
-	"amber",
-	"lime",
-	"emerald",
-	"teal",
-	"cyan",
-	"lightBlue",
-	"violet",
-	"fuchsia",
-	"rose",
-];
-
-export const RANDOM_BG_COLORS = RANDOM_COLORS.map((color) => `bg-${color}-500`);
-
 import {  PanelLeft, Settings } from "lucide-react";
 
 export const MAIN_MENU_ITEMS = [

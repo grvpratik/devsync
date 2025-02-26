@@ -1,4 +1,3 @@
-
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import React from "react";
@@ -8,8 +7,8 @@ import { api, isSuccess } from "www/lib/handler";
 
 const SettingsPage = async () => {
 	const session = await getSessionCookie();
-	if(!session){
-		return redirect('/')
+	if (!session) {
+		return redirect("/");
 	}
 	const sessionlist = await api.get("user/auth/sessions", null, { session });
 	console.log(sessionlist);
@@ -58,18 +57,13 @@ const SettingsPage = async () => {
 										{ sessionId: sessionData.sessionId },
 										{ session }
 									);
-									if(isSuccess(logout)){
-									revalidatePath('/setting',"page")
+									if (isSuccess(logout)) {
+										revalidatePath("/setting", "page");
 									}
 									console.log("logout", logout);
 								}}
 							>
-								<Button
-									variant="destructive"
-									
-								>
-									Logout
-								</Button>
+								<Button variant="destructive">Logout</Button>
 							</form>
 						</div>
 					))}

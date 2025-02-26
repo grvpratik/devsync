@@ -15,8 +15,10 @@ import {
 import { Calendar } from "www/components/ui/calendar";
 import { cn } from "www/lib/utils";
 import { useRouter, usePathname } from "next/navigation";
-import { ApiService } from "www/lib/api";
+
 import { ScrollArea } from "www/components/ui/scroll-area";
+
+import { api } from "www/lib/handler";
 
 // Types
 export interface DateRange {
@@ -39,7 +41,7 @@ interface Props {
 	onSubmitError?: (error: string) => void;
 }
 
-// Subcomponents for better organization
+
 const DateRangeInput = ({
 	currentDateRange,
 	setCurrentDateRange,
@@ -210,8 +212,7 @@ export function MultiDateRangeSelector({
 		try {
 			setLoading(true);
 			setError(null);
-
-			await ApiService.getPhases(id, dateRanges);
+			await api.post(`/build/project/${id}/phases`, dateRanges);
 
 			onSubmitSuccess?.();
 			router.push(`${pathname}/schedule`);
@@ -225,7 +226,7 @@ export function MultiDateRangeSelector({
 		}
 	};
 
-	// Memoized JSON output
+	
 	const jsonOutput = useMemo(
 		() =>
 			JSON.stringify(
