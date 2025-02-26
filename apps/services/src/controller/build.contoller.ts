@@ -11,7 +11,7 @@ import {
 
 import { SearchRequestSchema } from "../types";
 import { GenerativeAI } from "../prompt";
-import { AppError, AuthError, ValidationError } from "../error";
+import { AppError, AuthError, ValidationError } from "./../middleware/error";
 import { safeExecutePrismaOperation } from "../middleware/prisma";
 
 import { z } from "zod";
@@ -170,7 +170,7 @@ export const BuildController = {
 			}
 		};
 		const report = await createProjectReport(userId, result);
-		//console.log("PROJECT REPORT", report);
+	
 		return c.json(
 			{
 				success: true,
@@ -186,7 +186,7 @@ export const BuildController = {
 		}
 		try {
 			const projectId = (await c.req.param("id")) || "";
-			//console.log("🔍 Project:", projectId);
+			
 			const adapter = new PrismaD1(c.env.DB);
 			const prisma = new PrismaClient({ adapter });
 			const result = await safeExecutePrismaOperation(
@@ -205,7 +205,7 @@ export const BuildController = {
 						},
 					})
 			);
-			//console.log(result);
+			
 			return c.json(
 				{
 					success: true,
@@ -304,7 +304,7 @@ export const BuildController = {
 		);
 	},
 	getPhases: async (c: Context) => {
-		// Schema validation
+		
 		const PhaseTemplate = z.object({
 			name: z.string(),
 			description: z.string(),
@@ -347,7 +347,7 @@ export const BuildController = {
 			const adapter = new PrismaD1(c.env.DB);
 			const prisma = new PrismaClient({ adapter });
 
-			// First, check if project exists and has no phases
+			
 			const project = await prisma.projectReport.findUnique({
 				where: {
 					id,
@@ -378,7 +378,7 @@ export const BuildController = {
 			const features: any = project.feature;
 			const mvp = features.mvp;
 
-			// Get phases from GenerativeAI
+		
 			const phasesResult = await GenerativeAI.phases(
 				prompt,
 				GEMINI_API,
@@ -394,14 +394,14 @@ export const BuildController = {
 				);
 			}
 
-			// Combine AI generated data with user provided dates
+			
 			const phaseWithDate = phasesResult.map((item, index) => {
 				const phaseInfo = parsed.data[index];
 				return {
 					name: item.name,
-					desc: item?.desc || null, // Handle optional description
-					startDate: new Date(phaseInfo.start_date), // Convert string to Date
-					endDate: new Date(phaseInfo.end_date), // Convert string to Date
+					desc: `${item?.name} Description` || null,
+					startDate: new Date(phaseInfo.start_date),
+					endDate: new Date(phaseInfo.end_date),
 					tasks: {
 						create: item.tasks.map((task) => ({
 							name: task.title,

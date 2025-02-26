@@ -5,7 +5,7 @@ import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
 
 import { base } from "./routes/base.route";
-import { errorHandler } from "./error";
+import { errorHandler } from "./middleware/error";
 const app = new Hono<{ Bindings: CloudflareBindings }>();
 
 app.use("*", logger());

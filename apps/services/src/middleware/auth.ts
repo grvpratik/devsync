@@ -2,7 +2,7 @@ import { PrismaD1 } from "@prisma/adapter-d1";
 import { PrismaClient } from "@prisma/client";
 import { Context, Next } from "hono";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
-import { AuthError } from "../error";
+import { AuthError } from "./../middleware/error";
 
 interface SessionUser {
 	userId: string;

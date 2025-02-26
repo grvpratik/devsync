@@ -18,7 +18,7 @@ import {
 import { OVERVIEW_SYSTEM_INSTRUCTION, OVERVIEW_EXAMPLE } from "./overview";
 import { MARKET_EXAMPLE, MARKET_SYSTEM_PROMPT } from "./market";
 import { FEATURE_EXAMPLE, FEATURE_SYSTEM_INSTRUCTION } from "./feature";
-import { AppError, ValidationError } from "../error";
+import { AppError, ValidationError } from "./../middleware/error";
 import { ZodError } from "zod";
 import { PHASES_EXAMPLES, PHASES_SYSTEM_INSTRUCTION } from "./phase";
 
