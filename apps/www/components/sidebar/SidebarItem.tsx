@@ -1,8 +1,12 @@
+"use client";
 import { MoreHorizontal, Loader2, Trash2 } from "lucide-react";
 import {
 	SidebarMenuItem,
 	SidebarMenuButton,
 	SidebarMenuAction,
+	SidebarMenuSub,
+	SidebarMenuSubItem,
+	SidebarMenuSubButton,
 } from "../ui/sidebar";
 import {
 	DropdownMenu,
@@ -11,6 +15,7 @@ import {
 	DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { cn } from "www/lib/utils";
+import { useParams, usePathname } from "next/navigation";
 
 interface SidebarItemProps {
 	item: {
@@ -21,7 +26,6 @@ interface SidebarItemProps {
 	onDelete: () => void;
 	isDeleting: boolean;
 }
-
 
 const COLOR_CLASSES = [
 	"bg-red-500",
@@ -36,13 +40,12 @@ const COLOR_CLASSES = [
 ];
 
 export function SidebarItem({ item, onDelete, isDeleting }: SidebarItemProps) {
-
+	const pathname = usePathname();
 	const getColorForId = (id: string) => {
-	
 		const charSum = id
 			.split("")
 			.reduce((sum, char) => sum + char.charCodeAt(0), 0);
-	
+
 		const colorIndex = charSum % COLOR_CLASSES.length;
 		return COLOR_CLASSES[colorIndex];
 	};
@@ -51,12 +54,24 @@ export function SidebarItem({ item, onDelete, isDeleting }: SidebarItemProps) {
 
 	return (
 		<SidebarMenuItem>
-			<SidebarMenuButton asChild>
-				<a href={item.url} className="flex items-center gap-2">
-					<div className={cn("size-2 rounded-full", dotColorClass)}></div>
-					<span>{item.title}</span>
-				</a>
-			</SidebarMenuButton>
+			
+				<SidebarMenuSub>
+					<SidebarMenuSubItem>
+						<SidebarMenuSubButton
+							asChild
+							isActive={
+								pathname === `/build/${item.id}` ||
+								pathname === `/build/${item.id}/schedule`
+							}
+						>
+							<a href={item.url} className="flex items-center gap-2">
+								<div className={cn("size-2 rounded-full", dotColorClass)}></div>
+								<span className=" line-clamp-1">{item.title}</span>
+							</a>
+						</SidebarMenuSubButton>
+					</SidebarMenuSubItem>
+				</SidebarMenuSub>
+		
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
 					<SidebarMenuAction>

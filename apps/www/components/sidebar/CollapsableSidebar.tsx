@@ -9,6 +9,8 @@ import {
 	Edit,
 	Trash2,
 	BoxesIcon,
+	LibraryBig,
+	Box,
 } from "lucide-react";
 import {
 	SidebarGroup,
@@ -31,6 +33,7 @@ import {
 	CollapsibleContent,
 	CollapsibleTrigger,
 } from "../ui/collapsible";
+import { usePathname } from "next/navigation";
 
 interface CollapsibleSidebarProps {
 	activeProjects: SidebarProjects[];
@@ -45,6 +48,8 @@ const CollapsibleSidebar = ({
 	onDelete,
 	isDeleting,
 }: CollapsibleSidebarProps) => {
+	const pathname = usePathname();
+
 	return (
 		<Collapsible defaultOpen className="group/collapsible">
 			<SidebarGroup className="py-0">
@@ -53,7 +58,7 @@ const CollapsibleSidebar = ({
 					asChild
 				>
 					<CollapsibleTrigger className="flex gap-2 items-center">
-						<BoxesIcon /> Projects
+						<Box /> Projects
 						<ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
 					</CollapsibleTrigger>
 				</SidebarGroupLabel>
@@ -65,6 +70,10 @@ const CollapsibleSidebar = ({
 									<SidebarMenuButton
 										className="text-sidebar-foreground/70"
 										asChild
+										isActive={
+											pathname === `/build/${item.id}` ||
+											pathname === `/build/${item.id}/schedule`
+										}
 									>
 										<a href={item.url}>
 											{" "}

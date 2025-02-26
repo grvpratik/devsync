@@ -71,6 +71,12 @@ export default function AiSearch() {
 
 			if (isSuccess(response)) {
 				console.log("response", response);
+				
+				toast({
+					variant: "default",
+					title: "please wait redirecting",
+					
+				});
 				router.push(`/build/${response.url}`);
 			} else {
 				toast({
@@ -149,6 +155,7 @@ export default function AiSearch() {
 								<DropdownMenuTrigger asChild>
 									<Button
 										variant="ghost"
+										disabled={loading}
 										size="icon"
 										className="rounded-lg hover:bg-black/5 dark:hover:bg-white/5 p-1.5 h-auto"
 									>
@@ -184,6 +191,7 @@ export default function AiSearch() {
 							<DropdownMenu>
 								<DropdownMenuTrigger asChild>
 									<Button
+									disabled={loading}
 										variant="outline"
 										className="flex items-center gap-1.5 h-8 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg px-2"
 									>

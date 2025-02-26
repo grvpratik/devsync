@@ -1,7 +1,7 @@
 "use client";
 import { Bird, GalleryVerticalEnd, Home, Loader2 } from "lucide-react";
 import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
 	Sidebar,
 	SidebarContent,
@@ -33,6 +33,7 @@ import {
 import { toast } from "www/hooks/use-toast";
 import { api, isSuccess } from "www/lib/handler";
 import Link from "next/link";
+import { cn } from "www/lib/utils";
 
 export function AppSidebar({ history, projectList }: AppSidebarProps) {
 	const [searchQuery, setSearchQuery] = useState("");
@@ -46,7 +47,8 @@ export function AppSidebar({ history, projectList }: AppSidebarProps) {
 
 	const { authState } = useAuth();
 	const router = useRouter();
-
+	const pathname = usePathname();
+	const homeRoute = pathname ? pathname === "/" : false;
 	const filteredItems = useMemo(
 		() =>
 			history?.filter((item) =>
@@ -102,7 +104,7 @@ export function AppSidebar({ history, projectList }: AppSidebarProps) {
 	};
 
 	return (
-		<Sidebar className="overflow-hidden ">
+		<Sidebar className="overflow-hidden  group-data-[side=left]:border-r-0 ">
 			<SidebarHeader>
 				<SidebarMenu>
 					<SidebarMenuItem>
@@ -137,8 +139,8 @@ export function AppSidebar({ history, projectList }: AppSidebarProps) {
 							<SidebarGroupLabel>Main</SidebarGroupLabel>
 							<SidebarMenuItem>
 								<Link href={"/"}>
-									<SidebarMenuButton>
-										<Home /> home
+									<SidebarMenuButton isActive={homeRoute}>
+										<Home /> Home
 									</SidebarMenuButton>
 								</Link>
 							</SidebarMenuItem>
