@@ -1,3 +1,5 @@
+import { PhasesResponse } from "shared";
+
 // Type definitions
 export interface Task {
 	id: string;
@@ -23,8 +25,8 @@ export interface TaskUpdate {
 
 export interface WeekCalendarProps {
 	id: string;
-	phases: Phase[];
-	onPhaseChange?: (phase: Phase | null) => void;
+	phases: PhasesResponse[];
+	onPhaseChange?: (phase: PhasesResponse | null) => void;
 	initialDate?: Date;
 }
 

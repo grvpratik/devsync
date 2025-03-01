@@ -14,6 +14,7 @@ import {
 	Search
 } from "lucide-react";
 import React, { JSX, useEffect, useMemo, useState } from "react";
+import { PhasesResponse, TaskResponse } from "shared";
 import { Button } from "www/components/ui/button";
 import { Card, CardContent } from "www/components/ui/card";
 import { Input } from "www/components/ui/input";
@@ -25,9 +26,9 @@ import {
 } from "www/components/ui/tabs";
 import { toast } from "www/hooks/use-toast";
 import { api, isSuccess } from "www/lib/handler";
-import { cn } from "www/lib/utils"; // Assuming you have a utility for class name merging
+import { cn } from "www/lib/utils";
 import { TaskCard } from "./task-card";
-import { DayInfo, Phase, TabType, Task, TaskUpdate, WeekCalendarProps } from "./types";
+import { DayInfo, TabType, Task, TaskUpdate, WeekCalendarProps } from "./types";
 
 
 // Empty state component
@@ -53,7 +54,7 @@ export const WeekCalendar: React.FC<WeekCalendarProps> = ({
 		initialDate || new Date()
 	);
 	const [searchQuery, setSearchQuery] = useState<string>("");
-	const [activePhase, setActivePhase] = useState<Phase | null>(null);
+	const [activePhase, setActivePhase] = useState<PhasesResponse | null>(null);
 	const [activePhaseIndex, setActivePhaseIndex] = useState<number>(-1);
 	const [activeTab, setActiveTab] = useState<TabType>("today");
 	const [modifiedTasks, setModifiedTasks] = useState<Record<string, boolean>>(
@@ -61,7 +62,7 @@ export const WeekCalendar: React.FC<WeekCalendarProps> = ({
 	);
 	const [isInitializing, setIsInitializing] = useState<boolean>(true);
 	const [isSaving, setIsSaving] = useState<boolean>(false);
-	const [allTasks, setAllTasks] = useState<Task[]>([]);
+	const [allTasks, setAllTasks] = useState<TaskResponse[]>([]);
 
 	// Derived state
 	const hasChanges = Object.keys(modifiedTasks).length > 0;
@@ -92,7 +93,7 @@ export const WeekCalendar: React.FC<WeekCalendarProps> = ({
 
 					const phaseStart = parseISO(phase.startDate);
 					const phaseEnd = parseISO(phase.endDate);
-
+					// parseISO
 					if (!isValid(phaseStart) || !isValid(phaseEnd)) return false;
 
 					const isActive =
@@ -107,7 +108,7 @@ export const WeekCalendar: React.FC<WeekCalendarProps> = ({
 				setActivePhaseIndex(currentPhaseIndex);
 
 				// Prepare all tasks with phase information
-				const allRelevantTasks: Task[] = [];
+				const allRelevantTasks: TaskResponse[] = [];
 				phases.forEach((p, index) => {
 					// Only include tasks from current phase and earlier phases
 					if (currentPhaseIndex >= 0 && index <= currentPhaseIndex) {
@@ -143,6 +144,7 @@ export const WeekCalendar: React.FC<WeekCalendarProps> = ({
 
 	// Filter tasks based on search query
 	const filteredTasks = useMemo(() => {
+		console.log(activePhaseIndex);
 		if (!activePhase?.tasks?.length) return [];
 
 		return activePhase.tasks.filter(

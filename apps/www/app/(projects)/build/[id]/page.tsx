@@ -5,8 +5,8 @@ import { api, isSuccess } from "www/lib/handler";
 import { getSessionCookie } from "www/hooks/use-server-session";
 import { redirect } from "next/navigation";
 
-const BuildPage = async ({ params }: { params: { id: string } }) => {
-	const { id } = params;
+const BuildPage = async ({ params }:{ params: Promise<{ id: string }>}) => {
+	const { id } =await params;
 	const session = await getSessionCookie();
 	if (!session) {
 		return redirect("/");

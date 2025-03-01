@@ -1,6 +1,7 @@
 "use client";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { useCallback, useState } from "react";
+import { PhasesResponse, TaskResponse } from "shared";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -41,18 +42,14 @@ interface Task {
 	phaseId: string;
 }
 
-interface Phase {
-	id: string;
-	name: string;
-	tasks: Task[];
-}
+
 interface TaskCardProps {
-	task: Task;
-	onDelete: (task: Task) => void;
+	task: TaskResponse;
+	onDelete: (task: TaskResponse) => void;
 }
 
 interface PhaseCardProps {
-	phase: Phase;
+	phase: PhasesResponse;
 	onTaskDelete: (taskIds: string[]) => Promise<void>;
 	onTaskCreate: (phaseId: string, tasks: Omit<Task, "id">[]) => Promise<void>;
 }
@@ -80,7 +77,7 @@ const PhaseCard = ({ phase, onTaskDelete, onTaskCreate }: PhaseCardProps) => {
 	const { toast } = useToast();
 	const [isCreating, setIsCreating] = useState(false);
 	const [newTask, setNewTask] = useState<NewTask>({ name: "", desc: "" });
-	const [deleteTask, setDeleteTask] = useState<Task | null>(null);
+	const [deleteTask, setDeleteTask] = useState<TaskResponse | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
 
 	const handleCreateTask = async () => {
@@ -243,7 +240,7 @@ const PhaseCard = ({ phase, onTaskDelete, onTaskCreate }: PhaseCardProps) => {
 };
 
 interface TaskManagementProps {
-	projectPhases: Phase[];
+	projectPhases: PhasesResponse[];
 	id: string;
 }
 
@@ -251,7 +248,7 @@ export default function TaskManagement({
 	projectPhases = [],
 	id,
 }: TaskManagementProps) {
-	const [phases, setPhases] = useState<Phase[]>(projectPhases);
+	const [phases, setPhases] = useState<PhasesResponse[]>(projectPhases);
 
 	const handleTaskCreate = useCallback(
 		async (phaseId: string, newTasks: Omit<Task, "id">[]) => {
@@ -271,7 +268,7 @@ export default function TaskManagement({
 			setPhases((prevPhases) =>
 				prevPhases.map((phase) =>
 					phase.id === phaseId ?
-						{ ...phase, tasks: [...phase.tasks, ...newTasks] as Task[] }
+						{ ...phase, tasks: [...phase.tasks, ...newTasks] as TaskResponse[] }
 					:	phase
 				)
 			);

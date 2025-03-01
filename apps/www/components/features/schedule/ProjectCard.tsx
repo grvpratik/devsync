@@ -5,31 +5,36 @@ import {
 	CardContent,
 	CardHeader
 } from "www/components/ui/card";
-
-const ProjectCard = () => {
+interface ProjectCardProps{
+	name:string;
+	description:string;
+	tags:string[];
+	category:string;
+}
+const ProjectCard = ({metadata}:{metadata:ProjectCardProps}) => {
+	const {name,description,tags,category}=metadata;
 	return (
 		<Card className="w-full max-w-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
 			<CardHeader className="space-y-1">
 				<div className="flex items-center justify-between">
 					<div className="flex items-center gap-2">
 						<Sparkles className="h-5 w-5 text-purple-500" />
-						<h3 className="font-semibold text-xl">LogoAI</h3>
+						<h3 className="font-semibold text-xl">{name}</h3>
 					</div>
 					<Badge
 						variant="secondary"
 						className="bg-blue-100 text-blue-700 hover:bg-blue-200"
 					>
-						Tech
+						{category}
 					</Badge>
 				</div>
 			</CardHeader>
 			<CardContent className="space-y-4">
 				<p className="text-gray-600">
-					An AI-powered platform that generates unique logo designs based on
-					user input and preferences.
+					{description}
 				</p>
 				<div className="flex flex-wrap gap-2">
-					{["AI", "logo design", "branding", "machine learning"].map((tag) => (
+					{tags && tags.map((tag) => (
 						<Badge
 							key={tag}
 							variant="outline"

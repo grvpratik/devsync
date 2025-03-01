@@ -402,7 +402,7 @@ export const BuildController = {
 					endDate: new Date(phaseInfo.end_date),
 					tasks: {
 						create: item.tasks.map((task) => ({
-							name: task.title,
+							name: task.name,
 							desc: task.desc,
 							isCompleted: false,
 						})),

@@ -1,10 +1,11 @@
 import z from "zod";
+import { PhasesResponse } from "./response.types";
 // ============================================================================
 // Api Response
 // ============================================================================
 export interface ProjectReportResponse extends IdeaValidationResponse {
 	id: string;
-	phases?: Phases;
+	phases?: PhasesResponse[];
 }
 // ============================================================================
 // Enums
@@ -36,7 +37,7 @@ export interface BusinessIdeaResult extends IdeaValidationResponse {
 // Task and Phase Schemas
 // ============================================================================
 export const TaskSchema = z.object({
-	title: z.string(),
+	name: z.string(),
 	desc: z.string(),
 	priority: z.enum(["high", "medium", "low"]),
 });
@@ -48,7 +49,8 @@ export const PhaseSchema = z.object({
 
 export const PhasesOutputSchema = z.array(PhaseSchema);
 export type Phases = z.infer<typeof PhasesOutputSchema>;
-
+export type Phase = z.infer<typeof PhaseSchema>;
+export type Tasks=z.infer<typeof TaskSchema>
 // ============================================================================
 // Metadata Schema
 // ============================================================================

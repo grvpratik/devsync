@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { Phase, Tasks } from "./project.types";
 
 export type ApiResponse<T> = {
 	success: true;
@@ -22,6 +23,25 @@ export interface User {
 	name: string;
 	email: string;
 }
+
+export interface TaskResponse extends Tasks{
+	phaseId:string;
+	id:string;
+	isCompleted:boolean;
+
+}
+
+export interface PhasesResponse extends Phase{
+	id:string;
+	startDate:string;
+	endDate:string;
+	tasks:TaskResponse[]
+}
+
+
+
+
+
 export const SearchRequestSchema = z.object({
 	value: z
 		.string()

@@ -7,8 +7,12 @@ import ScheduleGrid from "www/components/features/schedule/ScheduleGrid";
 import { getSessionCookie } from "www/hooks/use-server-session";
 
 
-const SchedulePage = async ({ params }: { params: { id: string } }) => {
-	const { id } = params;
+const SchedulePage = async ({
+	params,
+}: {
+	params: Promise<{ id: string }>;
+}) => {
+	const { id } =await params;
 	const session: string = (await getSessionCookie()) ?? "";
 	if (!session) {
 		return <div>login first</div>;

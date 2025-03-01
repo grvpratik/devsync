@@ -1,5 +1,5 @@
 "use client";
-import { GalleryVerticalEnd, Home, Loader2 } from "lucide-react";
+import { Home, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -33,7 +33,6 @@ import {
 } from "../ui/sidebar";
 import CollapsibleSidebar from "./CollapsableSidebar";
 import { SidebarItem } from "./SidebarItem";
-import Image from "next/image";
 
 export function AppSidebar({ history, projectList }: AppSidebarProps) {
 	const [searchQuery, setSearchQuery] = useState("");
