@@ -1,6 +1,4 @@
-import React from "react";
 import LoginButton from "www/components/login-button";
-import { Button } from "www/components/ui/button";
 import { SidebarTrigger } from "www/components/ui/sidebar";
 import ThemeToggle from "www/components/ui/theme-toggle";
 

@@ -198,7 +198,7 @@ export class ApiHandler {
 }
 
 import axios from "axios";
-import { truncate } from "fs";
+
 
 const instance = axios.create({
 	baseURL: process.env.NEXT_PUBLIC_API || "http://localhost:8787",

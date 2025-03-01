@@ -1,8 +1,8 @@
 import React from "react";
-import ScheduleCalendar from "www/components/features/schedule/ScheduleCalendar";
+
 import { api, isSuccess } from "www/lib/handler";
-import TaskManagement from "www/components/features/schedule/BatchTask";
-import { Phases, ProjectReportResponse } from "shared";
+
+import { ProjectReportResponse } from "shared";
 import ScheduleGrid from "www/components/features/schedule/ScheduleGrid";
 import { getSessionCookie } from "www/hooks/use-server-session";
 
@@ -40,7 +40,7 @@ const SchedulePage = async ({ params }: { params: { id: string } }) => {
 						No Schedule Available
 					</h1>
 					<p className="text-gray-600">
-						This project doesn't have any phases or schedule information yet.
+						This project doesnt have any phases or schedule information yet.
 					</p>
 				</main>
 			);
@@ -48,8 +48,6 @@ const SchedulePage = async ({ params }: { params: { id: string } }) => {
 
 		return (
 			<main className="mx-4 mb-4 ">
-				{/* <ScheduleCalendar result={result.result.phases} />*/}
-
 				<ScheduleGrid
 					metadata={result.result.metadata}
 					phases={result.result.phases}

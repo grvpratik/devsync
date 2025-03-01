@@ -6,7 +6,7 @@ export default function Home() {
 			<div className="flex flex-col h-full items-center justify-center gap-1 w-full  flex-nowrap text-wrap mx-auto">
 				<div>
 					<h2 className="scroll-m-20  pb-2 text-3xl font-semibold tracking-tight first:mt-0">
-						What's on your mind?
+						What&lsquo;s on your mind?
 					</h2>
 				</div>
 

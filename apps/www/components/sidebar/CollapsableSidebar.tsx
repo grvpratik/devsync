@@ -1,39 +1,34 @@
 "use client";
-import React, { useState } from "react";
 import {
-	ChevronDown,
-	ChevronRight,
-	MoreHorizontal,
-	Folder,
-	Loader2,
-	Edit,
-	Trash2,
-	BoxesIcon,
-	LibraryBig,
 	Box,
+	ChevronDown,
+	Edit,
+	Loader2,
+	MoreHorizontal,
+	Trash2
 } from "lucide-react";
-import {
-	SidebarGroup,
-	SidebarGroupLabel,
-	SidebarGroupContent,
-	SidebarMenu,
-	SidebarMenuItem,
-	SidebarMenuButton,
-	SidebarMenuAction,
-} from "www/components/ui/sidebar";
+import { usePathname } from "next/navigation";
+import { SidebarProjects } from "www/app/(projects)/layout";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "www/components/ui/dropdown-menu";
-import { SidebarProjects } from "www/app/(projects)/layout";
+import {
+	SidebarGroup,
+	SidebarGroupContent,
+	SidebarGroupLabel,
+	SidebarMenu,
+	SidebarMenuAction,
+	SidebarMenuButton,
+	SidebarMenuItem,
+} from "www/components/ui/sidebar";
 import {
 	Collapsible,
 	CollapsibleContent,
 	CollapsibleTrigger,
 } from "../ui/collapsible";
-import { usePathname } from "next/navigation";
 
 interface CollapsibleSidebarProps {
 	activeProjects: SidebarProjects[];

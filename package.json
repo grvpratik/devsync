@@ -1,5 +1,5 @@
 {
-  "name": "getshitdone",
+  "name": "devsync",
   "private": true,
   "scripts": {
     "dev:www": "pnpm --filter www dev",

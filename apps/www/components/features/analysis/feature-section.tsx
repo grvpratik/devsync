@@ -1,4 +1,6 @@
+import { Settings, Shield, Star } from "lucide-react";
 import type React from "react";
+import { Badge } from "www/components/ui/badge";
 import {
 	Card,
 	CardContent,
@@ -6,8 +8,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from "www/components/ui/card";
-import { Badge } from "www/components/ui/badge";
-import { Shield, Settings, Star } from "lucide-react";
 import RefetchAnalysis from "./refetech-analysis";
 
 interface Feature {

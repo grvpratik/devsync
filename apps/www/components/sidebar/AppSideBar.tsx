@@ -1,25 +1,8 @@
 "use client";
-import { Bird, GalleryVerticalEnd, Home, Loader2 } from "lucide-react";
-import { useState, useMemo } from "react";
+import { GalleryVerticalEnd, Home, Loader2 } from "lucide-react";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import {
-	Sidebar,
-	SidebarContent,
-	SidebarGroup,
-	SidebarGroupContent,
-	SidebarGroupLabel,
-	SidebarHeader,
-	SidebarMenu,
-	SidebarMenuItem,
-	SidebarMenuButton,
-} from "../ui/sidebar";
-import { SidebarItem } from "./SidebarItem";
-import SideBarSearch from "../ui/search";
-import { NavUser } from "../NavUser";
-import { AppSidebarProps } from "www/types/sidebar.types";
-import { FOOTER_MENU_ITEMS } from "www/lib/constant";
-import { useAuth } from "www/wrapper/auth-provider";
-import CollapsibleSidebar from "./CollapsableSidebar";
+import { useMemo, useState } from "react";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -31,9 +14,25 @@ import {
 	AlertDialogTitle,
 } from "www/components/ui/alert-dialog";
 import { toast } from "www/hooks/use-toast";
+import { FOOTER_MENU_ITEMS } from "www/lib/constant";
 import { api, isSuccess } from "www/lib/handler";
-import Link from "next/link";
-import { cn } from "www/lib/utils";
+import { AppSidebarProps } from "www/types/sidebar.types";
+import { useAuth } from "www/wrapper/auth-provider";
+import { NavUser } from "../NavUser";
+import SideBarSearch from "../ui/search";
+import {
+	Sidebar,
+	SidebarContent,
+	SidebarGroup,
+	SidebarGroupContent,
+	SidebarGroupLabel,
+	SidebarHeader,
+	SidebarMenu,
+	SidebarMenuButton,
+	SidebarMenuItem,
+} from "../ui/sidebar";
+import CollapsibleSidebar from "./CollapsableSidebar";
+import { SidebarItem } from "./SidebarItem";
 
 export function AppSidebar({ history, projectList }: AppSidebarProps) {
 	const [searchQuery, setSearchQuery] = useState("");
@@ -114,8 +113,8 @@ export function AppSidebar({ history, projectList }: AppSidebarProps) {
 									<GalleryVerticalEnd className="size-4" />
 								</div>
 								<div className="flex flex-col gap-0.5 leading-none">
-									<span className="font-semibold">Get Shit Done</span>
-									{/* <span className="">v1.0.0</span> */}
+									<span className="font-semibold">DevSync</span>
+									<span className="">v1.0</span>
 								</div>
 							</a>
 						</SidebarMenuButton>

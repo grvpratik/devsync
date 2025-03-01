@@ -1,10 +1,21 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import React from "react";
 import { Button } from "www/components/ui/button";
 import { getSessionCookie } from "www/hooks/use-server-session";
 import { api, isSuccess } from "www/lib/handler";
-
+ interface SessionListData{
+	
+    sessionId: string;
+    deviceInfo: {
+      userAgent: string,
+      ip: 'unknown'
+    };
+    createdAt: bigint,
+    lastActivityAt: bigint,
+    expiresAt: bigint,
+    isCurrentSession: boolean
+ 
+ }
 const SettingsPage = async () => {
 	const session = await getSessionCookie();
 	if (!session) {
@@ -18,7 +29,7 @@ const SettingsPage = async () => {
 	function formatDate(timestamp: number) {
 		return new Date(timestamp).toLocaleString();
 	}
-
+console.log(sessionlist.sessions)
 	return (
 		<div className="p-4">
 			<h1 className="text-2xl font-bold mb-4">Active Sessions</h1>

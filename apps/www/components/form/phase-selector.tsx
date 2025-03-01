@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
 import { format } from "date-fns";
-import { CalendarIcon, Divide, LoaderCircle } from "lucide-react";
+import { CalendarIcon, LoaderCircle } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useMemo, useState } from "react";
 import { Button } from "www/components/ui/button";
+import { Calendar } from "www/components/ui/calendar";
 import { Input } from "www/components/ui/input";
 import { Label } from "www/components/ui/label";
 import {
@@ -12,9 +14,7 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "www/components/ui/popover";
-import { Calendar } from "www/components/ui/calendar";
 import { cn } from "www/lib/utils";
-import { useRouter, usePathname } from "next/navigation";
 
 import { ScrollArea } from "www/components/ui/scroll-area";
 
@@ -31,7 +31,7 @@ export interface DateRangeItem {
 	description: string;
 	start_date: Date;
 	end_date: Date;
-	content?: any[];
+	// content?: any[];
 }
 
 interface Props {
@@ -186,7 +186,7 @@ export function MultiDateRangeSelector({
 				description: currentDesc,
 				start_date: currentDateRange.from,
 				end_date: currentDateRange.to,
-				content: [],
+				// content: [],
 			};
 			setDateRanges((prev) => [...prev, newRange]);
 			setCurrentName("");
@@ -215,7 +215,7 @@ export function MultiDateRangeSelector({
 
 			onSubmitSuccess?.();
 			router.push(`${pathname}/schedule`);
-		} catch (err: any) {
+		} catch (err:any) {
 			const errorMessage =
 				err.response?.data || err.message || "An error occurred";
 			setError(errorMessage);

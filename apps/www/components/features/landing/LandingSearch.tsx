@@ -1,26 +1,25 @@
 "use client";
-import { useRef, useState } from "react";
-import { Textarea } from "www/components/ui/textarea";
-import { cn } from "www/lib/utils";
-import { useAutoResizeTextarea } from "www/hooks/use-auto-resize-textarea";
-import { Button } from "www/components/ui/button";
-import axios from "axios";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Button } from "www/components/ui/button";
+import { Textarea } from "www/components/ui/textarea";
+import { useAutoResizeTextarea } from "www/hooks/use-auto-resize-textarea";
 import { useToast } from "www/hooks/use-toast";
+import { cn } from "www/lib/utils";
 
 import { Brain, Lightbulb, LoaderCircle, Sparkles } from "lucide-react";
-import {
-	MIN_HEIGHT,
-	MAX_HEIGHT,
-	PROJECT_TYPE,
-	AI_MODELS_LIST,
-} from "www/lib/constant";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "www/components/ui/dropdown-menu";
+import {
+	AI_MODELS_LIST,
+	MAX_HEIGHT,
+	MIN_HEIGHT,
+	PROJECT_TYPE,
+} from "www/lib/constant";
 
 import { api, isSuccess } from "www/lib/handler";
 
@@ -35,11 +34,11 @@ interface StateProps {
 	selectedModel: string;
 }
 
-interface SearchInput {
-	value: string;
-	project: string;
-	model: string;
-}
+// interface SearchInput {
+// 	value: string;
+// 	project: string;
+// 	model: string;
+// }
 
 export default function AiSearch() {
 	const { toast } = useToast();

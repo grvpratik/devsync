@@ -72,7 +72,7 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
 				isLoading: false,
 				isInitialized: true,
 				error: null,
-				user: response.user,
+				user: response.result.user,
 			});
 		} else {
 				console.log(response, "AUTHCONTEXTERROR");	

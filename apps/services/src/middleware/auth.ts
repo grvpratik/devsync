@@ -228,7 +228,7 @@ export const checkSession = async (c: Context, next: Next) => {
 	}
 
 	const sessionData = await SessionManager.get(c, sessionId);
-console.log(sessionData,"sessionCheck")
+	console.log(sessionData, "sessionCheck");
 	if (!sessionData) {
 		console.log("No session data found");
 		deleteCookie(c, "session_id");
@@ -368,7 +368,7 @@ export const userRoutes = {
 		const sessionData = await SessionManager.get(c, sessionId);
 		console.log(sessionData, "sessionData");
 		if (!sessionData) {
-			return c.json({ success:false,sessions: [] }, 401);
+			return c.json({ success: false, sessions: [] }, 401);
 		}
 
 		// Cleanup expired sessions before returning list
@@ -381,7 +381,7 @@ export const userRoutes = {
 		return c.json({
 			success: true,
 			sessions: sessions.map((session) => ({
-				sessionId:session.sessionId,
+				sessionId: session.sessionId,
 				deviceInfo: session.deviceInfo,
 				createdAt: session.createdAt,
 				lastActivityAt: session.lastActivityAt,
@@ -428,7 +428,9 @@ export const userRoutes = {
 		return c.json(
 			{
 				success: true,
-				user: { name: user.name, email: user.email, picture: user.image_url },
+				result: {
+					user: { name: user.name, email: user.email, picture: user.image_url },
+				},
 			},
 			200
 		);

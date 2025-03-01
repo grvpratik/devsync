@@ -1,11 +1,9 @@
 
-import { Checkbox } from "www/components/ui/checkbox";
 import {
-	
 	Check,
 	Clock,
-	
 } from "lucide-react";
+import { Checkbox } from "www/components/ui/checkbox";
 import { cn } from "www/lib/utils";
 import { Task } from "./types";
 

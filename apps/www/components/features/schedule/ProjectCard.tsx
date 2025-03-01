@@ -1,12 +1,10 @@
-import React from "react";
+import { Sparkles } from "lucide-react";
+import { Badge } from "www/components/ui/badge";
 import {
 	Card,
-	CardHeader,
 	CardContent,
-	CardFooter,
+	CardHeader
 } from "www/components/ui/card";
-import { Badge } from "www/components/ui/badge";
-import { Sparkles } from "lucide-react";
 
 const ProjectCard = () => {
 	return (

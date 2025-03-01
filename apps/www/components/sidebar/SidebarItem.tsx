@@ -1,21 +1,20 @@
 "use client";
-import { MoreHorizontal, Loader2, Trash2 } from "lucide-react";
-import {
-	SidebarMenuItem,
-	SidebarMenuButton,
-	SidebarMenuAction,
-	SidebarMenuSub,
-	SidebarMenuSubItem,
-	SidebarMenuSubButton,
-} from "../ui/sidebar";
+import { Loader2, MoreHorizontal, Trash2 } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { cn } from "www/lib/utils";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { cn } from "www/lib/utils";
-import { useParams, usePathname } from "next/navigation";
+import {
+	SidebarMenuAction,
+	SidebarMenuItem,
+	SidebarMenuSub,
+	SidebarMenuSubButton,
+	SidebarMenuSubItem
+} from "../ui/sidebar";
 
 interface SidebarItemProps {
 	item: {

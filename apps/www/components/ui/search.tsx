@@ -1,7 +1,6 @@
-import { Input } from "www/components/ui/input";
-import { Label } from "www/components/ui/label";
-import { ArrowRight, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { useId } from "react";
+import { Input } from "www/components/ui/input";
 
 interface SearchProps {
 	onSearchChange: (query: string) => void;

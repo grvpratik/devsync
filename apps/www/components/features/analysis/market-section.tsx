@@ -1,30 +1,26 @@
+import {
+	ArrowRight,
+	BrainCircuit,
+	Building2,
+	Check,
+	Sparkles,
+	Target,
+	TrendingUp,
+	Users,
+	X
+} from "lucide-react";
 import React from "react";
+import { Badge } from "www/components/ui/badge";
 import {
 	Card,
 	CardContent,
-	CardHeader,
-	CardTitle,
 	CardDescription,
-	CardFooter,
+	CardHeader,
+	CardTitle
 } from "www/components/ui/card";
-import { Badge } from "www/components/ui/badge";
-import {
-	Building2,
-	Users,
-	TrendingUp,
-	Check,
-	X,
-	Target,
-	ThumbsUp,
-	ThumbsDown,
-	Globe,
-	DollarSign,
-	ArrowRight,
-	Sparkles,
-	BrainCircuit,
-} from "lucide-react";
 import { Separator } from "www/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "www/components/ui/tabs";
+import RefetchAnalysis from "./refetech-analysis";
 
 // Type definitions
 interface Competitors {
@@ -78,7 +74,7 @@ interface MarketAnalysisProps {
 	id: string;
 }
 
-// CompetitorCard Component
+
 const CompetitorCard: React.FC<{ competitor: Competitors }> = ({
 	competitor,
 }) => {
@@ -393,13 +389,13 @@ const OpportunitiesCard: React.FC<{
 
 // Main MarketAnalysis Component
 const MarketAnalysis: React.FC<MarketAnalysisProps> = ({ marketData, id }) => {
-	console.log(marketData)
+	
 	if (!marketData) {
 		return (
 			<Card className="p-6">
 				<CardContent className="flex items-center justify-center h-64">
 					<p className="text-muted-foreground">
-						Market data not available. Please try again.
+						<RefetchAnalysis section="market" id={id} />
 					</p>
 				</CardContent>
 			</Card>

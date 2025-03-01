@@ -1,10 +1,11 @@
 "use client";
-import React, { useState } from "react";
-import { getGoogleUrl } from "www/lib/auth";
+import { LoaderCircle } from "lucide-react";
+import { useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "www/components/ui/avatar";
+import { useToast } from "www/hooks/use-toast";
+import { AuthApiService } from "www/lib/api";
 import { useAuth } from "www/wrapper/auth-provider";
 import { Button } from "./ui/button";
-import { AuthApiService } from "www/lib/api";
-import { useToast } from "www/hooks/use-toast";
 import {
 	Dialog,
 	DialogContent,
@@ -12,8 +13,6 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "./ui/dialog";
-import { Avatar, AvatarFallback, AvatarImage } from "www/components/ui/avatar";
-import { LoaderCircle } from "lucide-react";
 
 const LoginButton = () => {
 	const { authState, logout, login } = useAuth();

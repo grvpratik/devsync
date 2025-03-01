@@ -1,37 +1,33 @@
 "use client";
-import React, { useState, useEffect, useMemo, JSX } from "react";
+import {
+	addDays,
+	format,
+	isValid,
+	parseISO,
+	startOfWeek
+} from "date-fns";
+import {
+	ChevronLeft,
+	ChevronRight,
+	Loader2,
+	Save,
+	Search
+} from "lucide-react";
+import React, { JSX, useEffect, useMemo, useState } from "react";
 import { Button } from "www/components/ui/button";
 import { Card, CardContent } from "www/components/ui/card";
-import { Checkbox } from "www/components/ui/checkbox";
+import { Input } from "www/components/ui/input";
 import {
 	Tabs,
 	TabsContent,
 	TabsList,
 	TabsTrigger,
 } from "www/components/ui/tabs";
-import { Input } from "www/components/ui/input";
-import {
-	ChevronLeft,
-	ChevronRight,
-	Search,
-	Check,
-	Clock,
-	Save,
-	Loader2,
-} from "lucide-react";
-import {
-	format,
-	addDays,
-	startOfWeek,
-	parseISO,
-	isValid,
-	isBefore,
-} from "date-fns";
 import { toast } from "www/hooks/use-toast";
 import { api, isSuccess } from "www/lib/handler";
 import { cn } from "www/lib/utils"; // Assuming you have a utility for class name merging
-import { DayInfo, Phase, TabType, Task, TaskUpdate, WeekCalendarProps } from "./types";
 import { TaskCard } from "./task-card";
+import { DayInfo, Phase, TabType, Task, TaskUpdate, WeekCalendarProps } from "./types";
 
 
 // Empty state component

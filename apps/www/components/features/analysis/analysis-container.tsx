@@ -1,24 +1,23 @@
 "use client";
 
-import React from "react";
 import {
 	Calendar,
-	ChevronRight,
 	Feather,
-	Store,
 	LucideIcon,
+	Store
 } from "lucide-react";
+import React from "react";
 
-import OverviewAnalysis from "./overview-section";
-import MarketAnalysis from "./market-section";
 import {
 	Tabs,
 	TabsContent,
 	TabsList,
 	TabsTrigger,
 } from "www/components/ui/tabs";
+import MarketAnalysis from "./market-section";
+import OverviewAnalysis from "./overview-section";
 
-import { BusinessIdeaResult } from "shared";
+import { BusinessIdeaResult, ProjectReportResponse } from "shared";
 import { Button } from "www/components/ui/button";
 import {
 	Dialog,
@@ -30,10 +29,11 @@ import {
 } from "www/components/ui/dialog";
 import { MultiDateRangeSelector } from "../../form/phase-selector";
 import FeatureList from "./feature-section";
+import { SuccessResponse } from "www/lib/handler";
 
 // Types and Interfaces
 interface AnalysisProps {
-	res: any;
+	res: SuccessResponse<ProjectReportResponse>;
 	id: string;
 }
 

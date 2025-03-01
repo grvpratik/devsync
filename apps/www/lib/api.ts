@@ -48,16 +48,7 @@ const isRetryableError = (error: unknown): boolean => {
 	);
 };
 
-type ErrorResponse = {
-	success: false;
-	error: {
-		message: string;
 
-		code?: string;
-	};
-};
-
-type ApiResponse<T> = SuccessResponse<T> | ErrorResponse;
 
 export interface Phase {
 	name: string;

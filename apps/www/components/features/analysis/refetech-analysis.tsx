@@ -1,9 +1,9 @@
 "use client";
-import React, { useState } from "react";
-import { Button } from "www/components/ui/button";
-import { api, isSuccess } from "www/lib/handler";
-import { useToast } from "www/hooks/use-toast";
 import { LoaderCircle, RefreshCw } from "lucide-react";
+import { useState } from "react";
+import { Button } from "www/components/ui/button";
+import { useToast } from "www/hooks/use-toast";
+import { api, isSuccess } from "www/lib/handler";
 
 const RefetchAnalysis = ({
 	section,

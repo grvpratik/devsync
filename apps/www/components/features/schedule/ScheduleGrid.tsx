@@ -1,9 +1,5 @@
-import React from 'react'
-import ProgressIndicator from './ProgressIndicator';
-import MeetingCalendar from './tasklist/TaskListCalendar';
-import ScheduleCalendar from './ScheduleCalendar';
-import ProjectCard from './ProjectCard';
 import TaskManagement from './BatchTask';
+import MeetingCalendar from './tasklist/TaskListCalendar';
 const stats = {
 	inProgress: 1,
 	completed: 12,

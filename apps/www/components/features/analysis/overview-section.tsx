@@ -1,23 +1,24 @@
+import {
+	AlertTriangle,
+	ArrowDown,
+	ArrowUp,
+	Clock,
+	Code,
+	Target,
+	Zap,
+} from "lucide-react";
 import React from "react";
+import ScoreIndicator from "www/components/ScoreIndicator";
+import { Badge } from "www/components/ui/badge";
 import {
 	Card,
 	CardContent,
 	CardDescription,
+	CardFooter,
 	CardHeader,
 	CardTitle,
-	CardFooter,
 } from "www/components/ui/card";
-import { Badge } from "www/components/ui/badge";
-import {
-	ArrowUp,
-	ArrowDown,
-	Clock,
-	Target,
-	Zap,
-	Code,
-	AlertTriangle,
-} from "lucide-react";
-import ScoreIndicator from "www/components/ScoreIndicator";
+import RefetchAnalysis from "./refetech-analysis";
 
 // Type definitions
 interface MetaData {
@@ -64,7 +65,7 @@ interface Overview {
 interface OverviewAnalysisProps {
 	metadata: MetaData;
 	overview: Overview;
-	id?: string;
+	id: string;
 }
 
 // Score Card Component
@@ -188,7 +189,7 @@ const OverviewAnalysis: React.FC<OverviewAnalysisProps> = ({
 			<Card className="p-6">
 				<CardContent className="flex items-center justify-center h-64">
 					<p className="text-muted-foreground">
-						Failed to load analysis data. Please try again.
+						<RefetchAnalysis section="overview" id={id!}/>
 					</p>
 				</CardContent>
 			</Card>

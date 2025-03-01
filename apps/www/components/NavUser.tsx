@@ -4,10 +4,8 @@ import {
 	BadgeCheck,
 	Bell,
 	ChevronsUpDown,
-	CreditCard,
 	LogOut,
-	Moon,
-	Sparkles,
+	Sparkles
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "www/components/ui/avatar";
@@ -27,10 +25,8 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "www/components/ui/sidebar";
-import LoginButton from "./login-button";
-import ThemeToggle from "./ui/theme-toggle";
-import { Day } from "react-day-picker";
 import { useAuth } from "www/wrapper/auth-provider";
+import ThemeToggle from "./ui/theme-toggle";
 export function NavUser({
 	user,
 }: {
