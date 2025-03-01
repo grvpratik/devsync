@@ -26,10 +26,7 @@ interface SessionValidation {
 	lastActivity?: number;
 }
 
-type SuccessResponse<T> = {
-	success: true;
-	result: T;
-};
+
 const TIMEOUT_MS = 3000; // 3 seconds timeout
 const MAX_RETRIES = 2; // Maximum 2 retries
 const RETRY_DELAY_MS = 1000; // 1 second between retries

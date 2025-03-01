@@ -109,6 +109,7 @@ const PhaseCard = ({ phase, onTaskDelete, onTaskCreate }: PhaseCardProps) => {
 			// 	description: "Task created successfully",
 			// });
 		} catch (error) {
+			console.log(error,"TASK CREATION FAILED")
 			toast({
 				variant: "destructive",
 				title: "Error",
@@ -130,6 +131,7 @@ const PhaseCard = ({ phase, onTaskDelete, onTaskCreate }: PhaseCardProps) => {
 			// 	description: "Task deleted successfully",
 			// });
 		} catch (error) {
+			console.log(error,"TASK DELETE ERROR")
 			toast({
 				variant: "destructive",
 				title: "Error",

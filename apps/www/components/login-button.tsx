@@ -15,7 +15,7 @@ import {
 } from "./ui/dialog";
 
 const LoginButton = () => {
-	const { authState, logout, login } = useAuth();
+	const { authState,  login } = useAuth();
 	const { toast } = useToast();
 	const [isChecking, setIsChecking] = useState(false);
 	const [isOpen, setIsOpen] = useState(false);
@@ -35,6 +35,7 @@ const LoginButton = () => {
 				description: "Unable to connect to server. Please try again later.",
 			});
 		} catch (error) {
+			console.log(error,"LOGIN ERROR")
 			toast({
 				variant: "destructive",
 				title: "Error",

@@ -3,19 +3,17 @@ import { redirect } from "next/navigation";
 import { Button } from "www/components/ui/button";
 import { getSessionCookie } from "www/hooks/use-server-session";
 import { api, isSuccess } from "www/lib/handler";
- interface SessionListData{
-	
-    sessionId: string;
-    deviceInfo: {
-      userAgent: string,
-      ip: 'unknown'
-    };
-    createdAt: bigint,
-    lastActivityAt: bigint,
-    expiresAt: bigint,
-    isCurrentSession: boolean
- 
- }
+interface SessionListData {
+	sessionId: string;
+	deviceInfo: {
+		userAgent: string;
+		ip: "unknown";
+	};
+	createdAt: number;
+	lastActivityAt: number;
+	expiresAt: number;
+	isCurrentSession: boolean;
+}
 const SettingsPage = async () => {
 	const session = await getSessionCookie();
 	if (!session) {
@@ -29,13 +27,13 @@ const SettingsPage = async () => {
 	function formatDate(timestamp: number) {
 		return new Date(timestamp).toLocaleString();
 	}
-console.log(sessionlist.sessions)
+	console.log(sessionlist.sessions);
 	return (
 		<div className="p-4">
 			<h1 className="text-2xl font-bold mb-4">Active Sessions</h1>
 			<div className="space-y-4">
 				{sessionlist &&
-					sessionlist.sessions.map((sessionData: any) => (
+					sessionlist.sessions.map((sessionData: SessionListData) => (
 						<div
 							key={sessionData.createdAt}
 							className="border p-4 rounded-lg flex justify-between items-center"
@@ -51,7 +49,7 @@ console.log(sessionlist.sessions)
 									:	"Other Device"}
 								</p>
 								<p className="text-sm text-gray-600">
-									Created: {formatDate(sessionData.createdAt)}
+									Created: {formatDate(sessionData.createdAt )}
 								</p>
 								<p className="text-sm text-gray-600">
 									Last Active: {formatDate(sessionData.lastActivityAt)}

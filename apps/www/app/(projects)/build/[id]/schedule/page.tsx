@@ -6,7 +6,6 @@ import { ProjectReportResponse } from "shared";
 import ScheduleGrid from "www/components/features/schedule/ScheduleGrid";
 import { getSessionCookie } from "www/hooks/use-server-session";
 
-interface ProjectResult extends ProjectReportResponse {}
 
 const SchedulePage = async ({ params }: { params: { id: string } }) => {
 	const { id } = params;
@@ -15,7 +14,7 @@ const SchedulePage = async ({ params }: { params: { id: string } }) => {
 		return <div>login first</div>;
 	}
 	try {
-		const result = await api.post<ProjectResult>(
+		const result = await api.post<ProjectReportResponse>(
 			`/build/project/${id}`,
 			{},
 			{ session }

@@ -164,25 +164,25 @@ export const WeekCalendar: React.FC<WeekCalendarProps> = ({
 	}, [allTasks, searchQuery]);
 
 	// Get pending and completed tasks
-	const pendingTasks = useMemo(
-		() =>
-			filteredTasks.filter((task) =>
-				modifiedTasks.hasOwnProperty(task.id) ?
-					!modifiedTasks[task.id]
-				:	!task.isCompleted
-			),
-		[filteredTasks, modifiedTasks]
-	);
+	// const pendingTasks = useMemo(
+	// 	() =>
+	// 		filteredTasks.filter((task) =>
+	// 			modifiedTasks.hasOwnProperty(task.id) ?
+	// 				!modifiedTasks[task.id]
+	// 			:	!task.isCompleted
+	// 		),
+	// 	[filteredTasks, modifiedTasks]
+	// );
 
-	const completedTasks = useMemo(
-		() =>
-			filteredTasks.filter((task) =>
-				modifiedTasks.hasOwnProperty(task.id) ?
-					modifiedTasks[task.id]
-				:	task.isCompleted
-			),
-		[filteredTasks, modifiedTasks]
-	);
+	// const completedTasks = useMemo(
+	// 	() =>
+	// 		filteredTasks.filter((task) =>
+	// 			modifiedTasks.hasOwnProperty(task.id) ?
+	// 				modifiedTasks[task.id]
+	// 			:	task.isCompleted
+	// 		),
+	// 	[filteredTasks, modifiedTasks]
+	// );
 
 	// Get all pending and completed tasks from current and previous phases
 	const allPendingTasks = useMemo(

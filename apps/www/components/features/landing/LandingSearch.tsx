@@ -34,11 +34,11 @@ interface StateProps {
 	selectedModel: string;
 }
 
-// interface SearchInput {
-// 	value: string;
-// 	project: string;
-// 	model: string;
-// }
+interface SearchInput {
+	value: string;
+	project: string;
+	model: string;
+}
 
 export default function AiSearch() {
 	const { toast } = useToast();
@@ -61,7 +61,7 @@ export default function AiSearch() {
 		setLoading(true);
 
 		try {
-			const input = {
+			const input: SearchInput = {
 				value: state.value,
 				project: state.selectedProject,
 				model: state.selectedModel,
@@ -70,11 +70,10 @@ export default function AiSearch() {
 
 			if (isSuccess(response)) {
 				console.log("response", response);
-				
+
 				toast({
 					variant: "default",
 					title: "please wait redirecting",
-					
 				});
 				router.push(`/build/${response.url}`);
 			} else {
@@ -186,11 +185,10 @@ export default function AiSearch() {
 								<span>{state.selectedProject}</span>
 							</div>
 
-							
 							<DropdownMenu>
 								<DropdownMenuTrigger asChild>
 									<Button
-									disabled={loading}
+										disabled={loading}
 										variant="outline"
 										className="flex items-center gap-1.5 h-8 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg px-2"
 									>

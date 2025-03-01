@@ -35,7 +35,7 @@ export default async function RootLayout({
 	console.log(result, "ROOt");
 	const user = isSuccess(result) ? result : null;
 	return (
-		<html lang="en">
+		<html lang="en" suppressHydrationWarning>
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased  font-sans `}
 			>
