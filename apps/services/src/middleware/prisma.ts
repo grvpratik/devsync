@@ -98,7 +98,7 @@ export const handlePrismaError = (error: any): PrismaError => {
 	return new PrismaError("UNKNOWN", "An unexpected error occurred", 500);
 };
 
-// Usage example with try-catch
+
 export const safeExecutePrismaOperation = async <T>(
 	operation: () => Promise<T>
 ): Promise<T> => {

@@ -1,3 +1,5 @@
+import { AppError } from "../middleware/error";
+
 interface SearchOptions {
 	language?: string;
 	minStars?: number;
@@ -53,7 +55,7 @@ function createHeaders(accessToken: string): Record<string, string> {
 	};
 }
 
-export async function searchRepositories(
+ async function searchRepositories(
 	query: string,
 	options: SearchOptions = {},
 	accessToken: string = ""
@@ -110,7 +112,7 @@ async function getRepositoryDetails(
 		});
 
 		if (!response.ok) {
-			throw new Error(`HTTP error! status: ${response.status}`);
+			throw new AppError(`HTTP error! `,response.status);
 		}
 
 		const repoDetails = await response.json() as GitHubRepoResponse;
@@ -133,31 +135,4 @@ async function getRepositoryDetails(
 	}
 }
 
-
-
-// async function demonstrateGitHubAPI(): Promise<void> {
-// 	const accessToken = ""; // Add your GitHub personal access token here if needed
-
-// 	try {
-// 		console.log("Searching for JavaScript machine learning repositories:");
-// 		const mlRepos = await searchRepositories("machine learning", {
-// 			language: "javascript",
-// 			minStars: 100,
-// 		}, accessToken);
-// 		mlRepos.forEach((repo) =>
-// 			console.log(`- ${repo.name}: ${repo.description}`)
-// 		);
-
-// 		console.log("\nRepository Details:");
-// 		const repoDetails = await getRepositoryDetails(
-// 			"octocat",
-// 			"Hello-World",
-// 			accessToken
-// 		);
-// 		console.log(repoDetails);
-// 	} catch (error) {
-// 		console.error("Error in GitHub API demonstration:", error);
-// 	}
-// }
-
-// demonstrateGitHubAPI();
+export {getRepositoryDetails,searchRepositories}

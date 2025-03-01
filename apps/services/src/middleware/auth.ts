@@ -73,7 +73,7 @@ const SessionManager = {
 	get: async (c: Context, sessionId: string): Promise<SessionData | null> => {
 		const data = await c.env.SESSION_STORE.get(`session:${sessionId}`);
 		if (!data) return null;
-		// console.log(data);
+
 		const sessionData: SessionData = JSON.parse(data);
 		const now = Date.now();
 
@@ -202,7 +202,7 @@ const SessionManager = {
 		await Promise.all(deletePromises);
 	},
 
-	// Enhanced logout route to use deleteAllUserSessions
+	
 	logoutAll: async (c: Context) => {
 		const sessionId = getCookie(c, "session_id");
 
@@ -218,7 +218,7 @@ const SessionManager = {
 	},
 };
 
-// Modified middleware to handle session validation
+
 export const checkSession = async (c: Context, next: Next) => {
 	const sessionId = getCookie(c, "session_id");
 	console.log(sessionId, "build route");
@@ -436,4 +436,4 @@ export const userRoutes = {
 		);
 	},
 };
-//for google signin
+

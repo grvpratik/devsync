@@ -1,4 +1,5 @@
 import axios from "axios";
+import { Context } from "hono";
 
 interface SearchPostsParams {
 	token: string;
@@ -37,7 +38,7 @@ interface Subreddit {
 	subscribers: number;
 	description: string;
 }
-export async function generateRedditToken(c: any) {
+async function generateRedditToken(c: Context) {
 	const { REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET } = c.env;
 	const clientId = REDDIT_CLIENT_ID;
 	const clientSecret = REDDIT_CLIENT_SECRET;
@@ -52,8 +53,7 @@ export async function generateRedditToken(c: any) {
 				password: clientSecret!,
 			},
 			headers: {
-				"User-Agent":
-					"app/1.0 ",
+				"User-Agent": "app/1.0 ",
 			},
 		}
 	);
@@ -61,13 +61,11 @@ export async function generateRedditToken(c: any) {
 	const accessToken = tokenResponse.data.access_token;
 	return accessToken;
 }
-export async function searchSubreddits(
+async function searchSubreddits(
 	query: string,
 	token: any
 ): Promise<Subreddit[]> {
-	
-
-	const accessToken =token;
+	const accessToken = token;
 
 	const searchResponse = await axios.get(
 		"https://oauth.reddit.com/subreddits/search",
@@ -90,7 +88,7 @@ export async function searchSubreddits(
 	}));
 }
 
-export async function searchRedditPosts({
+async function searchRedditPosts({
 	token,
 	query,
 	subreddit = "",
@@ -145,3 +143,4 @@ export async function searchRedditPosts({
 	}));
 }
 
+export { generateRedditToken, searchRedditPosts, searchSubreddits };

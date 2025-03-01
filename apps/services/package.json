@@ -2,7 +2,7 @@
 	"name": "services",
 	"scripts": {
 		"dev": "wrangler dev --local --env=local",
-		"deploy": "wrangler deploy --minify",
+		"deploy": "wrangler deploy --minify --env=production",
 		"cf-typegen": "wrangler types --env-interface CloudflareBindings"
 	},
 	"dependencies": {

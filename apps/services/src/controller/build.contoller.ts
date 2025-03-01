@@ -1,29 +1,27 @@
-import { Context } from "hono";
 import { PrismaD1 } from "@prisma/adapter-d1";
 import { Prisma, PrismaClient } from "@prisma/client";
+import { Context } from "hono";
 
 import {
 	IdeaValidationResponse,
-	RefreshField,
-	PhasesOutputSchema,
-	Phases,
+	RefreshField
 } from "shared";
 
-import { SearchRequestSchema } from "../types";
-import { GenerativeAI } from "../prompt";
-import { AppError, AuthError, ValidationError } from "./../middleware/error";
 import { safeExecutePrismaOperation } from "../middleware/prisma";
+import { GenerativeAI } from "../prompt";
+import { SearchRequestSchema } from "shared";
+import { AppError, AuthError, ValidationError } from "./../middleware/error";
 
 import { z } from "zod";
-interface Phase {
-	name: string;
-	tasks: {
-		name: string;
-		desc: string;
-		isCompleted: boolean;
-	}[];
-}
-// Schema for batch task creation
+// interface Phase {
+// 	name: string;
+// 	tasks: {
+// 		name: string;
+// 		desc: string;
+// 		isCompleted: boolean;
+// 	}[];
+// }
+
 const CreateTaskSchema = z.object({
 	name: z.string(),
 	desc: z.string(),
@@ -32,7 +30,7 @@ const CreateTaskSchema = z.object({
 
 const CreateTasksSchema = z.array(CreateTaskSchema);
 
-// Schema for batch task updates
+
 const UpdateTaskSchema = z.object({
 	taskId: z.string(),
 	isCompleted: z.boolean(),
@@ -40,7 +38,7 @@ const UpdateTaskSchema = z.object({
 
 const UpdateTasksSchema = z.array(UpdateTaskSchema);
 
-// Schema for batch task deletion
+
 const DeleteTasksSchema = z.array(z.string());
 
 export const BuildController = {
@@ -52,7 +50,7 @@ export const BuildController = {
 
 		const body = await c.req.json();
 		const parsed = SearchRequestSchema.safeParse(body);
-		//console.log(body);
+		
 		if (!parsed.success) {
 			throw new AppError(
 				"Invalid request format",
@@ -72,7 +70,7 @@ export const BuildController = {
 			valueLength: value.length,
 		});
 
-		// Get metadata information
+		
 		const metadata = await GenerativeAI.metadata(value, GEMINI_API);
 		//console.log(metadata);
 		if (!metadata) {
@@ -88,7 +86,7 @@ export const BuildController = {
 			);
 		}
 
-		// Parallel processing for better performance
+		
 		const [overviewResult, marketResult, featureResult] = await Promise.all([
 			GenerativeAI.overview(value, GEMINI_API).catch((error) => {
 				console.error("Overview processing failed:", error);
