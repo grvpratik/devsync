@@ -1,5 +1,6 @@
 "use client";
 import { Loader2, Plus, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { PhasesResponse, TaskResponse } from "shared";
 import {
@@ -33,6 +34,7 @@ import { Label } from "www/components/ui/label";
 import { Textarea } from "www/components/ui/textarea";
 import { toast, useToast } from "www/hooks/use-toast";
 import { api, isSuccess } from "www/lib/handler";
+import { cn } from "www/lib/utils";
 
 // Types
 interface Task {
@@ -41,7 +43,6 @@ interface Task {
 	desc: string;
 	phaseId: string;
 }
-
 
 interface TaskCardProps {
 	task: TaskResponse;
@@ -106,7 +107,7 @@ const PhaseCard = ({ phase, onTaskDelete, onTaskCreate }: PhaseCardProps) => {
 			// 	description: "Task created successfully",
 			// });
 		} catch (error) {
-			console.log(error,"TASK CREATION FAILED")
+			console.log(error, "TASK CREATION FAILED");
 			toast({
 				variant: "destructive",
 				title: "Error",
@@ -128,7 +129,7 @@ const PhaseCard = ({ phase, onTaskDelete, onTaskCreate }: PhaseCardProps) => {
 			// 	description: "Task deleted successfully",
 			// });
 		} catch (error) {
-			console.log(error,"TASK DELETE ERROR")
+			console.log(error, "TASK DELETE ERROR");
 			toast({
 				variant: "destructive",
 				title: "Error",
@@ -242,14 +243,16 @@ const PhaseCard = ({ phase, onTaskDelete, onTaskCreate }: PhaseCardProps) => {
 interface TaskManagementProps {
 	projectPhases: PhasesResponse[];
 	id: string;
+	className?: string;
 }
 
 export default function TaskManagement({
 	projectPhases = [],
 	id,
+	className = "",
 }: TaskManagementProps) {
 	const [phases, setPhases] = useState<PhasesResponse[]>(projectPhases);
-
+	const router = useRouter();
 	const handleTaskCreate = useCallback(
 		async (phaseId: string, newTasks: Omit<Task, "id">[]) => {
 			const response = await api.post(
@@ -264,14 +267,14 @@ export default function TaskManagement({
 				});
 				return;
 			}
-
-			setPhases((prevPhases) =>
-				prevPhases.map((phase) =>
-					phase.id === phaseId ?
-						{ ...phase, tasks: [...phase.tasks, ...newTasks] as TaskResponse[] }
-					:	phase
-				)
-			);
+			router.refresh();
+			// setPhases((prevPhases) =>
+			// 	prevPhases.map((phase) =>
+			// 		phase.id === phaseId ?
+			// 			{ ...phase, tasks: [...phase.tasks, ...newTasks] as TaskResponse[] }
+			// 		:	phase
+			// 	)
+			// );
 		},
 		[id]
 	);
@@ -295,20 +298,21 @@ export default function TaskManagement({
 				title: " deleted task",
 				description: "successfully deleted task",
 			});
+			router.refresh();
 			// Update local state
-			setPhases((prevPhases) =>
-				prevPhases.map((phase) => ({
-					...phase,
-					tasks: phase.tasks.filter((task) => !taskIds.includes(task.id)),
-				}))
-			);
+			// setPhases((prevPhases) =>
+			// 	prevPhases.map((phase) => ({
+			// 		...phase,
+			// 		tasks: phase.tasks.filter((task) => !taskIds.includes(task.id)),
+			// 	}))
+			// );
 		},
 		[id]
 	);
 
 	return (
-		<div className="p-2 max-w-7xl mx-auto">
-			<h1 className="text-3xl font-bold mb-6">Project Phases</h1>
+		<div className={cn("p-2 max-w-7xl mx-auto ", className)}>
+			<h1 className="text-2xl font-bold mb-6">Project Phases</h1>
 			<div className="flex flex-wrap gap-4">
 				{phases.map((phase) => (
 					<PhaseCard

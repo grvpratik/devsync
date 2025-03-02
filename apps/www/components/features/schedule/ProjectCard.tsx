@@ -1,20 +1,28 @@
 import { Sparkles } from "lucide-react";
 import { Badge } from "www/components/ui/badge";
-import {
-	Card,
-	CardContent,
-	CardHeader
-} from "www/components/ui/card";
-interface ProjectCardProps{
-	name:string;
-	description:string;
-	tags:string[];
-	category:string;
+import { Card, CardContent, CardHeader } from "www/components/ui/card";
+import { cn } from "www/lib/utils";
+interface ProjectCardProps {
+	name: string;
+	description: string;
+	tags: string[];
+	category: string;
 }
-const ProjectCard = ({metadata}:{metadata:ProjectCardProps}) => {
-	const {name,description,tags,category}=metadata;
+const ProjectCard = ({
+	metadata,
+	className = "",
+}: {
+	metadata: ProjectCardProps;
+	className?: string;
+}) => {
+	const { name, description, tags, category } = metadata;
 	return (
-		<Card className="w-full max-w-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+		<Card
+			className={cn(
+				"w-full max-w-md overflow-hidden hover:shadow-lg transition-shadow duration-300",
+				className
+			)}
+		>
 			<CardHeader className="space-y-1">
 				<div className="flex items-center justify-between">
 					<div className="flex items-center gap-2">
@@ -30,19 +38,18 @@ const ProjectCard = ({metadata}:{metadata:ProjectCardProps}) => {
 				</div>
 			</CardHeader>
 			<CardContent className="space-y-4">
-				<p className="text-gray-600">
-					{description}
-				</p>
+				<p className="text-gray-600">{description}</p>
 				<div className="flex flex-wrap gap-2">
-					{tags && tags.map((tag) => (
-						<Badge
-							key={tag}
-							variant="outline"
-							className="text-xs bg-gray-50 hover:bg-gray-100"
-						>
-							{tag}
-						</Badge>
-					))}
+					{tags &&
+						tags.map((tag) => (
+							<Badge
+								key={tag}
+								variant="outline"
+								className="text-xs bg-gray-50 hover:bg-gray-100"
+							>
+								{tag}
+							</Badge>
+						))}
 				</div>
 			</CardContent>
 		</Card>

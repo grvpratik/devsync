@@ -36,7 +36,7 @@ const SchedulePage = async ({
 			);
 		}
 
-		if (!result.result.phases) {
+		if (!result.result.phases || !!!result.result.phases.length) {
 			return (
 				<main className="flex flex-col justify-center items-center h-screen ">
 					<h1 className="text-2xl font-bold text-gray-800">
@@ -50,7 +50,7 @@ const SchedulePage = async ({
 		}
 
 		return (
-			<main className="mx-4 mb-4 ">
+			<main className="mx-4 mb-4 h-full w-full ">
 				<ScheduleGrid
 					metadata={result.result.metadata}
 					phases={result.result.phases}

@@ -22,6 +22,7 @@ import {
 } from "www/lib/constant";
 
 import { api, isSuccess } from "www/lib/handler";
+import { useAuth } from "www/wrapper/auth-provider";
 
 const AI_MODELS = AI_MODELS_LIST.map((model) => ({
 	...model,
@@ -42,11 +43,12 @@ interface SearchInput {
 
 export default function AiSearch() {
 	const { toast } = useToast();
+	const { authState } = useAuth();
 	const [loading, setLoading] = useState<boolean>(false);
 	const [state, setState] = useState<StateProps>({
 		value: "",
-		selectedProject: PROJECT_TYPE[0].name,
-		selectedModel: AI_MODELS[0].name,
+		selectedProject: PROJECT_TYPE[1].name,
+		selectedModel: AI_MODELS[1].name,
 	});
 
 	const { textareaRef, adjustHeight } = useAutoResizeTextarea({
@@ -61,6 +63,13 @@ export default function AiSearch() {
 		setLoading(true);
 
 		try {
+			if (!authState.user) {
+				return toast({
+					variant: "destructive",
+					title: "Unauthenticated",
+					description: "Login required",
+				});
+			}
 			const input: SearchInput = {
 				value: state.value,
 				project: state.selectedProject,
@@ -164,6 +173,7 @@ export default function AiSearch() {
 								<DropdownMenuContent align="start" className="w-72">
 									{PROJECT_TYPE.map((agent) => (
 										<DropdownMenuItem
+											disabled={agent.disabled}
 											key={agent.name}
 											onClick={() =>
 												updateState({ selectedProject: agent.name })
@@ -201,6 +211,7 @@ export default function AiSearch() {
 								<DropdownMenuContent align="start" className="w-64">
 									{AI_MODELS.map((model) => (
 										<DropdownMenuItem
+										disabled={model.disabled}
 											key={model.name}
 											onClick={() => updateState({ selectedModel: model.name })}
 											className="flex items-center gap-2 py-1.5"

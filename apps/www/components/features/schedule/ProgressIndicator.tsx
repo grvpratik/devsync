@@ -1,6 +1,7 @@
+import { Clock } from "lucide-react";
 import React, { useMemo } from "react";
-import { Card, CardContent, CardHeader } from "www/components/ui/card";
-
+import { Card, CardContent, CardHeader, CardTitle } from "www/components/ui/card";
+import { cn } from "www/lib/utils";
 
 interface ProgressStats {
 	inProgress: number;
@@ -9,19 +10,18 @@ interface ProgressStats {
 }
 
 interface ProgressIndicatorProps {
-    title:string;
+	title: string;
 	stats: ProgressStats;
 	className?: string;
 	showLabels?: boolean;
 }
 
 const ProgressIndicator = ({
-    title,
+	title,
 	stats,
-	className = "",
+	className,
 	showLabels = true,
 }: ProgressIndicatorProps) => {
-	
 	const total = useMemo(
 		() => stats.inProgress + stats.completed + stats.upcoming,
 		[stats]
@@ -38,27 +38,30 @@ const ProgressIndicator = ({
 		return null;
 	}
 
-	
 	const getSegmentWidth = (value: number) => {
 		if (total === 0) return 0;
 		return `${(value / total) * 100}%`;
 	};
 
 	return (
-		<Card className={`w-full max-w-sm ${className}`}>
-           
-                <CardHeader className="p-4">{title}</CardHeader>
-          
-			<CardContent className="pt-6">
+		<Card className={cn("w-full max-w-sm", className)}>
+			<CardHeader className="pb-2">
+				<CardTitle className="flex items-center gap-2 text-2xl font-bold">
+					<Clock className="h-5 w-5" /> {title}
+				</CardTitle>
+			</CardHeader>
+
+			<CardContent className="pt-4">
 				<div className="space-y-6">
-					{/* Header with percentage */}
 					<div className="flex items-baseline space-x-2">
 						<span className="text-4xl font-bold">{completionPercentage}%</span>
-						<span className="text-sm text-gray-500">Total activity</span>
+						<span className="text-sm text-muted-foreground">
+							Total activity
+						</span>
 					</div>
 
 					{/* Progress bar */}
-					<div className="h-2 w-full flex rounded-full overflow-hidden">
+					<div className="flex h-2 w-full overflow-hidden rounded-full bg-secondary">
 						<div
 							className="bg-purple-500"
 							style={{ width: getSegmentWidth(stats.inProgress) }}
@@ -123,11 +126,14 @@ const StatusIndicator = React.memo(
 		return (
 			<div className="flex flex-col items-center space-y-2">
 				<div
-					className={`w-8 h-8 rounded-full ${colorClasses[color]} flex items-center justify-center text-white font-medium`}
+					className={cn(
+						"flex h-8 w-8 items-center justify-center rounded-full font-medium text-white",
+						colorClasses[color]
+					)}
 				>
 					{count}
 				</div>
-				<span className="text-sm text-gray-600">{label}</span>
+				<span className="text-sm text-muted-foreground">{label}</span>
 			</div>
 		);
 	}

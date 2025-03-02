@@ -311,7 +311,7 @@ export const userRoutes = {
 			maxAge: 7 * 24 * 60 * 60,
 		});
 
-		return c.redirect("http://localhost:3000/auth/callback", 301);
+		return c.redirect(c.env.GOOGLE_REDIRECT_URI, 301);
 	},
 	// Logout from specific device
 	logoutSession: async (c: Context) => {

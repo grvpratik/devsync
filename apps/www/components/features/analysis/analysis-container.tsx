@@ -1,11 +1,6 @@
 "use client";
 
-import {
-	Calendar,
-	Feather,
-	LucideIcon,
-	Store
-} from "lucide-react";
+import { Calendar, Feather, LucideIcon, Store } from "lucide-react";
 import React from "react";
 
 import {
@@ -75,7 +70,6 @@ const Analysis: React.FC<AnalysisProps> = ({ res, id }) => {
 	const [activeTab, setActiveTab] = React.useState<AnalysisTabs>(
 		AnalysisTabs.Overview
 	);
-	console.log(res.result?.metadata, "metadata");
 
 	const tabs = React.useMemo(() => {
 		return ANALYSIS_TABS.map((tab) => ({
@@ -83,7 +77,7 @@ const Analysis: React.FC<AnalysisProps> = ({ res, id }) => {
 			content: getTabContent(tab.value, res.result),
 		}));
 	}, [res.result]);
-
+	console.log(res.result.phases);
 	return (
 		<div className="flex flex-col w-full h-full overflow-hidden relative">
 			<main className="flex-1 flex flex-col">
@@ -99,25 +93,26 @@ const Analysis: React.FC<AnalysisProps> = ({ res, id }) => {
 
 					{renderTabContents(tabs)}
 				</Tabs>
-
-				<div className="fixed bottom-4 left-0 right-0 flex justify-center">
-					<Dialog>
-						<DialogTrigger asChild>
-							<Button className="px-8 py-2 rounded-full shadow-md">
-								Schedule
-							</Button>
-						</DialogTrigger>
-						<DialogContent className="max-w-md">
-							<DialogHeader>
-								<DialogTitle>Create Schedule</DialogTitle>
-								<DialogDescription>
-									Set up dates for your project phases
-								</DialogDescription>
-							</DialogHeader>
-							<MultiDateRangeSelector id={id} />
-						</DialogContent>
-					</Dialog>
-				</div>
+				{res.result.phases && !!res.result.phases.length ? null : (
+					<div className="fixed bottom-4 left-0 right-0 flex justify-center">
+						<Dialog>
+							<DialogTrigger asChild>
+								<Button className="px-8 py-2 rounded-full shadow-md">
+									Schedule
+								</Button>
+							</DialogTrigger>
+							<DialogContent className="max-w-md">
+								<DialogHeader>
+									<DialogTitle>Create Schedule</DialogTitle>
+									<DialogDescription>
+										Set up dates for your project phases
+									</DialogDescription>
+								</DialogHeader>
+								<MultiDateRangeSelector id={id} />
+							</DialogContent>
+						</Dialog>
+					</div>
+				)}
 			</main>
 		</div>
 	);
@@ -141,10 +136,7 @@ function getTabContent(
 				/>
 			);
 		case AnalysisTabs.Features:
-			return <FeatureList
-			 mvp={mvp}
-			 features={featuresList} 
-			 id={data.id} />;
+			return <FeatureList mvp={mvp} features={featuresList} id={data.id} />;
 		case AnalysisTabs.Market:
 			return <MarketAnalysis marketData={data.market} id={data.id} />;
 		default:
