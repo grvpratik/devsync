@@ -267,14 +267,15 @@ export default function TaskManagement({
 				});
 				return;
 			}
+
+			setPhases((prevPhases) =>
+				prevPhases.map((phase) =>
+					phase.id === phaseId ?
+						{ ...phase, tasks: [...phase.tasks, ...newTasks] as TaskResponse[] }
+					:	phase
+				)
+			);
 			router.refresh();
-			// setPhases((prevPhases) =>
-			// 	prevPhases.map((phase) =>
-			// 		phase.id === phaseId ?
-			// 			{ ...phase, tasks: [...phase.tasks, ...newTasks] as TaskResponse[] }
-			// 		:	phase
-			// 	)
-			// );
 		},
 		[id]
 	);

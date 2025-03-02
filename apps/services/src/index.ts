@@ -20,10 +20,10 @@ app.options(
 // app.use("*",cors())
 app.use("*", async (c, next) => {
 	await cors({
-		// Specify exact origin instead of wildcard
+		
 		origin:
 			c.env.CF_ENV === "production" ?
-				"https://your-production-domain.com" // Replace with your production domain
+				"https://your-production-domain.com" 
 			:	"http://localhost:3000",
 
 		// Enable credentials
