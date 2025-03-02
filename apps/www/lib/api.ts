@@ -70,7 +70,8 @@ export const AuthApiService = {
 	// Session Management
 	serverCheck: async (): Promise<boolean> => {
 		try {
-			const response = await instance.get("");
+			const response = await instance.get("/");
+			console.log(response,"server check")
 			return response.status === 200;
 		} catch (error) {
 			console.error("Server check failed:", error);

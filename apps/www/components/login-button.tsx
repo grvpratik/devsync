@@ -24,6 +24,7 @@ const LoginButton = () => {
 		try {
 			setIsChecking(true);
 			const ok = await AuthApiService.serverCheck();
+			console.log(process.env.NEXT_PUBLIC_API_URL,"backend");
 			if (ok) {
 				setIsOpen(false); // Close modal on successful login
 				return login();
