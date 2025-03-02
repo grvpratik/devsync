@@ -1,4 +1,4 @@
-export const NEXT_PUBLIC_API = process.env.NEXT_PUBLIC_API;
+export const NEXT_PUBLIC_API = process.env.NEXT_PUBLIC_API_URL;
 
 export const MIN_HEIGHT = 48;
 export const MAX_HEIGHT = 164;

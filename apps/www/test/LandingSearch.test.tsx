@@ -85,7 +85,7 @@ describe("AiSearch", () => {
 		await userEvent.click(submitButton);
 
 		expect(axios.post).toHaveBeenCalledWith(
-			`${process.env.NEXT_PUBLIC_API}/search`,
+			`${process.env.NEXT_PUBLIC_API_URL}/search`,
 			{
 				value: "Test input",
 				agent: "Personal Project",

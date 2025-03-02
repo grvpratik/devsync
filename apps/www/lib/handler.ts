@@ -201,7 +201,7 @@ import axios from "axios";
 
 
 const instance = axios.create({
-	baseURL: process.env.NEXT_PUBLIC_API || "http://localhost:8787",
+	baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787",
 	timeout: 30000,
 	headers: {
 		"Content-Type": "application/json",

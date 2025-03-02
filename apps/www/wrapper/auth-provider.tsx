@@ -67,7 +67,7 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
 		setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
 		const response = await api.post<any>(`/user/auth/data`);
 		if (isSuccess(response)) {
-	console.log(response,"AUTHCONTEXT")	
+			console.log(response, "AUTHCONTEXT");
 			setAuthState({
 				isLoading: false,
 				isInitialized: true,
@@ -75,7 +75,7 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
 				user: response.result.user,
 			});
 		} else {
-				console.log(response, "AUTHCONTEXTERROR");	
+			console.log(response, "AUTHCONTEXTERROR");
 			setAuthState((prev) => ({
 				...prev,
 				isLoading: false,
@@ -85,7 +85,6 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
 			}));
 		}
 	};
-
 
 	useEffect(() => {
 		if (!initialUser) {
@@ -101,8 +100,8 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
 	const login = async () => {
 		try {
 			// Store current path for redirect after login
-			const currentPath = window.location.pathname;
-			sessionStorage.setItem("authRedirect", currentPath);
+			// const currentPath = window.location.pathname;
+			// sessionStorage.setItem("authRedirect", currentPath);
 
 			// Redirect to Google login
 			window.location.href = getGoogleUrl();
