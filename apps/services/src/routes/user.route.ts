@@ -29,7 +29,7 @@ user.use(
 			const userId = await c.env.SESSION_STORE.get(sessionId);
 			console.log("userid", userId);
 			if (userId) {
-				return c.redirect("http://localhost:3000/");
+				return c.redirect(c.env.FRONTEND_URL);
 			}
 			deleteCookie(c, "session_id");
 		}
