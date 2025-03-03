@@ -1,11 +1,10 @@
-
-
 import { Hono, Next } from "hono";
 
 import { googleAuth } from "@hono/oauth-providers/google";
 import { Context } from "hono";
 import { verify } from "hono/jwt";
-import {  getUserProfile, userRoutes } from "../middleware/auth";
+import { getUserProfile, userRoutes } from "../middleware/auth";
+import { deleteCookie, getCookie } from "hono/cookie";
 
 // Constants for session management
 
@@ -14,17 +13,13 @@ export const user = new Hono();
 user.use(
 	"/auth/callback",
 	async (c: Context, next) => {
-		// Check if user is already authenticated
-		const authHeader = c.req.header("Authorization");
-		if (authHeader && authHeader.startsWith("Bearer ")) {
-			try {
-				const token = authHeader.split(" ")[1];
-				const payload = await verify(token, c.env.JWT_SECRET);
-				if (payload) {
-					return c.redirect(c.env.FRONTEND_URL);
-				}
-			} catch (error) {
-				// Token invalid, continue to auth flow
+		const token = getCookie(c, "session_id");
+		if (token) {
+			const payload = await verify(token, c.env.JWT_SECRET);
+			if (payload) {
+				return c.redirect(c.env.FRONTEND_URL);
+			}else{
+				deleteCookie(c,"session_id")
 			}
 		}
 		await next();

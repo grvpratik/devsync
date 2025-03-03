@@ -35,6 +35,7 @@ app.use("*", async (c, next) => {
 			"X-Requested-With",
 			"Accept",
 			"Origin",
+			"Access-Control-Allow-Credentials",
 		],
 
 		exposeHeaders: ["Content-Length", "X-Requested-With"],

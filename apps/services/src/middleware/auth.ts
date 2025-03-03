@@ -14,7 +14,6 @@ interface User {
 
 // JWT token expiration time (7 days in seconds)
 const TOKEN_EXPIRATION = 7 * 24 * 60 * 60;
-const TOKEN_REFRESH_THRESHOLD = 24 * 60 * 60; // 24 hours in seconds
 
 export const checkAuth = async (c: Context, next: Next) => {
 	const token = getCookie(c, "session_id");
@@ -132,7 +131,7 @@ export const userRoutes = {
 			const token = await sign(payload, c.env.JWT_SECRET);
 
 			return c.redirect(
-				`http://localhost:3000/auth/callback?token=${token}`,
+				`${c.env.FORNTEND_URL!}/auth/callback?token=${token}`,
 				301
 			);
 		} catch (error) {
