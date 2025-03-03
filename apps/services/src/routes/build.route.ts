@@ -1,10 +1,11 @@
 import { Hono } from "hono";
-import { checkSession } from "../middleware/auth";
+
 import { BuildController } from "../controller/build.contoller";
+import { checkAuth } from "../middleware/auth";
 
 export const buildRoute = new Hono();
 
-buildRoute.use("*", checkSession);
+buildRoute.use("*", checkAuth);
 
 buildRoute.post("/search", BuildController.getSearch);
 

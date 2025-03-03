@@ -1,42 +1,36 @@
+
+
 import { Hono, Next } from "hono";
 
-import { Context } from "hono";
-import { Prisma, PrismaClient } from "@prisma/client";
-import { setCookie, getCookie, deleteCookie } from "hono/cookie";
-import { PrismaD1 } from "@prisma/adapter-d1";
 import { googleAuth } from "@hono/oauth-providers/google";
-import { checkSession, getUserProfile, userRoutes } from "../middleware/auth";
+import { Context } from "hono";
+import { verify } from "hono/jwt";
+import {  getUserProfile, userRoutes } from "../middleware/auth";
 
 // Constants for session management
 
-
-
 export const user = new Hono();
-
-
-
-
-
-
 
 user.use(
 	"/auth/callback",
 	async (c: Context, next) => {
-		const sessionId = getCookie(c, "session_id");
-		console.log("STEP 1 ->");
-		console.log("session callback", sessionId);
-		if (sessionId) {
-			const userId = await c.env.SESSION_STORE.get(sessionId);
-			console.log("userid", userId);
-			if (userId) {
-				return c.redirect(c.env.FRONTEND_URL);
+		// Check if user is already authenticated
+		const authHeader = c.req.header("Authorization");
+		if (authHeader && authHeader.startsWith("Bearer ")) {
+			try {
+				const token = authHeader.split(" ")[1];
+				const payload = await verify(token, c.env.JWT_SECRET);
+				if (payload) {
+					return c.redirect(c.env.FRONTEND_URL);
+				}
+			} catch (error) {
+				// Token invalid, continue to auth flow
 			}
-			deleteCookie(c, "session_id");
 		}
 		await next();
 	},
 	async (c: Context, next: Next) => {
-		console.log("GOOGLE AUTH");
+		console.log("Starting Google Auth flow");
 		return await googleAuth({
 			client_id: c.env.GOOGLE_CLIENT_ID,
 			client_secret: c.env.GOOGLE_CLIENT_SECRET,
@@ -50,7 +44,3 @@ user.get("/auth/validate", userRoutes.validateSession);
 user.get("/auth/callback", userRoutes.handleInitialCallback);
 //for context for frontent to get profile to show ui and hook
 user.post("/auth/data", getUserProfile, userRoutes.getUserData);
-//
-user.get("/auth/sessions", checkSession, userRoutes.getSessions);
-user.post("/auth/logout/session", checkSession, userRoutes.logoutSession);
-user.post("/auth/logout/all", checkSession, userRoutes.logoutAll);

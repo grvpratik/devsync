@@ -6,7 +6,9 @@ import { prettyJSON } from "hono/pretty-json";
 
 import { base } from "./routes/base.route";
 import { errorHandler } from "./middleware/error";
-const app = new Hono<{ Bindings: CloudflareBindings }>();
+import type { JwtVariables } from "hono/jwt";
+type Variables = JwtVariables;
+const app = new Hono<{ Bindings: CloudflareBindings; Variables: Variables }>();
 
 app.use("*", logger());
 app.use("*", prettyJSON());
@@ -25,10 +27,8 @@ app.use("*", async (c, next) => {
 				"https://devsync-gamma.vercel.app"
 			:	"http://localhost:3000",
 
-		// Enable credentials
 		credentials: true,
 
-		// Allow necessary headers
 		allowHeaders: [
 			"Content-Type",
 			"Authorization",
@@ -37,13 +37,8 @@ app.use("*", async (c, next) => {
 			"Origin",
 		],
 
-		// Expose headers if needed
 		exposeHeaders: ["Content-Length", "X-Requested-With"],
 
-		// Cache preflight requests
-		maxAge: 600,
-
-		// Allow specific methods
 		allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 	})(c, next);
 });
