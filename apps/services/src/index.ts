@@ -25,19 +25,17 @@ app.options(
 			"Origin",
 			"Access-Control-Allow-Credentials",
 		],
-
 		exposeHeaders: ["Content-Length", "X-Requested-With"],
-
 		allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 	})
 );
 // app.use("*",cors())
-app.use("*", async (c, next) => {
+app.use( async (c, next) => {
 	await cors({
 		origin:
 			c.env.CF_ENV === "production" ?
 				"https://devsync-gamma.vercel.app"
-			:	"http://localhost:3000",
+			:	["http://localhost:3000", "https://devsync-gamma.vercel.app"],
 
 		credentials: true,
 
@@ -47,7 +45,7 @@ app.use("*", async (c, next) => {
 			"X-Requested-With",
 			"Accept",
 			"Origin",
-			"Access-Control-Allow-Credentials",
+			
 		],
 
 		exposeHeaders: ["Content-Length", "X-Requested-With"],
