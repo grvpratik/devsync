@@ -17,6 +17,18 @@ app.options(
 	cors({
 		origin: ["http://localhost:3000", "https://devsync-gamma.vercel.app"],
 		credentials: true,
+		allowHeaders: [
+			"Content-Type",
+			"Authorization",
+			"X-Requested-With",
+			"Accept",
+			"Origin",
+			"Access-Control-Allow-Credentials",
+		],
+
+		exposeHeaders: ["Content-Length", "X-Requested-With"],
+
+		allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 	})
 );
 // app.use("*",cors())
