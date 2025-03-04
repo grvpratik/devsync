@@ -13,7 +13,7 @@ const app = new Hono<{ Bindings: CloudflareBindings; Variables: Variables }>();
 app.use("*", logger());
 app.use("*", prettyJSON());
 app.options(
-	"*",
+	
 	cors({
 		origin: ["http://localhost:3000", "https://devsync-gamma.vercel.app"],
 		credentials: true,
@@ -30,7 +30,7 @@ app.options(
 	})
 );
 // app.use("*",cors())
-app.use( async (c, next) => {
+app.use(async (c, next) => {
 	await cors({
 		origin:
 			c.env.CF_ENV === "production" ?
@@ -38,18 +38,14 @@ app.use( async (c, next) => {
 			:	["http://localhost:3000", "https://devsync-gamma.vercel.app"],
 
 		credentials: true,
-
 		allowHeaders: [
 			"Content-Type",
 			"Authorization",
 			"X-Requested-With",
 			"Accept",
 			"Origin",
-			
 		],
-
 		exposeHeaders: ["Content-Length", "X-Requested-With"],
-
 		allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 	})(c, next);
 });

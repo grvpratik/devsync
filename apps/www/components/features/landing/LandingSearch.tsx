@@ -75,7 +75,7 @@ export default function AiSearch() {
 				project: state.selectedProject,
 				model: state.selectedModel,
 			};
-			const response = await api.post("/build/search", input);
+			const response = await api.post("/build/search", input,);
 
 			if (isSuccess(response)) {
 				console.log("response", response);
