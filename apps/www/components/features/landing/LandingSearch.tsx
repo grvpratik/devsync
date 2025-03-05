@@ -75,9 +75,16 @@ export default function AiSearch() {
 				project: state.selectedProject,
 				model: state.selectedModel,
 			};
-			const response = await api.post("/build/search", input,);
+			const response = await api.post("/build/search", input);
 
-			if (isSuccess(response)) {
+			await fetch("https://vercel-api-chi-five.vercel.app", {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				credentials: "include",
+			});
+			 if (isSuccess(response)) {
 				console.log("response", response);
 
 				toast({
@@ -211,7 +218,7 @@ export default function AiSearch() {
 								<DropdownMenuContent align="start" className="w-64">
 									{AI_MODELS.map((model) => (
 										<DropdownMenuItem
-										disabled={model.disabled}
+											disabled={model.disabled}
 											key={model.name}
 											onClick={() => updateState({ selectedModel: model.name })}
 											className="flex items-center gap-2 py-1.5"
