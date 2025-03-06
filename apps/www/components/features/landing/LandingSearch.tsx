@@ -76,13 +76,14 @@ export default function AiSearch() {
 				model: state.selectedModel,
 			};
 			const response = await api.post("/build/search", input);
-
+//test cookie
 			await fetch("https://vercel-api-chi-five.vercel.app", {
-				method: "GET",
+				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
 				},
 				credentials: "include",
+				
 			});
 			 if (isSuccess(response)) {
 				console.log("response", response);
